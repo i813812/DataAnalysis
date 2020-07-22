@@ -69,7 +69,7 @@ cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offl
 curl -O https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js;
 cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/xlsx.full.min.js &gt;&gt;./Data.Analysis.offline.HTML;
 cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
-curl -O https://github.com/Stuk/jszip/blob/master/dist/jszip.min.js
+curl -O https://raw.githubusercontent.com/Stuk/jszip/master/dist/jszip.min.js;
 cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/xlsx.full.min.js &gt;&gt;./Data.Analysis.offline.HTML;
 cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.FOOTER.TXT &gt;&gt;./Data.Analysis.offline.HTML;</string>
 					<key>CheckedForUserDefaultShell</key>
@@ -181,12 +181,10 @@ cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offl
 						<string>4</string>
 					</dict>
 				</dict>
-				<key>conversionLabel</key>
-				<integer>0</integer>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>587.000000:547.000000</string>
+				<string>587.000000:646.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
