@@ -1,0 +1,54 @@
+<!-- SAP JAM latest version -->
+<script async defer TYPE="application/javascript" src="https://jam4.sapjam.com/profile/5kHYdCdo3tf30SgJN1l5S4/documents/k4MktZag1CCJhwmC5L2HSm/download"></script>
+ 
+</head>
+<style>
+      table { border-collapse: collapse;  }
+      table, td, th { border: 1px solid lightgray; padding: 2px; text-align: left; }
+      html { overflow:hidden; box-sizing: border-box;display:block; border: solid gray; margin: 0; padding: 0; width:100%; height:100%; min-height:100%; border-spacing:0; border-collapse:collapse; }
+	  body { margin: 0; padding: 0; font-family:VERDANA; color:#222222; width:100%; margin-left:0.5vw; height:100%; min-height:100%; -webkit-font-smoothing:antialiased; }
+</style>
+<body onresize="ResizeScreen()">
+	<div id="IDparameter" onmouseover="big();"> <pre id="IDload" style="display: inline;">Select Data: <button id="btf" style="width:10em; display:none" title="press Alt to select folders" onclick="document.getElementById('files').click();">  Select Folders  </button><input type="file" title="press Alt to select folders" accept='.xls, .dat, .dac, .txt, .csv, .mhtml, ., .xlsx, .nmon, .dzip' id="files" multiple onchange="processFiles()" /></pre> </div>
+	<pre id="IDinfo" style="display: inline;"></pre>
+	<pre id="IDoutput" style="width:99vw;"></pre>
+	<pre id="IDpreview" style="overflow:scroll;"> </pre>
+	<pre id="IDdata"></pre>
+	<div onmouseover="small();">
+	<table id="IDgraphic" style="padding: 0; margin: 0; border-collapse:collapse; display:none;">
+	<tr>
+		<td style="padding: 0px"><div id="IDL" style="width:0px; display: inline-block;"> </div></td>
+		<td style="padding: 0px"><div id="IDhstbox"><div id="IDhst" style="display: inline-block;"></div></div></td>
+		<td style="padding: 3px"><div id="IDCbox"style="width:5px; height: 100px; display: flex; justify-content: center; align-items: center;"><div class="GR" id="IDC" style="margin: 0; border-right: 2px solid gray; border-left: 2px solid gray; height:50px; display: inline-block;"></div></div></td>  
+		<td style="padding: 0px"><div id="IDgrpbox"><div id="IDgrp" style="display: inline-block;"></div></div></td>
+		<td style="padding: 0px"><div id="IDR" style="width:0px; display: inline-block;"> </div></td>
+	</tr>
+	</table>
+	</div>
+	<br><br>
+	<pre id="IDdetail"> </pre>
+	<pre id="ID(C)")><small><br><br> +++ Data.Analysis.HTML is based on open-source JavaScript charting library plotly.js v1.54.1 <a href="https://plot.ly/javascript" target="_blank">https://plot.ly/javascript/</a> - <b>(C)opyright 2012-2019, Plotly, Inc.</b>  Licensed under the MIT license (<a href="https://github.com/plotly/plotly.js" target="_blank">view the source on GitHub.</a>) +++  </small></pre>
+
+<script>
+// Color
+document.body.style.backgroundColor = parhst[ppt].bgcolor;
+// SAP Logo
+document.getElementById('IDload').innerHTML = "" + SAPlogo(100,50) + " " + document.getElementById('IDload').innerHTML + "<small><font style='color:teal'> Column Separator: <input id='IDsep' oninput='getsep()' onchange='getsep()' type='text' maxlength='1' size='1' name='colsep' value='" + colsep +"'> (enter <b>S</B> for space; build in:<B> \|;,tab/ </B>)</font></small>";
+if ( decpnt == '.') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1,023,045<font style='color:red;font-size:16px;'><b>.</b></font>06</span></small>";
+if ( decpnt == ',') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1.023.045<font style='color:red;font-size:16px;'><b>,</b></font>06</span></small>";
+document.getElementById('IDload').innerHTML += "  <small><font style='color:steelblue'><span onclick='selchk(event)'><i><b>check to preview data</b></i> </span><input id='IDcheckpreview' type='checkbox' style='width:12px; height:12px; margin:0px;'></font></small>";
+// Buttons
+document.getElementById('IDoutput').innerHTML += "<br><br><button id='IDbutupd' onclick='update()'>Update</button>";
+// Text Area
+document.getElementById('IDdata').innerHTML += "<small>Copy any column separated data to the clipboard, then paste into the text area and press <i><b>Update</b></i> button or upload files with the <i><b>Choose Files</b></i> button<br></small><br>"
+document.getElementById('IDdata').innerHTML += "<textarea id='IDtextarea' rows='30' cols='200' wrap='off' style='width:90vw; white-space:pre; overflow:scroll; overflow-x:scroll; overflow: -moz-scrollbars-horizontal; tabSize:30; font-family:Courier; font-size:10px; color:#000044' onkeydown='tabkey(event)' ></textarea><br>";
+document.getElementById('IDdata').innerHTML += "<small><i>Shift-Tab is adding tab character within text box.</i></small><br><br>";
+document.title = 'Data Analysis: select data source';
+// Version
+document.getElementById('IDdetail').innerHTML += "<small>Data.Analysis.offline.HTML Vers. " + prgvers + "  -  <button onclick='check4update()'>Check for Update / Documentation </button>  -  need help? please contact <a href='mailto:c.weyd@sap.com?subject=Data.Analysis.HTML'>c.weyd@sap.com</a></small>";
+document.addEventListener("keydown", evtKeyDown, false);
+document.addEventListener("keyup", evtKeyUp, false);
+</script>
+
+</body>
+</html>
