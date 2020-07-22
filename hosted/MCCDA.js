@@ -3,7 +3,7 @@
 /*jshint esversion: 6 */
 /*jslint bitwise: true */
 
-// (C)hristoph Weyd - c.weyd@sap.com / christoph.weyd@gmail.com
+// (C)hristoph Weyd - c.weyd@sap.com
 // 
 // https://jam4.sapjam.com/groups/ptqhagz5ePB2nGoqApUgbB/documents/Tml4yXpWTD3ssgyGVJP7FL 
 //

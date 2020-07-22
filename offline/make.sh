@@ -1,0 +1,12 @@
+cat ./DA.BEGIN.TXT >./Data.Analysis.offline.HTML;
+cat ../hosted/MCCDA.js >>./Data.Analysis.offline.HTML;
+cat ./DA.SCRIPT.TXT >>./Data.Analysis.offline.HTML;
+curl -O https://cdn.plot.ly/plotly-latest.min.js;
+cat ./plotly-latest.min.js >>./Data.Analysis.offline.HTML;
+cat ./offline/DA.SCRIPT.TXT >>./Data.Analysis.offline.HTML;
+curl -O https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js;
+cat ./offline/xlsx.full.min.js >>./Data.Analysis.offline.HTML;
+cat ./offline/DA.SCRIPT.TXT >>./Data.Analysis.offline.HTML;
+curl -O https://github.com/Stuk/jszip/blob/master/dist/jszip.min.js
+cat ./offline/xlsx.full.min.js >>./Data.Analysis.offline.HTML;
+cat ./offline/DA.FOOTER.TXT >>./Data.Analysis.offline.HTML;
