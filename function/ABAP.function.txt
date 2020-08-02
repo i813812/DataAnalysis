@@ -1,0 +1,161 @@
+FUNCTION zdtan.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*"  IMPORTING
+*"     REFERENCE(FOLDER)
+*"  TABLES
+*"      DTAB
+*"----------------------------------------------------------------------
+
+  FIELD-SYMBOLS: <f>, <t>.
+
+  CLASS cl_abap_char_utilities DEFINITION LOAD.
+  CONSTANTS: c_tab TYPE abap_char1 VALUE cl_abap_char_utilities=>horizontal_tab.
+  CONSTANTS: cr_lf TYPE abap_cr_lf VALUE cl_abap_char_utilities=>cr_lf.
+
+  DATA: dstr TYPE string.
+  DATA: htmlsource  TYPE TABLE OF string.
+  DATA: url         TYPE string.
+  DATA: starthtml   TYPE i VALUE 0.
+  DATA: filename    TYPE string.
+
+  LOOP AT dtab ASSIGNING <t>.
+    dstr = dstr && 'tmp += "'.
+    DO.
+      ASSIGN COMPONENT sy-index OF STRUCTURE <t> TO <f>.
+      IF sy-subrc <> 0. EXIT. ENDIF.
+      dstr = dstr && <f> && c_tab.
+    ENDDO.
+    dstr = dstr && '\n";' && cr_lf.
+  ENDLOOP.
+
+*& load report source and extract HTML code
+  READ REPORT sy-repid INTO htmlsource.
+  LOOP AT htmlsource ASSIGNING <f>.
+    IF starthtml = 0.
+      IF <f> = '*#HTML#'. starthtml = 1. ENDIF.             "#EC NOTEXT
+      DELETE htmlsource.
+    ELSE.
+      SHIFT <f> BY 1 PLACES LEFT IN CHARACTER MODE.
+    ENDIF.
+  ENDLOOP.
+
+  LOOP AT htmlsource ASSIGNING <f>.
+    IF <f> CS '+++ DATA +++'.
+      <f> = dstr.
+    ENDIF.
+  ENDLOOP.
+
+  CONCATENATE folder '/DA.HTML' INTO filename.
+
+  CALL FUNCTION 'GUI_DOWNLOAD'
+    EXPORTING
+      filename = filename
+      codepage = '4110'                             "#EC NOTEXT " UTF-8
+    TABLES
+      data_tab = htmlsource
+    EXCEPTIONS
+      OTHERS   = 1.
+
+  CONCATENATE 'file:///'  folder  '/DA.HTML' INTO url.
+  TRANSLATE url USING '\/'.
+  IF url CA ' '.
+    DO.
+      REPLACE ` ` IN url WITH '%20'.                        "#EC NOTEXT
+      IF NOT url CA ' '. EXIT. ENDIF.
+    ENDDO.
+  ENDIF.
+
+*& call browser and open analysis tool
+  CALL METHOD cl_gui_frontend_services=>execute
+    EXPORTING
+      document  = url
+      operation = ' '
+    EXCEPTIONS
+      OTHERS    = 1.
+
+ENDFUNCTION.
+
+
+*#HTML#
+*<!DOCTYPE html>
+*<html lang="en">
+*  <head>
+*      <meta charset="utf-8">
+*      <meta http-equiv="Cache-Control"  content="max-age=604800, public">
+*      <title>Analyze Data Files</title>
+*
+*<!-- Main Script -->
+*<script TYPE="application/javascript" src="https://jam4.sapjam.com/profile/5kHYdCdo3tf30SgJN1l5S4/documents/ydmnCb6OFxfMun5NA83DD4/download"></script>
+*
+*<!-- External Scripts START -->
+*<script async defer TYPE="application/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js"></script>
+*<script async defer TYPE="application/javascript" src="https://cdn.plot.ly/plotly-latest.min.js" charset="utf-8"></script>
+*<script async defer TYPE="application/javascript" src="https://jam4.sapjam.com/profile/5kHYdCdo3tf30SgJN1l5S4/documents/cWidXWgfuFUNLKdTPnqQ0T/download"></script>
+*<!-- External Scripts END -->
+*
+*<!-- SAP JAM latest version -->
+*<script async defer TYPE="application/javascript" src="https://jam4.sapjam.com/profile/5kHYdCdo3tf30SgJN1l5S4/documents/k4MktZag1CCJhwmC5L2HSm/download"></script>
+*
+*</head>
+*<style>
+*      table { border-collapse: collapse;  }
+*      table, td, th { border: 1px solid lightgray; padding: 2px; text-align: left; }
+*      html { overflow:hidden; box-sizing: border-box;display:block; border: solid gray; margin: 0; padding: 0; width:100%; height:100%; min-height:100%; border-spacing:0; border-collapse:collapse; }
+*	  body { margin: 0; padding: 0; font-family:VERDANA; color:#222222; width:100%; margin-left:0.5vw; height:100%; min-height:100%; -webkit-font-smoothing:antialiased; }
+*</style>
+*<body onresize="ResizeScreen()">
+*	<div id="IDparameter" onmouseover="big();"> <pre id="IDload" style="display: inline;"></pre> </div>
+*	<pre id="IDinfo" style="display: inline;"></pre>
+*	<pre id="IDoutput" style="width:99vw;"></pre>
+*	<pre id="IDpreview" style="overflow:scroll;"> </pre>
+*	<pre id="IDdata"></pre>
+*	<div onmouseover="small();">
+*	<table id="IDgraphic" style="padding: 0; margin: 0; border-collapse:collapse; display:none;">
+*	<tr>
+*   <td style="padding: 0px"><div id="IDL" style="width:0px; display: inline-block;"> </div></td>
+*   <td style="padding: 0px"><div id="IDhstbox"><div id="IDhst" style="display: inline-block;"></div></div></td>
+*   <td style="padding: 3px"><div id="IDCbox"style="width:5px; height: 100px; display: flex; justify-content: center; align-items: center;">
+*       <div class="GR" id="IDC" style="margin: 0; border-right: 2px solid gray; border-left: 2px solid gray; height:50px; display: inline-block;"></div></div></td>
+*   <td style="padding: 0px"><div id="IDgrpbox"><div id="IDgrp" style="display: inline-block;"></div></div></td>
+*   <td style="padding: 0px"><div id="IDR" style="width:0px; display: inline-block;"> </div></td>
+*	</tr>
+*	</table>
+*	</div>
+*	<br><br>
+*	<pre id="IDdetail"> </pre>
+*	<pre id="ID(C)")></pre>
+*
+*<script>
+*// Color
+*document.body.style.backgroundColor = parhst[ppt].bgcolor;
+*// Buttons
+*document.getElementById('IDoutput').innerHTML += "<br><br><button id='IDbutupd' onclick='update()'>Update</button>";
+*// Text Area
+*document.getElementById('IDdata').innerHTML += "<small>Copy any column separated data to the clipboard, then paste into the text area and press <i><b>Update</b></i> button <br></small><br>"
+*document.getElementById('IDdata').innerHTML += "<textarea id='IDtextarea' rows='10' cols='100'></textarea><br>";
+*document.title = 'Data Analysis: select data source';
+*// Version
+*document.addEventListener("keydown", evtKeyDown, false);
+*document.addEventListener("keyup", evtKeyUp, false);
+*</script>
+*
+*
+*<script>
+*infile = [];
+*var tmp = '';
+* +++ DATA +++
+*debugger;
+*infile[0] = {
+*	content: tmp,
+*	fname: ''
+*};
+*process();
+*
+*</script>
+*
+*
+*
+*
+*</body>
+*</html>

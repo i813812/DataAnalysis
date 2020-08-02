@@ -1,0 +1,87 @@
+<html>
+	<head>
+		<!-- http://stackoverflow.com/a/6454685/2032154 -->
+		<script id="worker" type="javascript/worker">
+			// https://gist.github.com/jfairbank/8d36e4bde9c16dc0bac7
+			function fibonacci(n) {
+				if (n < 2) {
+					return 1;
+				}else {
+					return fibonacci(n - 2) + fibonacci(n - 1);
+				}
+			}
+			onmessage = (e) => {
+				const num = e.data;
+				var tot1 = performance.now();
+			    console.log(num + ' - S:' + tot1);
+				const result = fibonacci(num);
+			    var tot1 = performance.now();
+			    console.log(num + ' - E:' + tot1);
+				postMessage(result);
+			};
+
+		</script>
+		<script>
+		    // https://medium.com/serverlessguru/executing-code-in-parallel-javascript-a93740190c86
+			const calculateFibonacci = (num) => {
+				return new Promise((resolve, reject) => {
+					const code = URL.createObjectURL(new Blob([
+						document.getElementById("worker").textContent
+					]));
+
+					const worker = new Worker(code);
+					worker.onerror = (e) => {
+						worker.terminate();
+						URL.revokeObjectURL(code);
+						reject(e);
+					};
+					worker.onmessage = (e) => {
+						worker.terminate();
+						URL.revokeObjectURL(code);
+						resolve(e.data);
+					}
+					worker.postMessage(num);
+				});
+			};
+			calc = () => {
+				document.getElementById("tot1").innerHTML = "";
+			    var tot1 = performance.now();
+				for (let i = 30; i <= 45; i++) {
+					calculateFibonacci(i).then((res) => {
+						var tot2 = performance.now() - tot1;
+						document.getElementById("tot1").innerHTML += i + ' - ' + res + ' (' + tot2 +')<br>';
+					});
+				}
+			};
+			calcseq = () => {
+				document.getElementById("tot2").innerHTML = "";
+			    var tot1 = performance.now();
+				for (let i = 30; i <= 45; i++) {
+					const res = fibonacci(i);
+					var tot2 = performance.now() - tot1;
+					document.getElementById("tot2").innerHTML += i + ' - ' + res + ' (' + tot2 +')<br>';
+				}
+			};
+			function fibonacci(n) {
+				if (n < 2) {
+					return 1;
+				}else {
+					return fibonacci(n - 2) + fibonacci(n - 1);
+				}
+			}
+			
+		</script>
+	</head>
+	<body>
+		<h3>Background calculation using an inline Web Worker</h3>
+		<p>This example uses an inline Web Worker. It's the same as the previous, but it does not need
+		the code to be loaded from a different file.</p>
+		<p>Click on the Calculate button, and you can see the UI is not affected by the calculations. It
+		stays responsive, indicating the processing is running on different threads.</p>
+		<button onClick="calc()">Calculate</button> 
+		<pre id="tot1"> </pre>
+		<br><br>
+		<button onClick="calcseq()">Calculate</button> 
+		<pre id="tot2"> </pre>
+	</body>
+</html>

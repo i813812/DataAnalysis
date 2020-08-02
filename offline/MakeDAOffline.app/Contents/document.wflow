@@ -59,19 +59,19 @@
 				<key>ActionParameters</key>
 				<dict>
 					<key>COMMAND_STRING</key>
-					<string>cd /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline 
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.BEGIN.TXT &gt;./Data.Analysis.offline.HTML;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/hosted/MCCDA.js &gt;&gt;./Data.Analysis.offline.HTML;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
+					<string>cd /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.BEGIN.TXT &gt;./Data.Analysis.offline.HTML;
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/hosted/MCCDA.js &gt;&gt;./Data.Analysis.offline.HTML;
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
 curl -O https://cdn.plot.ly/plotly-latest.min.js;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/plotly-latest.min.js &gt;&gt;./Data.Analysis.offline.HTML;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/plotly-latest.min.js &gt;&gt;./Data.Analysis.offline.HTML;
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
 curl -O https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.1/xlsx.full.min.js;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/xlsx.full.min.js &gt;&gt;./Data.Analysis.offline.HTML;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/xlsx.full.min.js &gt;&gt;./Data.Analysis.offline.HTML;
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
 curl -O https://raw.githubusercontent.com/Stuk/jszip/master/dist/jszip.min.js;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/jszip.min.js &gt;&gt;./Data.Analysis.offline.HTML;
-cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.FOOTER.TXT &gt;&gt;./Data.Analysis.offline.HTML;</string>
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/jszip.min.js &gt;&gt;./Data.Analysis.offline.HTML;
+cat /Users/i813812/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offline/DA.FOOTER.TXT &gt;&gt;./Data.Analysis.offline.HTML;</string>
 					<key>CheckedForUserDefaultShell</key>
 					<true/>
 					<key>inputMethod</key>
@@ -184,7 +184,7 @@ cat /Users/i813812/OneDrive/OneDrive\ -\ SAP\ SE/Performance/Data\ Analysis/offl
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>587.000000:693.000000</string>
+				<string>309.000000:594.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>

@@ -3,7 +3,7 @@
 /*jshint esversion: 6 */
 /*jslint bitwise: true */
 
-// (C)hristoph Weyd - c.weyd@sap.com
+// (C)hristoph Weyd - c.weyd@sap.com / christoph.weyd@gmail.com
 // 
 // https://jam4.sapjam.com/groups/ptqhagz5ePB2nGoqApUgbB/documents/Tml4yXpWTD3ssgyGVJP7FL 
 //
@@ -66,6 +66,7 @@ var slegposy = 1;
 var hdrs = 1;
 var usefnam = false;
 var trex = false;
+var textcont = "";
 
 // Program parameters
 var inparam = {
@@ -447,7 +448,7 @@ function savedefault() {
 	setData(vStorageName, obj);
 }
 
-function processFiles() {
+function processFiles(event) {
 	// Process Selected Input file list
 	document.body.style.cursor = "progress";
 	filelist = document.getElementById('files').files;
@@ -455,6 +456,14 @@ function processFiles() {
 	document.title = 'loading data....';
 	p0 = perfnow();
 	DAC = false;
+	
+	if (event.target.id == 'IDtextarea') {
+		filelist = event.dataTransfer.files;
+		for (var i = 0; i < filelist.length; i++) {
+   	 		readtext(filelist[i], filelist.length, i + 1);
+  		}
+  		return;
+	}
 
 	// open Excel XLSX files 
 	if (filelist[0].name.endsWith('.xlsx')) {
@@ -528,6 +537,21 @@ function processFiles() {
 	document.title = 'Format Data completed';
 	document.body.style.cursor = "default";
 }
+
+function readtext(file, numtotal, filenum) {
+  // read selected input file
+  var reader = new FileReader();
+  document.getElementById("IDtextarea").value  = "";
+  reader.onload = function() {
+  	debugger;
+    textcont += reader.result;
+    if (filenum == numtotal) {
+      document.getElementById("IDtextarea").value = textcont;
+    }
+  };
+  reader.readAsText(file);
+}
+
 
 function parsexcel() {
 	// if excel workbook has more than 1 worksheet read selection
@@ -6087,7 +6111,7 @@ function CSVToArray(strData, strDelimiter) {
 function BuildInit() {
 	document.title = 'Data Analysis';
 	var str = "";
-	str += '<div id="IDparameter" onmouseover="big();"> <pre id="IDload" style="display: inline;">Select Data file(s): <button id="btf" style="width:10em;  display:none" onclick="document.getElementById(\'files\').click();">  Select Folders  </button><input type="file" title="press Alt to select folders"  accept=".xls, .dat, .dac, .txt, .csv, .mhtml, ., .xlsx, .nmon, .dzip" id="files" multiple onchange="processFiles()" /></b> </pre> </div>';
+	str += '<div id="IDparameter" onmouseover="big();"> <pre id="IDload" style="display: inline;">Select Data file(s): <button id="btf" style="width:10em;  display:none" onclick="document.getElementById(\'files\').click();">  Select Folders  </button><input type="file" title="press Alt to select folders"  accept=".xls, .dat, .dac, .txt, .csv, .mhtml, ., .xlsx, .nmon, .dzip" id="files" multiple onchange="processFiles(event)" /></b> </pre> </div>';
 	str += '<pre id="IDinfo" style="display: inline;"></pre>';
 	str += '<pre id="IDoutput" style="width:99vw;"></pre>';
 	str += '<pre id="IDpreview" style="overflow:scroll;"> </pre>';
@@ -6118,7 +6142,7 @@ function BuildInit() {
 	document.getElementById('IDoutput').innerHTML += "<br><br><button id='IDbutupd' onclick='update()'>Update</button>";
 	// Text Area
 	document.getElementById('IDdata').innerHTML += "<small>Copy any column separated data to the clipboard, then paste into the text area and press <i><b>Update</b></i> button or upload files with the <i><b>Choose Files</b></i> button<br></small><br>"
-	document.getElementById('IDdata').innerHTML += "<textarea id='IDtextarea' rows='30' cols='200' wrap='off' style='width:90vw; white-space:pre; overflow:scroll; overflow-x:scroll; overflow: -moz-scrollbars-horizontal; tabSize:30; font-family:Courier; font-size:10px; color:#000044' onkeydown='tabkey(event)' ></textarea><br>";
+	document.getElementById('IDdata').innerHTML += "<textarea id='IDtextarea' ondrop='processFiles(event)' rows='30' cols='200' wrap='off' style='width:90vw; white-space:pre; overflow:scroll; overflow-x:scroll; overflow: -moz-scrollbars-horizontal; tabSize:30; font-family:Courier; font-size:10px; color:#000044' onkeydown='tabkey(event)' ></textarea><br>";
 	document.getElementById('IDdata').innerHTML += "<small><i>Shift-Tab is adding tab character within text box.</i></small><br><br>";
 	document.title = 'Data Analysis: select data source';
 	// Version
