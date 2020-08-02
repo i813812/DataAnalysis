@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "7.23";
+var prgvers = "7.24";
 
 // arrays
 var dtmp = [];
@@ -544,7 +544,7 @@ function readtext(file, numtotal, filenum) {
   document.getElementById("IDtextarea").value  = "";
   reader.onload = function() {
   	debugger;
-    textcont += reader.result;
+    textcont += reader.result + "\n";
     if (filenum == numtotal) {
       document.getElementById("IDtextarea").value = textcont;
     }
