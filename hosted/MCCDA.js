@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "7.24";
+var prgvers = "7.25";
 
 // arrays
 var dtmp = [];
