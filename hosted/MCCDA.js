@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "7.25";
+var prgvers = "7.28";
 
 // arrays
 var dtmp = [];
@@ -1715,6 +1715,8 @@ function preview() {
 
 	var n = 0;
 	var i = 0;
+	
+	if ( data.length < 5) return;
 
 	var dtf = "";
 	dtf += "<select id='IDDTF' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='seldatfrm()'>\n";
@@ -1763,7 +1765,7 @@ function preview() {
 		if (n > 25) break;
 		str += "</tr>";
 	}
-	str += "<tr><td colspan=" + data[n].length + "> ... </td></tr>";
+	str += "<tr><td colspan=" + data[n-1].length + "> ... </td></tr>";
 	for (n = (data.length - 5); n < data.length; n++) {
 		str += "<tr>";
 		for (i = 0; i < data[n].length; i++) {
@@ -3319,9 +3321,9 @@ function showhide(value = "") {
 function getthsval() {
 	// Read Histogram Threshold and Color Values
 	addhist();
-	parhst[ppt].colsc[0][0] = document.getElementById("IDth1").value;
-	parhst[ppt].colsc[1][0] = document.getElementById("IDth2").value;
-	parhst[ppt].colsc[2][0] = document.getElementById("IDth3").value;
+	parhst[ppt].colsc[0][0] = parseFloat(document.getElementById("IDth1").value);
+	parhst[ppt].colsc[1][0] = parseFloat(document.getElementById("IDth2").value);
+	parhst[ppt].colsc[2][0] = parseFloat(document.getElementById("IDth3").value);
 	parhst[ppt].colsc[0][1] = document.getElementById("IDco1").value;
 	parhst[ppt].colsc[1][1] = document.getElementById("IDco2").value;
 	parhst[ppt].colsc[2][1] = document.getElementById("IDco3").value;
@@ -6129,7 +6131,7 @@ function BuildInit() {
 	str += '</div>';
 	str += '<br><br>';
 	str += '<pre id="IDdetail"> </pre>';
-	str += '<pre id="ID(C)")><small><br><br> +++ Data.Analysis.HTML is based on open-source JavaScript charting library plotly.js v1.54.1 <a href="https://plot.ly/javascript" target="_blank">https://plot.ly/javascript/</a> - <b>(C)opyright 2012-2019, Plotly, Inc.</b>  Licensed under the MIT license (<a href="https://github.com/plotly/plotly.js" target="_blank">view the source on GitHub.</a>) +++  </small></pre>';
+	str += '<pre id="ID(C)")><small><br><br> +++ Data.Analysis.HTML is based on open-source JavaScript charting library plotly.js v1.55.2 <a href="https://plot.ly/javascript" target="_blank">https://plot.ly/javascript/</a> - <b>(C)opyright 2012-2019, Plotly, Inc.</b>  Licensed under the MIT license (<a href="https://github.com/plotly/plotly.js" target="_blank">view the source on GitHub.</a>) +++  </small></pre>';
 	document.getElementById('myBody').innerHTML = str;
 	// Color
 	document.body.style.backgroundColor = parhst[ppt].bgcolor;
