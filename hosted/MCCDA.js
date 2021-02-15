@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "7.28";
+var prgvers = "7.30";
 
 // arrays
 var dtmp = [];
@@ -2848,6 +2848,7 @@ function parameters() {
 	}
 	
 	htmlcont += "<button title='Display Data' onclick='expvdat()'>Display</button>";
+	htmlcont += "<button title='Compact Data (delete every second value for first X-Axis)' onclick='CompData()'> C </button>";
 
 	if (autohide) {
 		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
@@ -4143,6 +4144,43 @@ function PrepareDefaults() {
 			}
 			break;
 	}
+}
+
+// Compact data (delete every second value for selected first X category)
+function CompData() {
+
+  if (data.length < 10000) return;
+
+  document.getElementById("IDDOT").className = "dotred";
+  
+  debugger;
+
+  var n = 0;
+  var m = 0;
+
+  var x1 = parseInt(parhst[ppt].selx1);
+  
+	data.sort(function(a, b) {
+        var t1 = a[x1];
+        var t2 = b[x1];
+		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+	});
+	
+	var ov = data[0][x1]
+	for (n = 0; n < data.length; n++) {
+	   if (data[n][x1] != ov) {
+	     var tv = "" + data[n][x1];
+	     while ( n < data.length && data[n][x1] == tv ) {
+	         data.splice(n,1)
+	     }
+	     if ( n < data.length ) {
+	       ov = data[n][x1];
+	     }
+	   }
+	}
+	
+	graphic();
+  
 }
 
 function LoadData() {
@@ -6131,7 +6169,7 @@ function BuildInit() {
 	str += '</div>';
 	str += '<br><br>';
 	str += '<pre id="IDdetail"> </pre>';
-	str += '<pre id="ID(C)")><small><br><br> +++ Data.Analysis.HTML is based on open-source JavaScript charting library plotly.js v1.55.2 <a href="https://plot.ly/javascript" target="_blank">https://plot.ly/javascript/</a> - <b>(C)opyright 2012-2019, Plotly, Inc.</b>  Licensed under the MIT license (<a href="https://github.com/plotly/plotly.js" target="_blank">view the source on GitHub.</a>) +++  </small></pre>';
+	str += '<pre id="ID(C)")><small><br><br> +++ Data.Analysis.HTML is based on open-source JavaScript charting library plotly.js v1.58.4 <a href="https://plot.ly/javascript" target="_blank">https://plot.ly/javascript/</a> - <b>(C)opyright 2012-2019, Plotly, Inc.</b>  Licensed under the MIT license (<a href="https://github.com/plotly/plotly.js" target="_blank">view the source on GitHub.</a>) +++  </small></pre>';
 	document.getElementById('myBody').innerHTML = str;
 	// Color
 	document.body.style.backgroundColor = parhst[ppt].bgcolor;

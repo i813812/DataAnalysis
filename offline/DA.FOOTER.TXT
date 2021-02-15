@@ -29,7 +29,7 @@
 	</div>
 	<br><br>
 	<pre id="IDdetail"> </pre>
-	<pre id="ID(C)")><small><br><br> +++ Data.Analysis.HTML is based on open-source JavaScript charting library plotly.js v1.54.1 <a href="https://plot.ly/javascript" target="_blank">https://plot.ly/javascript/</a> - <b>(C)opyright 2012-2019, Plotly, Inc.</b>  Licensed under the MIT license (<a href="https://github.com/plotly/plotly.js" target="_blank">view the source on GitHub.</a>) +++  </small></pre>
+	<pre id="ID(C)")><small><br><br> +++ Data.Analysis.HTML is based on open-source JavaScript charting library plotly.js v1.58.4 <a href="https://plot.ly/javascript" target="_blank">https://plot.ly/javascript/</a> - <b>(C)opyright 2012-2019, Plotly, Inc.</b>  Licensed under the MIT license (<a href="https://github.com/plotly/plotly.js" target="_blank">view the source on GitHub.</a>) +++  </small></pre>
 
 <script>
 // Color
