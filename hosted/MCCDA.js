@@ -12,12 +12,13 @@
 // https://jshint.com
 // -->
 
-var prgvers = "7.30";
+var prgvers = "8.01";
 
 // arrays
 var dtmp = [];
 var data = [];
 var vdat = [];
+var zdat = [];
 var sdat = [];
 var cntlbl = [];
 var cntmin = [];
@@ -33,6 +34,8 @@ var txtarea = "";
 var colsep = "";
 var ymin = 0;
 var ymax = 0;
+var zmin = 0;
+var zmax = 0;
 var xmin = 0;
 var xmax = 0;
 var xlen = 0;
@@ -130,7 +133,19 @@ var inparam = {
 		[0, '#ff9900'],
 		[0, '#ff0000'],
 		[0, '#660066']
-	]
+	],
+	selz1: "",
+	selz2: "",
+	selz3: "",
+	selz4: "",
+	ztmin: "",
+	ztmax: "",
+	grztype: "line",
+	zlogdis: false,
+	zshape: "linear",
+	pzcolor: '#FFA500',
+	ztsize: 1,
+	sndyaxis: false
 };
 
 // Input parameter history
@@ -176,8 +191,11 @@ var lnsize = 1;
 var lntype = 'solid';
 var chtype = 'scatter';
 var chmode = 'markers';
+var zhtype = 'scatter';
+var zhmode = 'markers';
 var stmode = 'group';
 var filmod = '';
+var filmoz = '';
 var sgroup0 = '';
 var sgroup1 = '';
 var sgroup2 = '';
@@ -272,6 +290,18 @@ function loaddefault() {
 		[tmp.colsc[2][0], tmp.colsc[2][1]],
 		[tmp.colsc[3][0], tmp.colsc[3][1]]
 	];
+	parhst[ppt].selz1 = tmp.selz1;
+	parhst[ppt].selz2 = tmp.selz2;
+	parhst[ppt].selz3 = tmp.selz3;
+	parhst[ppt].selz4 = tmp.selz4;
+	parhst[ppt].ztmin = tmp.ztmin;
+	parhst[ppt].ztmax = tmp.ztmax;
+	parhst[ppt].grztype = tmp.grztype;
+	parhst[ppt].zlogdis = tmp.zlogdis;
+	parhst[ppt].zshape = tmp.zshape;
+	parhst[ppt].pzcolor = tmp.pzcolor;
+	parhst[ppt].ztsize = tmp.ztsize;
+	parhst[ppt].sndyaxis = tmp.sndyaxis;
 }
 
 function dnlexport() {
@@ -2206,6 +2236,7 @@ function keyfig() {
 	if (displaymode == "graphic") parhst[ppt].opr = document.getElementById("IDOPR").value;
 	changex();
 	changey();
+	changez();
 }
 
 function changefx() {
@@ -2331,6 +2362,54 @@ function changey() {
 	document.getElementById("IDDOT").className = "dotyel";
 }
 
+function changez() {
+	// read keyfigures
+	addhist();
+	if (displaymode == "graphic") parhst[ppt].selz1 = document.getElementById("IDZ1").value;
+	if (displaymode == "graphic") parhst[ppt].selz2 = document.getElementById("IDZ2").value;
+	if (displaymode == "graphic") parhst[ppt].selz3 = document.getElementById("IDZ3").value;
+	if (displaymode == "graphic") parhst[ppt].selz4 = document.getElementById("IDZ4").value;
+	
+	// if (parhst[ppt].selz1 == parhst[ppt].sely1 || parhst[ppt].selz1 == parhst[ppt].sely2 || parhst[ppt].selz1 == parhst[ppt].sely3 || parhst[ppt].selz1 == parhst[ppt].sely4 ) parhst[ppt].selz1 = '';
+  // if (parhst[ppt].selz2 == parhst[ppt].sely1 || parhst[ppt].selz2 == parhst[ppt].sely2 || parhst[ppt].selz2 == parhst[ppt].sely3 || parhst[ppt].selz2 == parhst[ppt].sely4 ) parhst[ppt].selz2 = '';
+  // if (parhst[ppt].selz3 == parhst[ppt].sely1 || parhst[ppt].selz3 == parhst[ppt].sely2 || parhst[ppt].selz3 == parhst[ppt].sely3 || parhst[ppt].selz3 == parhst[ppt].sely4 ) parhst[ppt].selz3 = '';
+  // if (parhst[ppt].selz4 == parhst[ppt].sely1 || parhst[ppt].selz4 == parhst[ppt].sely2 || parhst[ppt].selz4 == parhst[ppt].sely3 || parhst[ppt].selz4 == parhst[ppt].sely4 ) parhst[ppt].selz4 = '';
+  
+	if (parhst[ppt].selz4 == parhst[ppt].selz3 || parhst[ppt].selz4 == parhst[ppt].selz2 || parhst[ppt].selz4 == parhst[ppt].selz1) parhst[ppt].selz4 = '';
+	if (parhst[ppt].selz3 == parhst[ppt].selz2 || parhst[ppt].selz3 == parhst[ppt].selz1) parhst[ppt].selz3 = '';
+	if (parhst[ppt].selz2 == parhst[ppt].selz1) parhst[ppt].selz2 = '';
+
+	for (var n = 0; n < 3; n++) {
+		if (parhst[ppt].selz1 === '' && parhst[ppt].selz2 !== '') {
+			parhst[ppt].selz1 = parhst[ppt].selz2;
+			parhst[ppt].selz2 = '';
+		}
+		if (parhst[ppt].selz2 === '' && parhst[ppt].selz3 !== '') {
+			parhst[ppt].selz2 = parhst[ppt].selz3;
+			parhst[ppt].selz3 = '';
+		}
+		if (parhst[ppt].selz3 === '' && parhst[ppt].selz4 !== '') {
+			parhst[ppt].selz3 = parhst[ppt].selz4;
+			parhst[ppt].selz4 = '';
+		}
+	}
+
+	// if (parhst[ppt].sely3 == parhst[ppt].sely2 || parhst[ppt].sely3 == parhst[ppt].sely1) parhst[ppt].sely3 = '';
+	// if (parhst[ppt].sely2 == parhst[ppt].sely1) parhst[ppt].sely2 = '';
+
+  if (parhst[ppt].sndyaxis) {
+	  document.getElementById("IDZTMAX").value = parhst[ppt].ztmax = "";
+	  zmax = 0;
+	  document.getElementById("IDZTMIN").value = parhst[ppt].ztmin = "";
+	  zmin = 0;
+	}
+
+	xmin = xmax = "";
+	parameters();
+	document.title = 'Data Analysis - graphic refresh pending ... ';
+	document.getElementById("IDDOT").className = "dotyel";
+}
+
 function changef() {
 	// read multiplicator
 	addhist();
@@ -2418,10 +2497,14 @@ function getsep() {
 
 function changeparam() {
 	// read changed parameters
-var ytmp;
+  var ytmp;
 	addhist();
 	if (displaymode == "graphic") parhst[ppt].ytmin = document.getElementById("IDYTMIN").value;
 	if (displaymode == "graphic") parhst[ppt].ytmax = document.getElementById("IDYTMAX").value;
+	if (parhst[ppt].sndyaxis) {
+	  if (displaymode == "graphic") parhst[ppt].ztmin = document.getElementById("IDZTMIN").value;
+	  if (displaymode == "graphic") parhst[ppt].ztmax = document.getElementById("IDZTMAX").value;
+	}
 
 	if (parhst[ppt].ytmin.includes(">")) {
 		ytmp = parhst[ppt].ytmin.split(">");
@@ -2431,6 +2514,7 @@ var ytmp;
 		ymin = parseFloat(ymin);
 		vmin = "";
 	}
+	zmin = parseFloat(parhst[ppt].ztmin);
 
 	if (parhst[ppt].ytmax.includes("<")) {
 		ytmp = parhst[ppt].ytmax.split("<");
@@ -2440,6 +2524,7 @@ var ytmp;
 		ymax = parseFloat(ymax);
 		vmax = "";
 	}
+	zmax = parseFloat(parhst[ppt].ztmax);
 
 	if (displaymode == "graphic") parhst[ppt].xinpmin = document.getElementById("IDXMIN").value;
 	if (displaymode == "graphic") parhst[ppt].hstinpmin = document.getElementById("IDHSTMIN").value;
@@ -2447,6 +2532,7 @@ var ytmp;
 	if (displaymode == "graphic") parhst[ppt].hstinpmax = document.getElementById("IDHSTMAX").value;
 	if (displaymode == "graphic") parhst[ppt].maxpnt = document.getElementById("IDMAXPNT").value;
 	if (displaymode == "graphic") parhst[ppt].dtsize = document.getElementById("IDDTSIZE").value;
+	if (displaymode == "graphic") parhst[ppt].ztsize = document.getElementById("IDZTSIZE").value;
 	if (displaymode == "graphic") parhst[ppt].avgint = document.getElementById("IDAVGINT").value;
 	if (displaymode == "graphic") parhst[ppt].filter = document.getElementById("IDFILTER").value;
 	if (displaymode == "graphic") parhst[ppt].vstack = document.getElementById("IDVSTACK").value;
@@ -2467,6 +2553,8 @@ function reset() {
 	document.getElementById("IDHSTMAX").value = parhst[ppt].hstinpmax = "";
 	document.getElementById("IDYTMIN").value = parhst[ppt].ytmin = "";
 	document.getElementById("IDYTMAX").value = parhst[ppt].ytmax = "";
+	document.getElementById("IDYTMIN").value = parhst[ppt].ztmin = "";
+	document.getElementById("IDYTMAX").value = parhst[ppt].ztmax = "";
 	parameters();
 	graphic();
 }
@@ -2493,7 +2581,7 @@ function parameters() {
 
 		}
 		init = false;
-		loaddefault();
+		if (DAC == false) loaddefault();
 	}
 
 	// prepare graphic on first start (select 1st numeric column)
@@ -2576,7 +2664,7 @@ function parameters() {
 	}
 
 	htmlcont += "<table><tr>";
-	htmlcont += "<td rowspan='4' valign='top'><a id='IDSAPLOGO'  title='' style='text-decoration:none' href='#' onclick='SAPclick()' >" + SAPlogo(100, 50) + "</a>    <br><br><button onclick='graphic()' title='Refresh Graphic (apply pending settings) [F8]'><b>Refresh</b></button><button title='Reset Graphic' onclick='reset()'><b>RS</b></button> <span title='Status (YELLOW = refresh pending; RED = busy)' id='IDDOT' class='dotgre'></span></td>";
+	htmlcont += "<td rowspan='5' valign='top'><a id='IDSAPLOGO'  title='' style='text-decoration:none' href='#' onclick='SAPclick()' >" + SAPlogo(100, 50) + "</a>    <br><br><button onclick='graphic()' title='Refresh Graphic (apply pending settings) [F8]'><b>Refresh</b></button><button title='Reset Graphic' onclick='reset()'><b>RS</b></button> <span title='Status (YELLOW = refresh pending; RED = busy)' id='IDDOT' class='dotgre'></span></td>";
 
 	//  ++++++++++++++++++++++++++ X-Axis ++++++++++++++++++++++++++
 	htmlcont += "<td><div>";
@@ -2824,8 +2912,124 @@ function parameters() {
 	htmlcont += str;
 	htmlcont += " <input id='IDFACT' style='width:5em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changef()' type='number' size='6' name='fact' step='any' value='" + parhst[ppt].fact + "'>";
 	htmlcont += "</div></td>";
+	
+	
+	//  ++++++++++++++++++++++++++ Z-Axis ++++++++++++++++++++++++++
+	if ( parhst[ppt].sndyaxis ) {
+		htmlcont += "<tr>";
+		htmlcont += "<td><div>";
 
-	htmlcont += "</tr>";
+		htmlcont += " <b>2nd Y </b> Min/Max: <input id='IDZTMIN' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' type='text' size='17' name='zmin' value='" + parhst[ppt].ztmin + "'><input id='IDZTMAX' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' type='text' size='17' name='zmax' value='" + parhst[ppt].ztmax + "'>";
+
+		// select Z-Axis (1st field)
+		str = " Z: ";
+		str += "<select id='IDZ1' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
+		if (parhst[ppt].selz1 === "") str += "<option value='' selected > - </option>";
+		else str += "<option value=''> - </option>";
+		for (x = 0; x < header.length; x++) {
+			if (header[x][1] != "n") continue;
+			if (x === parseInt(parhst[ppt].selz1)) {
+				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
+			} else {
+				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
+			}
+		}
+		str += "</select>";
+		htmlcont += str;
+
+		// select Z-Axis (2nd field)
+		str = " ";
+		str += "<select id='IDZ2' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
+		if (parhst[ppt].selz2 === "") str += "<option value='' selected > - </option>";
+		else str += "<option value=''> - </option>";
+		for (x = 0; x < header.length; x++) {
+			if (header[x][1] != "n") continue;
+			if (x === parseInt(parhst[ppt].selz2)) {
+				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
+			} else {
+				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
+			}
+		}
+		str += "</select>";
+		htmlcont += str;
+
+		// select Z-Axis (3rd field)
+		str = " ";
+		str += "<select id='IDZ3' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
+		if (parhst[ppt].selz3 === "") str += "<option value='' selected > - </option>";
+		else str += "<option value=''> - </option>";
+		for (x = 0; x < header.length; x++) {
+			if (header[x][1] != "n") continue;
+			if (x === parseInt(parhst[ppt].selz3)) {
+				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
+			} else {
+				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
+			}
+		}
+		str += "</select>";
+		htmlcont += str;
+
+		// select Z-Axis (4th field)
+		str = " ";
+		str += "<select id='IDZ4' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
+		if (parhst[ppt].selz4 === "") str += "<option value='' selected > - </option>";
+		else str += "<option value=''> - </option>";
+		for (x = 0; x < header.length; x++) {
+			if (header[x][1] != "n") continue;
+			if (x === parseInt(parhst[ppt].selz4)) {
+				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
+			} else {
+				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
+			}
+		}
+		str += "</select>";
+		htmlcont += str;
+
+		htmlcont += "</div></td><td colspan='2'><div>";
+
+		// Type
+		htmlcont += "<select id='IDGRZTYPE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='graphzmode()'>\n";
+		if (parhst[ppt].grztype == 'scatter') htmlcont += "<option value='scatter' selected > Scatter </option> \n";
+		else htmlcont += "<option value='scatter'> Scatter </option> \n";
+		if (parhst[ppt].grztype == 'line') htmlcont += "<option value='line' selected > Line </option> \n";
+		else htmlcont += "<option value='line'> Line </option> \n";
+		if (parhst[ppt].grztype == 'area') htmlcont += "<option value='area' selected > Area </option> \n";
+		else htmlcont += "<option value='area'> Area </option> \n";
+		htmlcont += "</select>";
+	
+		// SUM / AVG / MIN / AMX
+		if (parhst[ppt].zopr == 'SUM') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM' selected >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
+		if (parhst[ppt].zopr == 'AVG') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG' selected >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
+		if (parhst[ppt].zopr == 'MAX') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX' selected >MAX</option> <option value='MIN'		      >MIN</option></select>";
+		if (parhst[ppt].zopr == 'MIN') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'	         >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN' selected >MIN</option></select>";
+	
+		if (parhst[ppt].zlogdis) {
+			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: logarithmic scale' style='color:black' onclick='setzlogdis()'><B>Log</b></button>";
+		} else {
+			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: linear scale' style='color:gray' onclick='setzlogdis()'>Lin</button>";
+		}
+	
+		str = " <select id='IDZSHAPE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='setshape()'>\n";
+		if (parhst[ppt].zshape == 'linear') str += "<option value='linear' selected > linear </option> \n";
+		else str += "<option value='linear' > linear </option>";
+		if (parhst[ppt].zshape == 'spline') str += "<option value='spline' selected > spline </option> \n";
+		else str += "<option value='spline' > spline </option>";
+		if (parhst[ppt].zshape == 'hvh') str += "<option value='hvh' selected > steps </option> \n";
+		else str += "<option value='hvh' > steps </option>";
+		str += "</select>";
+		htmlcont += str;
+	
+		htmlcont += " Size: <input id='IDZTSIZE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10' type='number' name='dtsize' value='" + parhst[ppt].ztsize + "'>";
+		htmlcont += " Color: <input id='IDpzcolor' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].pzcolor + "'>";
+
+
+		htmlcont += "</div></td>";
+	
+		htmlcont += "</tr>";
+  }
+
+
+  //  ++++++++++++++++++++++++++ 4th Line ++++++++++++++++++++++++++
 	htmlcont += "<tr><td colspan='3'>";
 	htmlcont += " <b>Hist.</b>  Min/Max: <input id='IDHSTMIN'  dir='ltr' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "'onchange='changeparam()' type='text' name='hstmin' size='17' value='" + parhst[ppt].hstinpmin + "'><input id='IDHSTMAX'  dir='ltr' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "'onchange='changeparam()' type='text' name='hstmax' size='17' value='" + parhst[ppt].hstinpmax + "'>";
 	htmlcont += " <input id='IDco1' class='selcol' onchange='getthsval()' type='color'  value='" + parhst[ppt].colsc[0][1] + "'>";
@@ -2849,6 +3053,13 @@ function parameters() {
 	
 	htmlcont += "<button title='Display Data' onclick='expvdat()'>Display</button>";
 	htmlcont += "<button title='Compact Data (delete every second value for first X-Axis)' onclick='CompData()'> C </button>";
+	
+	if (parhst[ppt].sndyaxis) {
+		htmlcont += " <button title='Hide 2nd Y-Axis' onclick='toggle2ndaxis()'><B> 2nd Y-Axis </B></button>";
+	} else {
+		htmlcont += " <button title='Display 2nd Y-Axis' onclick='toggle2ndaxis()'> 2nd Y-Axis </button>";
+	}
+	
 
 	if (autohide) {
 		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
@@ -2859,6 +3070,8 @@ function parameters() {
 
 	htmlcont += " </td></tr>";
 	htmlcont += " <tr><td colspan='3'>";
+
+  //  ++++++++++++++++++++++++++ 5th Line ++++++++++++++++++++++++++
 
 	// Type
 	htmlcont += "<select id='IDGRTYPE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='graphmode()'>\n";
@@ -2911,10 +3124,10 @@ function parameters() {
 	htmlcont += " Average: <input id='IDAVGINT' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1' max='1000000' type='number' name='avgint' value='" + parhst[ppt].avgint + "'>";
 
 	// SUM / AVG / MIN / AMX
-	if (parhst[ppt].opr == 'SUM') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM' selected >SUM</option> <option value='AVG'		    >AVG</option> <option value='MAX'		   >MAX</option> <option value='MIN'		  >MIN</option></select>";
-	if (parhst[ppt].opr == 'AVG') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		     >SUM</option> <option value='AVG' selected >AVG</option> <option value='MAX'		   >MAX</option> <option value='MIN'		  >MIN</option></select>";
-	if (parhst[ppt].opr == 'MAX') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		     >SUM</option> <option value='AVG'		    >AVG</option> <option value='MAX' selected >MAX</option> <option value='MIN'		  >MIN</option></select>";
-	if (parhst[ppt].opr == 'MIN') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'	         >SUM</option> <option value='AVG'		    >AVG</option> <option value='MAX'		   >MAX</option> <option value='MIN' selected >MIN</option></select>";
+	if (parhst[ppt].opr == 'SUM') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM' selected >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
+	if (parhst[ppt].opr == 'AVG') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG' selected >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
+	if (parhst[ppt].opr == 'MAX') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX' selected >MAX</option> <option value='MIN'		      >MIN</option></select>";
+	if (parhst[ppt].opr == 'MIN') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'	         >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN' selected >MIN</option></select>";
 
 	if (parhst[ppt].smooth) {
 		htmlcont += " <button id='IDSMOOTH' title='Add Random Decimals' style='color:black' onclick='setsmooth()'><B>ARD</b></button>";
@@ -3168,7 +3381,18 @@ function addhist() {
 				[tmp.colsc[1][0], tmp.colsc[1][1]],
 				[tmp.colsc[2][0], tmp.colsc[2][1]],
 				[tmp.colsc[3][0], tmp.colsc[3][1]]
-			]
+			],
+			selz1: tmp.selz1,
+			selz2: tmp.selz2,
+			selz3: tmp.selz3,
+			selz4: tmp.selz4,
+			ztmin: tmp.ytmin,
+			ztmax: tmp.ytmax,
+    	grztype: tmp.grztype,
+	    zlogdis: tmp.zlogdis,
+	    pzcolor: tmp.pzcolor,
+	    ztsize: tmp.ztsize,
+	    sndyaxis: tmp.sndyaxis
 		};
 		ppt = parhst.length - 1;
 	}
@@ -3198,6 +3422,17 @@ function setlogdis() {
 	reset();
 }
 
+function setzlogdis() {
+	// toggle between logarithmic and linear axis
+	addhist();
+	if (parhst[ppt].zlogdis) {
+		parhst[ppt].zlogdis = false;
+	} else {
+		parhst[ppt].zlogdis = true;
+	}
+	reset();
+}
+
 function setsmooth() {
 	// toggle adding random decimals
 	addhist();
@@ -3205,6 +3440,22 @@ function setsmooth() {
 		parhst[ppt].smooth = false;
 	} else {
 		parhst[ppt].smooth = true;
+	}
+	parameters();
+	graphic();
+}
+
+function toggle2ndaxis() {
+	// toggle adding random decimals
+	addhist();
+	if (parhst[ppt].sndyaxis) {
+		parhst[ppt].sndyaxis = false;
+		parhst[ppt].selz1 = "";
+		parhst[ppt].selz2 = "";
+		parhst[ppt].selz3 = "";
+		parhst[ppt].selz4 = "";
+	} else {
+		parhst[ppt].sndyaxis = true;
 	}
 	parameters();
 	graphic();
@@ -3264,6 +3515,28 @@ function graphmode() {
 			break;
 	}
 	document.getElementById("IDDTSIZE").value = parhst[ppt].dtsize;
+	document.getElementById("IDMAXPNT").value = parhst[ppt].maxpnt;
+	parameters();
+	graphic();
+}
+
+function graphzmode() {
+	// set graph mode (Scatter, Line, Bar, Area)
+	addhist();
+	parhst[ppt].grztype = document.getElementById("IDGRZTYPE").value;
+	switch (parhst[ppt].grztype) {
+		case 'scatter':
+			parhst[ppt].ztsize = 3;
+			break;
+		case 'line':
+			parhst[ppt].ztsize = 1;
+			break;
+		case 'area':
+			parhst[ppt].ztsize = 1;
+			break;
+	}
+	document.getElementById("IDDTSIZE").value = parhst[ppt].dtsize;
+	document.getElementById("IDZTSIZE").value = parhst[ppt].ztsize;
 	document.getElementById("IDMAXPNT").value = parhst[ppt].maxpnt;
 	parameters();
 	graphic();
@@ -3378,6 +3651,7 @@ function setptcol() {
 	parhst[ppt].p1color = document.getElementById("IDp1color").value;
 	parhst[ppt].p2color = document.getElementById("IDp2color").value;
 	parhst[ppt].p3color = document.getElementById("IDp3color").value;
+	parhst[ppt].pzcolor = document.getElementById("IDpzcolor").value;
 	parameters();
 	document.title = 'Data Analysis - graphic refresh pending ... ';
 	document.getElementById("IDDOT").className = "dotyel";
@@ -3398,6 +3672,7 @@ function setshape() {
 	// set shape (linear, spline, steps)
 	addhist();
 	parhst[ppt].sshape = document.getElementById("IDSSHAPE").value;
+	parhst[ppt].zshape = document.getElementById("IDZSHAPE").value;
 	parameters();
 	graphic();
 }
@@ -3972,16 +4247,19 @@ function AgregateData() {
 				if ((fltp = vdat[n].y2) > tdat[ind].y2) tdat[ind].y2 = vdat[n].y2;
 				if ((fltp = vdat[n].y3) > tdat[ind].y3) tdat[ind].y3 = vdat[n].y3;
 				if ((fltp = vdat[n].y4) > tdat[ind].y4) tdat[ind].y4 = vdat[n].y4;
+				if ((fltp = vdat[n].z)  > tdat[ind].z)  tdat[ind].z  = vdat[n].z;
 			} else if (parhst[ppt].opr == "MIN") {
 				if ((fltp = vdat[n].y1) < tdat[ind].y1) tdat[ind].y1 = vdat[n].y1;
 				if ((fltp = vdat[n].y2) < tdat[ind].y2) tdat[ind].y2 = vdat[n].y2;
 				if ((fltp = vdat[n].y3) < tdat[ind].y3) tdat[ind].y3 = vdat[n].y3;
 				if ((fltp = vdat[n].y4) < tdat[ind].y4) tdat[ind].y4 = vdat[n].y4;
+				if ((fltp = vdat[n].z)  < tdat[ind].z)  tdat[ind].z  = vdat[n].z;
 			} else {
 				tdat[ind].y1 += vdat[n].y1;
 				tdat[ind].y2 += vdat[n].y2;
 				tdat[ind].y3 += vdat[n].y3;
 				tdat[ind].y4 += vdat[n].y4;
+				tdat[ind].z  += vdat[n].z;
 			}
 			tdat[ind].c += 1;
 		} else {
@@ -3993,6 +4271,7 @@ function AgregateData() {
 						tdat[ind].y2 = tdat[ind].y2 / tdat[ind].c;
 						tdat[ind].y3 = tdat[ind].y3 / tdat[ind].c;
 						tdat[ind].y4 = tdat[ind].y4 / tdat[ind].c;
+						tdat[ind].z  = tdat[ind].z  / tdat[ind].c;
 						tdat[ind].c = 0;
 					}
 				}
@@ -4011,6 +4290,7 @@ function AgregateData() {
 			tdat[ind].y2 = tdat[ind].y2 / tdat[ind].c;
 			tdat[ind].y3 = tdat[ind].y3 / tdat[ind].c;
 			tdat[ind].y4 = tdat[ind].y4 / tdat[ind].c;
+			tdat[ind].z  = tdat[ind].z  / tdat[ind].c;
 			tdat[ind].c = 0;
 		}
 	} catch (err) {}
@@ -4198,6 +4478,11 @@ function LoadData() {
 	var y2 = parseInt(parhst[ppt].sely2);
 	var y3 = parseInt(parhst[ppt].sely3);
 	var y4 = parseInt(parhst[ppt].sely4);
+	
+	var z1 = parseInt(parhst[ppt].selz1);
+	var z2 = parseInt(parhst[ppt].selz2);
+	var z3 = parseInt(parhst[ppt].selz3);
+	var z4 = parseInt(parhst[ppt].selz4);
 
 	var fc = parseInt(parhst[ppt].selfc);
 
@@ -4287,7 +4572,8 @@ function LoadData() {
 			y1: 0, // 1st y value
 			y2: 0, // 2nd y value
 			y3: 0, // 3rd y value
-			y4: 0 // 4th y value
+			y4: 0, // 4th y value
+			z: 0   // z value
 		};
 
 		// if ADD then add y values, ofr IND, STK keep them separated
@@ -4318,6 +4604,19 @@ function LoadData() {
 				vdat[ind].y4 = parseFloat(data[x][y4]);
 			}
 		}
+		// Z-Axis values always summarized
+		if (parhst[ppt].selz1 !== "" && data[x][z1] != "" && !isNaN(data[x][z1])) {
+			vdat[ind].z += parseFloat(data[x][z1]);
+		}
+		if (parhst[ppt].selz2 !== "" && data[x][z2] != "" && !isNaN(data[x][z2])) {
+			vdat[ind].z += parseFloat(data[x][z2]);
+		}
+		if (parhst[ppt].selz3 !== "" && data[x][z3] != "" && !isNaN(data[x][z3])) {
+			vdat[ind].z += parseFloat(data[x][z3]);
+		}
+		if (parhst[ppt].selz4 !== "" && data[x][z4] != "" && !isNaN(data[x][z4])) {
+			vdat[ind].z += parseFloat(data[x][z4]);
+		}
 
 		// multiply with selected field 
 		if (parhst[ppt].selfc !== "") {
@@ -4347,6 +4646,7 @@ function LoadData() {
 	});
 
 }
+
 
 function CalcMaxMinAvg() {
 	// Prepare Max/Min Values for Axis Scaling
@@ -4445,6 +4745,38 @@ function CalcMaxMinAvg() {
 		}
 	}
 	average = average / cnthst;
+	
+	// Average Z-Value
+	var avgzval = 0;
+	var cntzhst = 0;
+	for (n = 0; n < vdat.length; n++) {
+	  avgzval += vdat[n].z;
+	  cntzhst += 1;
+	}
+	avgzval = avgzval / cntzhst;
+	
+	var zstddev = 0;
+	var zallpos = true;
+	var zallneg = true;
+	for (n = 0; n < vdat.length; n++) {
+	  zstddev += Math.abs(vdat[n].z - avgzval) ;
+	  if (vdat[n].z < 0) zallpos = false;
+	  if (vdat[n].z > 0) zallneg = false;
+	}
+	zstddev = zstddev / cnthst;
+	zstddev = parseFloat(zstddev.toPrecision(3));
+	
+	var zmaxval = avgzval + zstddev * 4;
+	if (zallneg && zmaxval > 0) maximum = 0;
+	var zminval = avgzval - zstddev * 4;
+	if (zallpos && zminval < 0) minimum = 0;
+	
+	if (zmaxval == zminval) {
+		zmaxval += 1;
+		zmax = zmaxval;
+		zminval -= 1;
+		zmin = zminval;
+	}
 
 	var flen = Math.pow(10, Math.trunc(Math.log10(Math.abs(average))));
 	average = parseFloat(average.toPrecision(5));
@@ -4475,9 +4807,9 @@ function CalcMaxMinAvg() {
 	if (parhst[ppt].stsel == 'ADD') {
 		var xrel = (maximum - minimum) / stddev;
 		if (xrel > 10) {
-			minimum = average - stddev * 2;
+			minimum = average - stddev * 4;
 			if (allpos && minimum < 0) minimum = 0;
-			maximum = average + stddev * 2;
+			maximum = average + stddev * 4;
 			if (allneg && maximum > 0) maximum = 0;
 		}
 	}
@@ -4524,6 +4856,43 @@ function CalcMaxMinAvg() {
 		}
 		document.getElementById("IDYTMAX").value = ymax;
 		document.getElementById("IDYTMIN").value = ymin;
+	}
+	
+	
+	var dz = Math.abs(zmaxval - zminval);
+	da = Math.abs(avgzval - zminval);
+	ds = Math.trunc((dz / da) / 5);
+	if (ds == 0 || dz < 1 || da < 1) ds = 1;
+	if (parhst[ppt].ztmax != "") zmax = parseFloat(parhst[ppt].ztmax);
+	if (parhst[ppt].ztmin != "") zmin = parseFloat(parhst[ppt].ztmin);
+	if (parhst[ppt].ztmax == "" || zmax == 0 || isNaN(zmax) || parhst[ppt].ztmin == "" || isNaN(zmin)) {
+		zmax = zmaxval / ds;
+		zmin = zminval / ds;
+		flen = Math.pow(10, Math.trunc(Math.log10(Math.abs(zmax - zmin))));
+		if (flen == 0) flen = 1;
+		zmax = zmax / flen;
+		zmax = Math.ceil(zmax);
+		zmax = zmax * flen;
+		zmin = zmin / flen;
+		zmin = Math.floor(zmin);
+		zmin = zmin * flen;
+		
+  	if (zallneg && zmax > 0) zmax = 0;
+	  if (zallpos && zmin < 0) zmin = 0;
+	  
+		if (parhst[ppt].vstack !== "" && parhst[ppt].stsel == 'STK') {
+			zmax = zmax * 2 * Math.sqrt(sdat.length);
+			flen = Math.pow(10, Math.trunc(Math.log10(Math.abs(zmax - zmin))));
+			if (flen == 0) flen = 1;
+			zmax = zmax / flen;
+			zmax = Math.ceil(zmax);
+			zmax = zmax * flen;
+		}
+
+    if (parhst[ppt].sndyaxis) {
+		  document.getElementById("IDZTMAX").value = zmax;
+		  document.getElementById("IDZTMIN").value = zmin;
+		}
 	}
 
 	document.getElementById('IDdetail').innerHTML = "<small> Avg: " + average.toPrecision(5) + "  Std.Dev: " + stddev.toPrecision(3) + "</small>";
@@ -4686,6 +5055,7 @@ function CalcAverage() {
 					adat[ind].y2 += vdat[n].y2;
 					adat[ind].y3 += vdat[n].y3;
 					adat[ind].y4 += vdat[n].y4;
+					adat[ind].z  += vdat[n].z;
 					adat[ind].c += 1;
 					avg += 1;
 				} else {
@@ -4694,6 +5064,7 @@ function CalcAverage() {
 					adat[ind].y2 = adat[ind].y2 / adat[ind].c;
 					adat[ind].y3 = adat[ind].y3 / adat[ind].c;
 					adat[ind].y4 = adat[ind].y4 / adat[ind].c;
+					adat[ind].z  = adat[ind].z  / adat[ind].c;
 					ind += 1;
 					adat[ind] = vdat[n];
 					adat[ind].c = 1;
@@ -4706,6 +5077,7 @@ function CalcAverage() {
 				adat[ind].y2 = adat[ind].y2 / adat[ind].c;
 				adat[ind].y3 = adat[ind].y3 / adat[ind].c;
 				adat[ind].y4 = adat[ind].y4 / adat[ind].c;
+				adat[ind].z  = adat[ind].z  / adat[ind].c;
 				adat[ind].c = 0;
 				ind += 1;
 				avg = 0;
@@ -4718,6 +5090,7 @@ function CalcAverage() {
 				adat[ind].y2 = adat[ind].y2 / adat[ind].c;
 				adat[ind].y3 = adat[ind].y3 / adat[ind].c;
 				adat[ind].y4 = adat[ind].y4 / adat[ind].c;
+				adat[ind].z  = adat[ind].z  / adat[ind].c;
 				adat[ind].c = 0;
 			}
 		} catch (err) {}
@@ -4727,6 +5100,7 @@ function CalcAverage() {
 	}
 
 }
+
 
 function ClipValues() {
 	// limit y values (remove values where y < min or y > max)
@@ -5046,6 +5420,11 @@ function graphic() {
 		var y2 = parseInt(parhst[ppt].sely2);
 		var y3 = parseInt(parhst[ppt].sely3);
 		var y4 = parseInt(parhst[ppt].sely4);
+		
+		var z1 = parseInt(parhst[ppt].selz1);
+		var z2 = parseInt(parhst[ppt].selz2);
+		var z3 = parseInt(parhst[ppt].selz3);
+		var z4 = parseInt(parhst[ppt].selz4);
 
 		if (isNaN(x1) && isNaN(x2) && isNaN(x3) && isNaN(x4)) {
 			alert('Specify field(s) for X-Axis');
@@ -5057,13 +5436,13 @@ function graphic() {
 		}
 
 		// Load selected data into VDAT table and sort
-		LoadData();
+		LoadData(); 
 
 		// Clip Y-Values
 		ClipValues();
 
 		// Agregate Points for same x-value
-		AgregateData();
+		AgregateData(); 
 
 		//  remove data point which are not equally present in all stacks
 		CleanData();
@@ -5078,7 +5457,7 @@ function graphic() {
 		PrepareDefaults();
 
 		// Prepare Max/Min Values for Axis Scaling
-		CalcMaxMinAvg();
+		CalcMaxMinAvg(); 
 
 		// Calculate Histogram
 		CalcHistogram();
@@ -5110,6 +5489,28 @@ function graphic() {
 			chtype = 'scatter';
 			chmode = 'lines';
 		}
+		
+		// chart type settings
+		if (parhst[ppt].grztype == 'scatter') {
+			zhtype = 'scatter';
+			zhmode = 'markers';
+			filmoz = 'none';
+		} else if (parhst[ppt].grztype == 'line') {
+			zhtype = 'scatter';
+			zhmode = 'lines';
+			filmoz = 'none';
+		} else if (parhst[ppt].grztype == 'bar') {
+			zhtype = 'bar';
+			zhmode = '';
+			filmoz = 'none';
+		} else if (parhst[ppt].grztype == 'area') {
+			zhtype = 'scatter';
+			zhmode = 'lines';
+			filmoz = 'tozeroy'
+		}	
+		
+		
+		
 		if (parhst[ppt].stsel == 'ADD') {
 			slegend = false;
 			stmode = 'group';
@@ -5141,14 +5542,17 @@ function graphic() {
 			else sgroup3 = "";
 		}
 
-		function setstack(color, group) {
+		function setstack(color, group, xaxis, yaxis) {
 	/* jshint validthis: true */
 			this.x = [];
 			this.y = [];
+			this.xaxis = xaxis;
+			this.yaxis = yaxis;
 			this.mode = chmode;
 			this.type = chtype;
 			this.stackgroup = group;
 			this.showlegend = slegend;
+			// this.overlaying = 'x';
 			this.marker = {
 				size: parhst[ppt].dtsize,
 				color: color
@@ -5162,10 +5566,38 @@ function graphic() {
 		}
 
 		// prepare chart plot
-		var stack1 = new setstack(parhst[ppt].ptcolor, sgroup0);
-		var stack2 = new setstack(parhst[ppt].p1color, sgroup1);
-		var stack3 = new setstack(parhst[ppt].p2color, sgroup2);
-		var stack4 = new setstack(parhst[ppt].p3color, sgroup3);
+		var stack1 = new setstack(parhst[ppt].ptcolor, sgroup0, 'x1', 'y1');
+		var stack2 = new setstack(parhst[ppt].p1color, sgroup1, 'x1', 'y1');
+		var stack3 = new setstack(parhst[ppt].p2color, sgroup2, 'x1', 'y1');
+		var stack4 = new setstack(parhst[ppt].p3color, sgroup3, 'x1', 'y1');
+		// var zstack = new setstack(parhst[ppt].pzcolor, 'Z', 'x1', 'y2');
+		
+		var zstack = {
+			x: [],
+			y: [],
+			xaxis: 'x1',
+			yaxis: 'y2',
+			mode: zhmode,
+			type: zhtype,
+			showlegend: true,
+			// overlaying: 'x',
+			fill: filmoz,
+			name: '',
+			marker: {
+				size: parhst[ppt].ztsize,
+				color: parhst[ppt].pzcolor
+			},
+			line: {
+				width: parhst[ppt].ztsize,
+				color: parhst[ppt].pzcolor,
+				shape: parhst[ppt].zshape
+			}
+		};
+		
+		if (parhst[ppt].selz1 != "") zstack.name = header[z1][0];
+		if (parhst[ppt].selz2 != "") zstack.name = zstack.name + " + " + header[z2][0];
+		if (parhst[ppt].selz3 != "") zstack.name = zstack.name + " + " + header[z3][0];
+		if (parhst[ppt].selz4 != "") zstack.name = zstack.name + " + " + header[z4][0];
 
 		var strace1 = {
 			x: [],
@@ -5173,6 +5605,7 @@ function graphic() {
 			mode: 'lines',
 			type: 'scatter',
 			showlegend: false,
+			overlaying: 'x',
 			line: {
 				width: 2,
 				color: 'Orange',
@@ -5185,6 +5618,7 @@ function graphic() {
 			mode: 'lines',
 			type: 'scatter',
 			showlegend: false,
+			overlaying: 'x',
 			line: {
 				width: 2,
 				color: 'DarkOrange',
@@ -5197,12 +5631,14 @@ function graphic() {
 			mode: 'lines',
 			type: 'scatter',
 			showlegend: true,
+			overlaying: 'x',
 			name: 'Average',
 			line: {
 				color: 'gray',
 				width: 1
 			}
 		};
+
 
 		var sdata = [];
 
@@ -5240,7 +5676,7 @@ function graphic() {
 				if (parhst[ppt].xdtick == "") parhst[ppt].xdtick = dtick;
 			}
 
-			// Stacked graphic ( Line / Bar / Area)
+			// Stacked graphic ( Line / Bar / Area) ++++++++++++++++++++++++++++++++++++++++++++
 			slayout = {
 				paper_bgcolor: parhst[ppt].chcolor,
 				plot_bgcolor: parhst[ppt].chcolor,
@@ -5271,7 +5707,16 @@ function graphic() {
 					gridcolor: parhst[ppt].grcolor
 				},
 				yaxis2: {
-					gridcolor: parhst[ppt].grcolor
+				  range: [zmin, zmax],
+					title: '',
+					overlaying: 'y',
+					showgrid: false,
+					tickfont: {
+						size: parhst[ppt].tfonts
+					},
+					type: "",
+					// autorange: true,
+					side: 'right'
 				},
 				xaxis: {
 					range: [xmin, xmax],
@@ -5315,6 +5760,8 @@ function graphic() {
 
 			sdata = [];
 			var tt = 0;
+			var zz = 0;
+			
 
 			n = 0;
 			for (i = 0; i < sdat.length; i++) {
@@ -5344,6 +5791,7 @@ function graphic() {
 
 				var sx = [];
 				var sy = [];
+				var sz = [];
 
 				rel = vdat.length / (parhst[ppt].maxpnt * sdat.length);
 				if (rel < 1) rel = 1;
@@ -5356,12 +5804,22 @@ function graphic() {
 					if (vdat[ind].s == sdat[i].s) {
 						sx[nn] = vdat[ind].x;
 						sy[nn] = vdat[ind].y1 + vdat[ind].y2 + vdat[ind].y3 + vdat[ind].y4;
+						
+						zdat[zz] = {
+							x: vdat[ind].x, // X-Values
+							z: vdat[ind].z  // Z-Values
+			      };
+						
+				    // zstack.x[zz] = vdat[ind].x;
+				    // zstack.y[zz] = vdat[ind].z;
+				    
 						if (vdat[ind].x >= hstmin && vdat[ind].x <= hstmax) {
 							strace3.x[tt] = vdat[ind].x;
 							strace3.y[tt] = average;
 							tt += 1;
 						}
 						nn++;
+						zz++;
 						n = n + rel;
 					} else {
 						n = n + 1;
@@ -5378,7 +5836,45 @@ function graphic() {
 				sdata.push(stackn);
 				tp += stackn.x.length;
 			}
-
+			
+      // 2nd Y-Axis
+      if (parhst[ppt].selz1 != "") {
+      
+				// sort ZDAT by x values (numeric or text)
+				zdat.sort(function(a, b) {
+					var t1 = a.x,
+						  t2 = b.x;
+					return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+				});
+				
+				// aggregate data
+				var tdat = [];
+				var z = 0;
+				var t = 0;
+	      for (z = 0; z < zdat.length; z++) {
+	        if (z > 0 && tdat[t].x == zdat[z].x ) {
+	          tdat[t].z += zdat[z].z;
+	        } else {
+	          if (z > 0) {
+	            t += 1;
+	          }
+	          tdat[t]= zdat[z];
+	        }
+	      }
+	      zdat = tdat;
+	      tdat = null;
+	      
+	      // copy to ZSTACK
+	      zz = 0;
+	      for (z = 0; z < zdat.length; z++) {
+	        zstack.x[zz] = zdat[z].x;
+				  zstack.y[zz] = zdat[z].z;   
+				  zz++; 
+	      }
+        
+        sdata.push(zstack);
+      }
+      
 			// average
 			if (parhst[ppt].showhist) {
 				sdata.push(strace3);
@@ -5446,6 +5942,7 @@ function graphic() {
 				slayout.yaxis.dtick = "";
 				slayout.yaxis.range = [Math.log10(ymin), Math.log10(ymax)];
 			}
+
 			tmptl = slayout.title.text;
 
 			// Create graphics 
@@ -5458,7 +5955,7 @@ function graphic() {
 				});
 			} catch (err) {}
 
-		} else // Normal Graphic (Line / Bar / Scatter / Area)
+		} else // Normal Graphic (Line / Bar / Scatter / Area) +++++++++++++++++++++++++++++++
 		{
 			// plot every n'th point 
 			rel = vdat.length / parhst[ppt].maxpnt;
@@ -5494,7 +5991,16 @@ function graphic() {
 					gridcolor: parhst[ppt].grcolor
 				},
 				yaxis2: {
-					gridcolor: parhst[ppt].grcolor
+				  range: [zmin, zmax],
+					title: '',
+					overlaying: 'y',
+					showgrid: false,
+					tickfont: {
+						size: parhst[ppt].tfonts
+					},
+					type: "",
+					// autorange: true,
+					side: 'right'
 				},
 				xaxis: {
 					range: [xmin, xmax],
@@ -5568,17 +6074,22 @@ function graphic() {
 				stack4.showlegend = false;
 			}
 
+			
 			slayout.title.text += "  -  File: " + fname;
 			if (parhst[ppt].gtitle !== "") slayout.title.text = parhst[ppt].gtitle;
 			if (parhst[ppt].xtitle !== "") slayout.xaxis.title.text = parhst[ppt].xtitle;
 			if (parhst[ppt].ytitle !== "") slayout.yaxis.title.text = parhst[ppt].ytitle;
 
-			sdata = [stack1, stack2, stack3, stack4, strace1, strace2, strace3];
+      if (parhst[ppt].selz1 == "") sdata = [stack1, stack2, stack3, stack4, strace1, strace2, strace3];
+      if (parhst[ppt].selz1 != "") sdata = [stack1, stack2, stack3, stack4, strace1, strace2, strace3, zstack];
 
+      nn = 0;
 			for (n = 0; n < vdat.length; n = n + rel) {
 				ind = Math.trunc(n);
 				stack1.x[nn] = vdat[ind].x;
 				stack1.y[nn] = vdat[ind].y1;
+				zstack.x[nn] = vdat[ind].x;
+				zstack.y[nn] = vdat[ind].z;
 				if (parhst[ppt].stsel != 'ADD') {
 					if (parhst[ppt].sely2 != "") {
 						stack2.x[nn] = vdat[ind].x;
@@ -5628,6 +6139,11 @@ function graphic() {
 				slayout.yaxis.type = "log";
 				slayout.yaxis.dtick = "";
 				slayout.yaxis.range = [Math.log10(ymin), Math.log10(ymax)];
+			}
+			if (parhst[ppt].zlogdis) {
+				slayout.yaxis2.type = "log";
+				slayout.yaxis2.dtick = "";
+				slayout.yaxis2.range = [Math.log10(zmin), Math.log10(zmax)];
 			}
 			tmptl = slayout.title.text;
 
@@ -5897,12 +6413,16 @@ function scaleaxis(eventdata) {
 	var x1 = "";
 	var y0 = "";
 	var y1 = "";
+	var z0 = "";
+	var z1 = "";
 	//if (parhst[ppt].logdis) return;
 	var tmp = JSON.parse(JSON.stringify(eventdata), function(key, value) {
 		if (key == "xaxis.range[0]") x0 = value;
 		if (key == "xaxis.range[1]") x1 = value;
 		if (key == "yaxis.range[0]") y0 = value;
 		if (key == "yaxis.range[1]") y1 = value;
+		if (key == "yaxis2.range[0]") z0 = value;
+		if (key == "yaxis2.range[1]") z1 = value;
 		if (parhst[ppt].vstack == "") {
 			if (key == "legend.x") mlegposx = value;
 			if (key == "legend.y") mlegposy = value;
@@ -5986,7 +6506,7 @@ function scaleaxis(eventdata) {
 			return;
 		}
 	}
-	if (JSON.stringify(eventdata).includes("yaxis")) {
+	if (JSON.stringify(eventdata).includes("yaxis.")) {
 		try {
 			// scale
 			var tmin = parseFloat(y0);
@@ -6024,6 +6544,48 @@ function scaleaxis(eventdata) {
 			parhst[ppt].ytmin = "" + ymin;
 			document.getElementById("IDYTMIN").value = parhst[ppt].ytmin;
 			document.getElementById("IDYTMAX").value = parhst[ppt].ytmax;
+		} catch (err) {
+			return;
+		}
+	}
+	if (JSON.stringify(eventdata).includes("yaxis2.")) {
+		try {
+			// scale
+			var tmin = parseFloat(z0);
+			var tmax = parseFloat(z1);
+
+			if (isNaN(tmin) || isNaN(tmax)) {
+				return;
+			}
+
+			var sig = Math.sign(tmax);
+			if (sig == -1) {
+				tmax = sig * parseFloat(tmp[0][1]);
+				tmin = sig * parseFloat(tmp[1][1]);
+			}
+
+			tmin = roundscale(tmin, 'floor');
+			tmax = tmax - tmin;
+			tmax = roundscale(tmax, 'ceil') + tmin;
+
+			if (sig == -1) {
+				zmin = sig * tmax;
+				zmax = sig * tmin;
+			} else {
+				zmin = tmin;
+				zmax = tmax;
+			}
+			addhist();
+
+			if (parhst[ppt].logdis) {
+				zmax = Math.pow(10, zmax).toPrecision(6);
+				zmin = Math.pow(10, zmin).toPrecision(6);
+			}
+
+			parhst[ppt].ztmax = "" + zmax;
+			parhst[ppt].ztmin = "" + zmin;
+			document.getElementById("IDZTMIN").value = parhst[ppt].ztmin;
+			document.getElementById("IDZTMAX").value = parhst[ppt].ztmax;
 		} catch (err) {
 			return;
 		}
