@@ -31,6 +31,7 @@ var globalhd = true;
 var globalhdend = "";
 var globalnum = 0;
 
+
 // Variables
 var dati = 0;
 var txtarea = "";
@@ -571,6 +572,7 @@ function processFiles(event) {
 		if (filelist[i].name.startsWith(".")) continue;
 		  if (filelist[i].name.endsWith(fext)) readfile(filelist[i], fcnt, i + 1);
       // if (filelist[i].name.endsWith(fext)) setTimeout(readfile, 10 , filelist[i], fcnt, i + 1);
+
 	}
 
 	document.getElementById('IDdata').innerHTML = "";
@@ -734,9 +736,10 @@ function readfile(file, numtotal, filenum) {
 		filecnt += 1;
 		if (filecnt == numtotal) {
 		  FinishFiles();
-			infile = null;
-			tmpfile = null;
 		}
+
+		tmpfile = null;
+		reader = null;
 	};
 	reader.readAsText(file, "UTF-8");
 }
