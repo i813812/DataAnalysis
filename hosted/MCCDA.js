@@ -2632,7 +2632,7 @@ function parameters() {
 	if ( parhst[ppt].ztmin == undefined) parhst[ppt].ztmin = '';
 	if ( parhst[ppt].ztmax == undefined) parhst[ppt].ztmax = '';
 	if ( parhst[ppt].zlogdis == undefined) parhst[ppt].zlogdis = false;
-	if ( parhst[ppt].zshape == undefined) parhst[ppt].grztype = "linear";
+	if ( parhst[ppt].zshape == undefined) parhst[ppt].zshape = "linear";
 	if ( parhst[ppt].pzcolor == undefined) parhst[ppt].pzcolor = '#FFA500';
 	if ( parhst[ppt].ztsize == undefined) parhst[ppt].ztsize = 1;
 	if ( parhst[ppt].sndyaxis == undefined) parhst[ppt].sndyaxis = false;
