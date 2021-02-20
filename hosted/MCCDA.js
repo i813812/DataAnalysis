@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.05";
+var prgvers = "8.10";
 
 // arrays
 var dtmp = [];
@@ -27,6 +27,9 @@ var cntval = [];
 var cntcum = [];
 var header = [];
 var filelist = [];
+var globalhd = true;
+var globalhdend = "";
+var globalnum = 0;
 
 // Variables
 var dati = 0;
@@ -184,6 +187,7 @@ var wait = false;
 var init = true;
 var maxys = 0;
 var infile = [];
+var tmpfile = "";
 var prephd = true;
 var textarea = "";
 var tplclick = 0;
@@ -488,6 +492,7 @@ function processFiles(event) {
 	filelist = document.getElementById('files').files;
 	dprev = document.getElementById('IDcheckpreview').checked;
 	document.title = 'loading data....';
+	document.body.style.cursor = "progress";
 	p0 = perfnow();
 	DAC = false;
 	
@@ -561,15 +566,15 @@ function processFiles(event) {
 	if (filelist.length > 1) fname += "..." + flname;
 
 	// only read files with matching file extensions
+	document.getElementById('IDdata').innerHTML = "";
 	for (i = 0; i < filelist.length; i++) {
 		if (filelist[i].name.startsWith(".")) continue;
-		if (filelist[i].name.endsWith(fext)) readfile(filelist[i], fcnt, i + 1);
+		  if (filelist[i].name.endsWith(fext)) readfile(filelist[i], fcnt, i + 1);
+      // if (filelist[i].name.endsWith(fext)) setTimeout(readfile, 10 , filelist[i], fcnt, i + 1);
 	}
 
 	document.getElementById('IDdata').innerHTML = "";
 	document.getElementById("IDbutupd").style.display = "none";
-	document.title = 'Format Data completed';
-	document.body.style.cursor = "default";
 }
 
 function readtext(file, numtotal, filenum) {
@@ -649,11 +654,12 @@ function parsexcel() {
 	re = new RegExp('' + escapeRegExp('</tr></table></body></html>') + '.*', 'g');
 	text = text.replace(re, '');
 
-	infile[0] = {
+	tmpfile = {
 		content: text,
 		file: fname
 	};
-	process();
+	ProcessSingle(0);
+	FinishFiles();
 }
 
 function readexcel(file) {
@@ -705,15 +711,18 @@ function escapeRegExp(string) {
 function readfile(file, numtotal, filenum) {
 	// read selected input file
 	var reader = new FileReader();
-
 	reader.onload = function() {
 
-		infile[filecnt] = {
+    tmpfile = {
 			content: reader.result,
 			fname: file.name
 		};
-		if (infile[filecnt].content.includes('DataAnalysisContainer')) {
-			var container = JSON.parse(infile[filecnt].content);
+		// infile[filecnt] = {
+		// 	content: reader.result,
+		// 	fname: file.name
+		// };
+		if (tmpfile.content.includes('DataAnalysisContainer')) {
+			var container = JSON.parse(tmpfile.content);
 			parhst[ppt] = container.config;
 			data = container.gdata;
 			header = container.ghead;
@@ -721,18 +730,12 @@ function readfile(file, numtotal, filenum) {
 			DAC = true;
 			return;
 		}
+		ProcessSingle(filecnt);
 		filecnt += 1;
 		if (filecnt == numtotal) {
-			process();
-			if (data.length < 3) {
-				if (!sspace) {
-					document.getElementById('IDsep').value = "S";
-					detect = true;
-					prephd = true;
-					getsep();
-					process();
-				}
-			}
+		  FinishFiles();
+			infile = null;
+			tmpfile = null;
 		}
 	};
 	reader.readAsText(file, "UTF-8");
@@ -742,16 +745,17 @@ function update() {
 	//	read textarea and update preview
 	infile = [];
 	dprev = document.getElementById('IDcheckpreview').checked;
-	infile[0] = {
+	tmpfile = {
 		content: document.getElementById('IDtextarea').value,
 		fname: ''
 	};
-	if (infile[0].content == "") return;
+	if (tmpfile.content == "") return;
 	document.getElementById('IDdata').style.display = "none";
 	document.getElementById("IDbutupd").style.display = "none";
 	prephd = true;
 	detect = true;
-	process();
+	ProcessSingle(0);
+	FinishFiles()
 	if (data.length == 0) {
 		document.getElementById('IDdata').style.display = "inline-block";
 		document.getElementById("IDbutupd").style.display = "inline-block";
@@ -1376,26 +1380,17 @@ function checkhdr() {
 function reprocess() {
 	// re-process graphic (go-back button)
 	if (DAC) location.reload();
-	detect = true;
-	prephd = true;
-	start = true;
-	header = [];
-	data = [];
+
 	displaymode = "";
 	document.getElementById("IDgraphic").style.display = "none";
 	document.getElementById("IDhst").style.display = "none";
 	document.getElementById("IDgrp").style.display = "none";
-	dprev = true;
-	addhist();
-	parhst[ppt].selx1 = parhst[ppt].selx2 = parhst[ppt].selx3 = parhst[ppt].selx4 = "";
-	parhst[ppt].sely1 = parhst[ppt].sely2 = parhst[ppt].sely3 = parhst[ppt].sely4 = "";
-	process();
+	preview();
 }
 
-function process() {
-	// process input files (select header fields, separate data into columns)
-	document.title = 'data loaded, preparing preview';
-	document.body.style.cursor = "progress";
+function ProcessSingle(index) {
+ 
+  document.title = 'loading files ( ' + index + ' / ' + filelist.length +' )';
 
 	txtarea = "";
 	var num = 0;
@@ -1408,24 +1403,39 @@ function process() {
 	var text = [];
 	var coldel = "";
 	var hdend = "";
-	for (x = 0; x < infile.length; x++) {
-		var ind = 1;
 
-		infile[x].content = identify(infile[x].content, infile[x].fname);
+	// process input files (select header fields, separate data into columns)
+
+	txtarea = "";
+	var num = 0;
+
+	var x = 0;
+	var i = 0;
+	var n = 0;
+	var ind = 0;
+	var re = new RegExp('');
+	var tmp = 0;
+	var text = [];
+	var coldel = "";
+	var hdend = "";
+	
+	// for (x = 0; x < infile.length; x++) {
+
+		tmpfile.content = identify(tmpfile.content, tmpfile.fname);
 		// console.log("File: " + x);
 
 		if (sspace) {
-			infile[x].content = infile[x].content.replace(/ +/g, '\t');
+			tmpfile.content = tmpfile.content.replace(/ +/g, '\t');
 			colsep = "\t";
 		}
 
 		// if column separator = "," then CSV file
 		// if (colsep == "," ) {
 		if (filelist.length > 0 && filelist[0].name.includes('.csv')) {
-			text = CSVToArray(infile[x].content, colsep);
+			text = CSVToArray(tmpfile.content, colsep);
 			coldel = "\t";
 		} else {
-			text = infile[x].content.split("\n");
+			text = tmpfile.content.split("\n");
 			// detect column separator if empty
 			if (colsep == "") {
 
@@ -1447,8 +1457,6 @@ function process() {
 			}
 		}
 
-		var hd = true;
-
 		var thl = 0;
 		for (i = 0; i < text.length; i++) {
 			tmp = charCount(text[i], coldel);
@@ -1463,7 +1471,8 @@ function process() {
 		var re4 = new RegExp('\s*' + escapeRegExp(coldel) + '\s*$', 'g');
 		var re5 = new RegExp('' + escapeRegExp(coldel) + '', 'g');
 
-		var fln = pad(x, 1 + Math.trunc(Math.log10(infile.length + 1)));
+		var fln = pad(index, 5);
+		var idl = Math.trunc(Math.log10(text.length) + 1);
 
 		for (i = 0; i < text.length; i++) {
 
@@ -1472,11 +1481,11 @@ function process() {
 
 			if (res == "---" || text[i] == "") continue;
 
-			if (hd) {
+			if (globalhd) {
 				// Header 
 				if (prephd) {
-					num = charCount(text[i], coldel);
-					if (num < thl) continue;
+					globalnum = charCount(text[i], coldel);
+					if (globalnum < thl) continue;
 
 					text[i] = text[i].replace(re1, '');
 					text[i] = text[i].replace(re2, '');
@@ -1484,7 +1493,7 @@ function process() {
 
 					text[i] = "File" + coldel + "Index" + coldel + text[i];
 
-					hdend = text[i].slice(Math.trunc(text[i].length / 2));
+					globalhdend = text[i].slice(Math.trunc(text[i].length / 2));
 					var hdrtmp = text[i].split(coldel);
 					for (n = 0; n < hdrtmp.length; n++) {
 						header[n] = [hdrtmp[n].trim(), ""];
@@ -1503,13 +1512,13 @@ function process() {
 					prephd = false;
 					checkhdr();
 				}
-				hd = false;
+				globalhd = false;
 			}
-			if (!hd || hdrempty) {
+			if (!globalhd) {
 				// item records
 				if (header[1][0] == "") break;
 				// if (text[i].includes(header[2][0])) continue;
-				if (text[i].includes(hdend)) continue;
+				if (text[i].includes(globalhdend)) continue;
 				// Decimal Notation
 				if (decpnt == '.') {
 					if (coldel != ',') {
@@ -1520,13 +1529,13 @@ function process() {
 					text[i] = text[i].replace(/,/g, '\.');
 				}
 				var cols = charCount(text[i], coldel);
-				if (cols != num) continue;
+				if (cols != globalnum) continue;
 				text[i] = text[i].replace(re1, '');
 				text[i] = text[i].replace(re2, '');
 				text[i] = text[i].replace(re4, '');
 				text[i] = text[i].replace(re3, '');
-				var idx = 'I' + pad(ind, 1 + Math.trunc(Math.log10(infile.length * text.length + 1)));
-				if (usefnam) text[i] = "" + infile[x].fname + coldel + idx + coldel + text[i];
+				var idx = 'I' + pad(ind, idl);
+				if (usefnam) text[i] = "" + tmpfile.fname + coldel + idx + coldel + text[i];
 				else text[i] = "F" + fln + coldel + idx + coldel + text[i];
 				// text[i] = text[i].replace(re5, "\t");
 				// text[i] = text[i].replace(/,/g, "");
@@ -1545,9 +1554,31 @@ function process() {
 				data.push("");
 				data[data.length - 1] = dtmp.slice(0);
 				ind++;
+				
 			}
 		}
-	}
+
+    tmpfile = "";
+
+    tcols = null;
+    text = null;
+		
+	// }
+}
+
+function FinishFiles() {
+
+	txtarea = "";
+	var num = 0;
+	var x = 0;
+	var i = 0;
+	var n = 0;
+	var re = new RegExp('');
+	var tmp = 0;
+	var text = [];
+	var coldel = "";
+	var hdend = "";
+
 	text = [];
 	if (data.length < 3) return;
 
@@ -1657,6 +1688,41 @@ function process() {
 		parameters();
 	}
 
+
+}
+
+function process() {
+	// process input files (select header fields, separate data into columns)
+	document.title = 'processing data ';
+	document.body.style.cursor = "progress";
+
+	detect = true;
+	prephd = true;
+	start = true;
+	header = [];
+	data = [];
+	displaymode = "";
+	
+  globalhd = true;
+  globalhdend = "";
+
+	txtarea = "";
+	var num = 0;
+	var x = 0;
+	var i = 0;
+	var n = 0;
+	var re = new RegExp('');
+	var tmp = 0;
+	var text = [];
+	var coldel = "";
+	var hdend = "";
+	
+	for (x = 0; x < infile.length; x++) {
+	   tmpfile = infile[x];
+	   ProcessSingle(x);
+	}
+	FinishFiles();
+
 }
 
 function headertyp() {
@@ -1751,6 +1817,8 @@ function preview() {
 	var n = 0;
 	var i = 0;
 	
+	start = true;
+	
 	if ( data.length < 5) return;
 
 	var dtf = "";
@@ -1777,9 +1845,9 @@ function preview() {
 	var str = "<small>Review data, if required edit header description(s), then press <i><b>Graphic</b></i> button to display the histogram & scatterplot - Select Date Format: " + dtf + "  - Use: ";
 
 	if (usefnam) {
-		str += "<button onclick='toggleusefnam()' title='Toggle File Name / File count' >File Name</button>";
-	} else {
 		str += "<button onclick='toggleusefnam()' title='Toggle File Name / File count' >File Count</button>";
+	} else {
+		str += "<button onclick='toggleusefnam()' title='Toggle File Name / File count' >File Name</button>";
 	}
 	str += "</small><br>";
 
@@ -1839,13 +1907,21 @@ function toggleusefnam() {
 	// Filename or File counter
 	if (usefnam) usefnam = false;
 	else usefnam = true;
-	detect = true;
-	prephd = true;
-	start = true;
-	header = [];
-	data = [];
-	displaymode = "";
-	process();
+	var fileind = 0;
+	for (var n = 0; n < data.length; n++) {
+	  if (usefnam) { 
+	    fileind = parseInt(data[n][0].substring(1,6));
+	    data[n][0] = filelist[fileind].name;
+	  } else {
+	    for (var i = 0; i < filelist.length; i++) {
+	      if (data[n][0] == filelist[i].name) {
+	        var fln = pad(i, 5);
+	        data[n][0] = "F" + fln;
+	      }
+	    }
+	  }
+	}
+	preview();
 }
 
 function shdr(e) {
@@ -1911,19 +1987,7 @@ function seldatfrm() {
 
 function goback() {
 	// reload (go-back from 2nd screen)
-	if (typeof BuildInit === "function") {
-		// re-process
-		header = [];
-		data = [];
-		infile = [];
-		txtarea = "";
-		displaymode = "";
-		filecnt = 0;
-		prephd = true;
-		detect = true;
-		start = true;
-		BuildInit();
-	} else location.reload();
+	location.reload();
 }
 
 function readhdr() {
@@ -1992,36 +2056,14 @@ function dtdelete(e) {
 		}
 
 		// re-create output 
-		var text = "";
-		for (n = 2; n < header.length; n++) {
-			text += header[n][0];
-			if (n < header.length - 1) text += "\t";
-		}
-		text += "\n";
-		for (n = 0; n < data.length; n++) {
-			for (var i = 2; i < data[n].length; i++) {
-				text += data[n][i];
-				if (i < data[n].length - 1) text += "\t";
-			}
-			text += "\n";
-		}
+		data.sort(function(a, b) {
+        var t1 = a[0] + a[1];
+        var t2 = b[0] + b[1];
+		  return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+	  });
 
 		// re-process
-		infile = [];
-		infile[0] = {
-			content: text,
-			fname: ''
-		};
-		detect = true;
-		prephd = true;
-		start = true;
-		header = [];
-		data = [];
-		displaymode = "";
-		document.getElementById("IDgraphic").style.display = "none";
-		document.getElementById("IDhst").style.display = "none";
-		document.getElementById("IDgrp").style.display = "none";
-		process();
+		preview();
 	}, 25);
 
 }
@@ -2093,21 +2135,7 @@ function splithdr() {
 	}
 
 	// re-process
-	infile = [];
-	infile[0] = {
-		content: text,
-		fname: ''
-	};
-	detect = true;
-	prephd = true;
-	start = true;
-	header = [];
-	data = [];
-	displaymode = "";
-	document.getElementById("IDgraphic").style.display = "none";
-	document.getElementById("IDhst").style.display = "none";
-	document.getElementById("IDgrp").style.display = "none";
-	process();
+	preview();
 }
 
 function SAPlogo(pwidth, pheight) {
