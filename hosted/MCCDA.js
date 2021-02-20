@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.01";
+var prgvers = "8.05";
 
 // arrays
 var dtmp = [];
@@ -124,12 +124,12 @@ var inparam = {
 	chcolor: '#FEFEFE',
 	fgcolor: '#444444',
 	grcolor: '#DDDDDD',
-	ptcolor: '#0000FF',
-	p1color: '#20B2AA',
-	p2color: '#F4D02F',
-	p3color: '#FF0000',
+	ptcolor: '#002E7A',
+	p1color: '#016D8F',
+	p2color: '#FFB440',
+	p3color: '#7B209F',
 	colsc: [
-		[0, '#cccccc'],
+		[0, '#74a7fe'],
 		[0, '#ff9900'],
 		[0, '#ff0000'],
 		[0, '#660066']
@@ -145,7 +145,9 @@ var inparam = {
 	zshape: "linear",
 	pzcolor: '#FFA500',
 	ztsize: 1,
-	sndyaxis: false
+	sndyaxis: false,
+	opaci: 0.75,
+	zopac: 0.5
 };
 
 // Input parameter history
@@ -302,6 +304,8 @@ function loaddefault() {
 	parhst[ppt].pzcolor = tmp.pzcolor;
 	parhst[ppt].ztsize = tmp.ztsize;
 	parhst[ppt].sndyaxis = tmp.sndyaxis;
+	parhst[ppt].zopac = tmp.zopac;
+	parhst[ppt].opaci = tmp.opaci;
 }
 
 function dnlexport() {
@@ -1646,6 +1650,7 @@ function process() {
 			}
 		}
 	}
+	
 	if (dprev) {
 		preview();
 	} else {
@@ -2130,23 +2135,23 @@ function SAPlogo(pwidth, pheight) {
 	str += '			 spreadMethod="pad"> ';
 	str += '			<stop ';
 	str += '			   id="stop3050" ';
-	str += '			   style="stop-color:#00b8f1;stop-opacity:1" ';
+	str += '			   style="stop-color:#00b8f1;stop-zopac:1" ';
 	str += '			   offset="0" /> ';
 	str += '			<stop ';
 	str += '			   id="stop3052" ';
-	str += '			   style="stop-color:#06a5e5;stop-opacity:1" ';
+	str += '			   style="stop-color:#06a5e5;stop-zopac:1" ';
 	str += '			   offset="0.2198" /> ';
 	str += '			<stop ';
 	str += '			   id="stop3054" ';
-	str += '			   style="stop-color:#06a5e5;stop-opacity:1" ';
+	str += '			   style="stop-color:#06a5e5;stop-zopac:1" ';
 	str += '			   offset="0.2198" /> ';
 	str += '			<stop ';
 	str += '			   id="stop3056" ';
-	str += '			   style="stop-color:#1870c5;stop-opacity:1" ';
+	str += '			   style="stop-color:#1870c5;stop-zopac:1" ';
 	str += '			   offset="0.7943" /> ';
 	str += '			<stop ';
 	str += '			   id="stop3058" ';
-	str += '			   style="stop-color:#1d61bc;stop-opacity:1" ';
+	str += '			   style="stop-color:#1d61bc;stop-zopac:1" ';
 	str += '			   offset="1" /> ';
 	str += '		</linearGradient> ';
 	str += '		<linearGradient ';
@@ -2193,15 +2198,15 @@ function SAPlogo(pwidth, pheight) {
 	str += '	<path ';
 	str += '		 d="m 0,0 0,44.415 45.371,0 44.41,-44.41 0,0 -89.781,0 z" ';
 	str += '		 id="path3060" ';
-	str += '		 style="fill:url(#linearGradient5334);fill-opacity:1;stroke:none" /> ';
+	str += '		 style="fill:url(#linearGradient5334);fill-zopac:1;stroke:none" /> ';
 	str += '	<path ';
 	str += '		 d="m 57.4688,39.875 0,3.3125 0.5,0 0,-1.4375 0.5624,0 0.9063,1.4375 0.5625,0 -0.9688,-1.4375 c 0.4841,-0.06 0.875,-0.3415 0.875,-0.9375 0,-0.653 -0.3996,-0.9375 -1.1874,-0.9375 l -1.25,0 z m 0.5,0.4375 0.6874,0 c 0.3381,0 0.7188,0.055 0.7188,0.4687 0,0.5171 -0.3855,0.5626 -0.8125,0.5626 l -0.5937,0 0,-1.0313 z m 0.625,-1.6563 c -1.586,0 -2.9376,1.2221 -2.9376,2.875 0,1.665 1.3515,2.9063 2.9376,2.9063 1.564,0 2.875,-1.2411 2.875,-2.9063 0,-1.6529 -1.311,-2.875 -2.875,-2.875 z m 0,0.4688 c 1.2939,0 2.3124,1.0453 2.3124,2.4062 0,1.3842 -1.0185,2.4063 -2.3124,2.4063 -1.3161,0 -2.375,-1.0221 -2.375,-2.4063 0,-1.3609 1.0589,-2.4062 2.375,-2.4062 z" ';
 	str += '		 id="path5384" ';
-	str += '		 style="fill:#1870c5;fill-opacity:1;fill-rule:nonzero;stroke:none" /> ';
+	str += '		 style="fill:#1870c5;fill-zopac:1;fill-rule:nonzero;stroke:none" /> ';
 	str += '	<path ';
 	str += '		 d="m 53.797,21.252 -1.946,0 0,-7.117 1.946,0 c 2.598,0 4.666,0.856 4.666,3.513 0,2.744 -2.068,3.604 -4.666,3.604 M 32.852,26.34 c -1.03,0 -1.996,-0.188 -2.831,-0.502 l 2.803,-8.84 0.06,0 2.745,8.864 c -0.827,0.296 -1.768,0.478 -2.774,0.478 m 20.426,-17.987 -8.837,0 0,21.013 -7.72,-21.013 -7.652,0 -6.596,17.568 c -0.697,-4.428 -5.284,-5.961 -8.89,-7.104 -2.377,-0.765 -4.907,-1.889 -4.884,-3.134 0.02,-1.018 1.359,-1.962 4,-1.821 1.78,0.09 3.35,0.234 6.467,1.741 l 3.07,-5.348 C 19.395,8.802 15.454,7.89 12.23,7.883 l -0.02,0 c -3.761,0 -6.895,1.226 -8.839,3.233 -1.351,1.404 -2.082,3.18 -2.115,5.157 -0.05,2.708 0.947,4.63 3.034,6.167 1.766,1.294 4.019,2.127 6.009,2.751 2.455,0.757 4.459,1.418 4.436,2.827 -0.02,0.513 -0.211,0.994 -0.582,1.374 -0.611,0.635 -1.55,0.87 -2.849,0.899 -2.504,0.05 -4.361,-0.34 -7.319,-2.088 l -2.729,5.423 c 2.949,1.679 6.44,2.661 10.003,2.661 l 0.461,0 c 3.1,-0.06 5.604,-0.945 7.605,-2.553 l 0.324,-0.283 -0.884,2.376 8.025,0 1.348,-4.099 c 1.41,0.477 3.016,0.745 4.716,0.745 1.659,0 3.224,-0.25 4.609,-0.706 l 1.296,4.06 13.094,0 0,-8.49 2.857,0 c 6.9,0 10.986,-3.512 10.986,-9.406 0,-6.56 -3.968,-9.569 -12.416,-9.569" ';
 	str += '		 id="path3100" ';
-	str += '		 style="fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none" /> ';
+	str += '		 style="fill:#ffffff;fill-zopac:1;fill-rule:evenodd;stroke:none" /> ';
 	str += '</svg>';
 	return str;
 }
@@ -2482,7 +2487,8 @@ function changevstack() {
 }
 
 function SAPclick() {
-	//
+  try { infile = null; } catch (e) { }
+  parameters();
 }
 
 function getsep() {
@@ -2499,11 +2505,25 @@ function changeparam() {
 	// read changed parameters
   var ytmp;
 	addhist();
-	if (displaymode == "graphic") parhst[ppt].ytmin = document.getElementById("IDYTMIN").value;
-	if (displaymode == "graphic") parhst[ppt].ytmax = document.getElementById("IDYTMAX").value;
-	if (parhst[ppt].sndyaxis) {
-	  if (displaymode == "graphic") parhst[ppt].ztmin = document.getElementById("IDZTMIN").value;
-	  if (displaymode == "graphic") parhst[ppt].ztmax = document.getElementById("IDZTMAX").value;
+	if (displaymode == "graphic") {
+	  parhst[ppt].ytmin = document.getElementById("IDYTMIN").value;
+	  parhst[ppt].ytmax = document.getElementById("IDYTMAX").value;
+	  parhst[ppt].opaci = document.getElementById("IDopaci").value;
+	  
+
+	  if (parhst[ppt].opaci < 0) parhst[ppt].opaci = 0;
+	  if (parhst[ppt].opaci > 1) parhst[ppt].opaci = 1;
+	  parhst[ppt].opaci = parseInt( Math.floor( parhst[ppt].opaci * 20 ) ) / 20;
+	  
+	  if (parhst[ppt].sndyaxis) {
+	    parhst[ppt].ztmin = document.getElementById("IDZTMIN").value;
+	    parhst[ppt].ztmax = document.getElementById("IDZTMAX").value;
+	    parhst[ppt].zopac = document.getElementById("IDzopac").value;
+	    
+	    if (parhst[ppt].zopac < 0) parhst[ppt].zopac = 0;
+	    if (parhst[ppt].zopac > 1) parhst[ppt].zopac = 1;
+	    parhst[ppt].zopac = parseInt( Math.floor( parhst[ppt].zopac * 20 ) ) / 20;
+	  }
 	}
 
 	if (parhst[ppt].ytmin.includes(">")) {
@@ -2526,18 +2546,22 @@ function changeparam() {
 	}
 	zmax = parseFloat(parhst[ppt].ztmax);
 
-	if (displaymode == "graphic") parhst[ppt].xinpmin = document.getElementById("IDXMIN").value;
-	if (displaymode == "graphic") parhst[ppt].hstinpmin = document.getElementById("IDHSTMIN").value;
-	if (displaymode == "graphic") parhst[ppt].xinpmax = document.getElementById("IDXMAX").value;
-	if (displaymode == "graphic") parhst[ppt].hstinpmax = document.getElementById("IDHSTMAX").value;
-	if (displaymode == "graphic") parhst[ppt].maxpnt = document.getElementById("IDMAXPNT").value;
-	if (displaymode == "graphic") parhst[ppt].dtsize = document.getElementById("IDDTSIZE").value;
-	if (displaymode == "graphic") parhst[ppt].ztsize = document.getElementById("IDZTSIZE").value;
-	if (displaymode == "graphic") parhst[ppt].avgint = document.getElementById("IDAVGINT").value;
-	if (displaymode == "graphic") parhst[ppt].filter = document.getElementById("IDFILTER").value;
-	if (displaymode == "graphic") parhst[ppt].vstack = document.getElementById("IDVSTACK").value;
-	if (displaymode == "graphic") parhst[ppt].opr = document.getElementById("IDOPR").value;
-	if (displaymode == "graphic") parhst[ppt].scnt = document.getElementById("IDSCNT").value;
+	if (displaymode == "graphic") {
+		parhst[ppt].xinpmin = document.getElementById("IDXMIN").value;
+		parhst[ppt].hstinpmin = document.getElementById("IDHSTMIN").value;
+		parhst[ppt].xinpmax = document.getElementById("IDXMAX").value;
+		parhst[ppt].hstinpmax = document.getElementById("IDHSTMAX").value;
+		parhst[ppt].maxpnt = document.getElementById("IDMAXPNT").value;
+		parhst[ppt].dtsize = document.getElementById("IDDTSIZE").value;
+		parhst[ppt].avgint = document.getElementById("IDAVGINT").value;
+		parhst[ppt].filter = document.getElementById("IDFILTER").value;
+		parhst[ppt].vstack = document.getElementById("IDVSTACK").value;
+		parhst[ppt].opr = document.getElementById("IDOPR").value;
+		parhst[ppt].scnt = document.getElementById("IDSCNT").value;
+		
+		if (parhst[ppt].sndyaxis) parhst[ppt].ztsize = document.getElementById("IDZTSIZE").value;
+	}
+
 	parameters();
 	document.title = 'Data Analysis - graphic refresh pending ... ';
 	document.getElementById("IDDOT").className = "dotyel";
@@ -2598,6 +2622,21 @@ function parameters() {
 
 	// infile = null;
 	// txtarea = null;
+	
+	// Initialize values for 2nd Axis
+	if ( parhst[ppt].grztype == undefined) parhst[ppt].grztype = "line";
+	if ( parhst[ppt].selz1 == undefined) parhst[ppt].selz1 = '';
+	if ( parhst[ppt].selz2 == undefined) parhst[ppt].selz2 = '';
+	if ( parhst[ppt].selz3 == undefined) parhst[ppt].selz3 = '';
+	if ( parhst[ppt].selz4 == undefined) parhst[ppt].selz4 = '';
+	if ( parhst[ppt].ztmin == undefined) parhst[ppt].ztmin = '';
+	if ( parhst[ppt].ztmax == undefined) parhst[ppt].ztmax = '';
+	if ( parhst[ppt].zlogdis == undefined) parhst[ppt].zlogdis = false;
+	if ( parhst[ppt].zshape == undefined) parhst[ppt].grztype = "linear";
+	if ( parhst[ppt].pzcolor == undefined) parhst[ppt].pzcolor = '#FFA500';
+	if ( parhst[ppt].ztsize == undefined) parhst[ppt].ztsize = 1;
+	if ( parhst[ppt].sndyaxis == undefined) parhst[ppt].sndyaxis = false;
+	if ( parhst[ppt].zopac == undefined) parhst[ppt].zopac = 0.5;
 
 	document.getElementById('ID(C)').innerHTML = "";
 	document.getElementById('IDdata').innerHTML = "";
@@ -2996,13 +3035,7 @@ function parameters() {
 		if (parhst[ppt].grztype == 'area') htmlcont += "<option value='area' selected > Area </option> \n";
 		else htmlcont += "<option value='area'> Area </option> \n";
 		htmlcont += "</select>";
-	
-		// SUM / AVG / MIN / AMX
-		if (parhst[ppt].zopr == 'SUM') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM' selected >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
-		if (parhst[ppt].zopr == 'AVG') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG' selected >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
-		if (parhst[ppt].zopr == 'MAX') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX' selected >MAX</option> <option value='MIN'		      >MIN</option></select>";
-		if (parhst[ppt].zopr == 'MIN') htmlcont += " <select id='IDZOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'	         >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN' selected >MIN</option></select>";
-	
+		
 		if (parhst[ppt].zlogdis) {
 			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: logarithmic scale' style='color:black' onclick='setzlogdis()'><B>Log</b></button>";
 		} else {
@@ -3020,7 +3053,9 @@ function parameters() {
 		htmlcont += str;
 	
 		htmlcont += " Size: <input id='IDZTSIZE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10' type='number' name='dtsize' value='" + parhst[ppt].ztsize + "'>";
+		
 		htmlcont += " Color: <input id='IDpzcolor' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].pzcolor + "'>";
+		htmlcont += " <input type='number' title='Opacity' onchange='changeparam()' id='IDzopac'  style='width:4em;' size='6' step='0.05' value='" + parhst[ppt].zopac +  "' min='0' max='1'>";
 
 
 		htmlcont += "</div></td>";
@@ -3044,6 +3079,8 @@ function parameters() {
 	htmlcont += " <input id='IDp1color' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].p1color + "'>";
 	htmlcont += " <input id='IDp2color' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].p2color + "'>";
 	htmlcont += " <input id='IDp3color' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].p3color + "'>";
+	
+	htmlcont += " <input type='number' title='Opacity' onchange='changeparam()' id='IDopaci'  style='width:4em;' size='6' step='0.05' value='" + parhst[ppt].opaci +  "' min='0' max='1'>";
 
 	if (parhst[ppt].showhist) {
 		htmlcont += " <button id='IDBHST' onclick='showhide()'>Hide Histogram</button>";
@@ -3059,14 +3096,7 @@ function parameters() {
 	} else {
 		htmlcont += " <button title='Display 2nd Y-Axis' onclick='toggle2ndaxis()'> 2nd Y-Axis </button>";
 	}
-	
 
-	if (autohide) {
-		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
-	} else {
-		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Show</i></small></a> ";
-	}
-	htmlcont += " <a href='#' title='Help & Documentation' onclick='check4update()'><small><i>Help</i></small></a>  ";
 
 	htmlcont += " </td></tr>";
 	htmlcont += " <tr><td colspan='3'>";
@@ -3151,7 +3181,8 @@ function parameters() {
 	str += "</select>";
 	htmlcont += str;
 
-	htmlcont += " <button id='IDbutret' style='color:gray' onclick='reprocess()'><i>go back</i></button><button title='Set Chart and Axis Title(s)' onclick='settitle()'>Title</button>";
+	if (infile != null) htmlcont += " <button id='IDbutret' style='color:gray' onclick='reprocess()'><i>go back</i></button>";
+	htmlcont += " <button title='Set Chart and Axis Title(s)' onclick='settitle()'>Title</button>";
 	htmlcont += " <button id='ID+' title='Increase font size' onclick='incfonts()'>+</button><button id='ID-' title='Decrease font size' onclick='decfonts()'>-</button>";
 
 	htmlcont += " <button id='IDEXP' title='Export Configuration Settings \n(hold Shift-Key to export Data Container)' onclick='expset()'>Exp.</button><button id='IDIMP' title='Import Configuration Settings \n(hold Shift-Key to import Data Container)' onclick='impset()'>Imp.</button>";
@@ -3161,6 +3192,15 @@ function parameters() {
 	htmlcont += "<button id='IDDEFAULT' title='Set Default Settings' onclick='savedefault()'>Default</button>";
 	htmlcont += "<button id='IDSAVE' title='Save Settings' onclick='savehist()'>Save</button>";
 	htmlcont += "<button id='IDINCHST' title='forward to next settings' onclick='inchist()'> &gt; </button>";
+	
+
+	if (autohide) {
+		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
+	} else {
+		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Show</i></small></a> ";
+	}
+	
+	htmlcont += " <a href='#' title='Help & Documentation' onclick='check4update()'><small><i>Help</i></small></a>  ";
 
 	// style='background:lightgray; margin:0px; padding:0px;'
 	htmlcont += " </td></tr></table>";
@@ -3308,7 +3348,21 @@ function setparam() {
 	document.getElementById('IDDTSIZE').value = parhst[ppt].dtsize;
 	document.getElementById('IDAVGINT').value = parhst[ppt].avgint;
 	document.getElementById('IDSMOOTH').value = parhst[ppt].smooth;
-
+  document.getElementById('IDopaci').value = parhst[ppt].opaci;
+  if (parhst[ppt].sndyaxis) {
+		document.getElementById('IDZ1').value = parhst[ppt].selz1;
+		document.getElementById('IDZ2').value = parhst[ppt].selz2;
+		document.getElementById('IDZ3').value = parhst[ppt].selz3;
+		document.getElementById('IDZ4').value = parhst[ppt].selz4;
+		document.getElementById('IDZTMIN').value = parhst[ppt].ztmin;
+		document.getElementById('IDZTMAX').value = parhst[ppt].ztmax;
+    document.getElementById('IDGRZTYPE').value = parhst[ppt].grztype;
+	  document.getElementById('IDZLOGDIS').value = parhst[ppt].zlogdis;
+	  document.getElementById('IDZSHAPE').value = parhst[ppt].zshape;
+	  document.getElementById('IDpzcolor').value = parhst[ppt].pzcolor;
+	  document.getElementById('IDZTSIZE').value = parhst[ppt].ztsize;
+	  document.getElementById('IDzopac').value = parhst[ppt].zopac;
+  }
 }
 
 function addhist() {
@@ -3386,13 +3440,15 @@ function addhist() {
 			selz2: tmp.selz2,
 			selz3: tmp.selz3,
 			selz4: tmp.selz4,
-			ztmin: tmp.ytmin,
-			ztmax: tmp.ytmax,
+			ztmin: tmp.ztmin,
+			ztmax: tmp.ztmax,
     	grztype: tmp.grztype,
 	    zlogdis: tmp.zlogdis,
 	    pzcolor: tmp.pzcolor,
 	    ztsize: tmp.ztsize,
-	    sndyaxis: tmp.sndyaxis
+	    sndyaxis: tmp.sndyaxis,
+	    opaci: tmp.opaci,
+	    zopac: tmp.zopac
 		};
 		ppt = parhst.length - 1;
 	}
@@ -5373,6 +5429,9 @@ function graphic() {
 
 		parhst[ppt].Gw = Math.trunc((document.body.clientWidth - 40) * 0.95);
 	}
+	
+	if (parhst[ppt].opaci == 0 || parhst[ppt].opaci == '' || parhst[ppt].opaci == undefined ) parhst[ppt].opaci = 0.75;
+	if (parhst[ppt].zopac == 0 || parhst[ppt].zopac == '' || parhst[ppt].zopac == undefined ) parhst[ppt].zopac = 0.50;
 
 	if (parhst[ppt].Gw == 0) {
 		if (parhst[ppt].Hw > 0) {
@@ -5552,14 +5611,15 @@ function graphic() {
 			this.type = chtype;
 			this.stackgroup = group;
 			this.showlegend = slegend;
+			this.fillcolor = hexToRgbA(color,parhst[ppt].opaci);
 			// this.overlaying = 'x';
 			this.marker = {
 				size: parhst[ppt].dtsize,
-				color: color
+				color: hexToRgbA(color,parhst[ppt].opaci),
 			};
 			this.fill = filmod;
 				this.line = {
-					color: color,
+					color: hexToRgbA(color,parhst[ppt].opaci),
 					width: lnsize,
 					shape: parhst[ppt].sshape,
 				};
@@ -5580,24 +5640,29 @@ function graphic() {
 			mode: zhmode,
 			type: zhtype,
 			showlegend: true,
-			// overlaying: 'x',
+			// overlaying: 'y',
 			fill: filmoz,
 			name: '',
+			//zopac: parhst[ppt].zopac,
+			fillcolor: hexToRgbA(parhst[ppt].pzcolor,parhst[ppt].zopac),
 			marker: {
 				size: parhst[ppt].ztsize,
-				color: parhst[ppt].pzcolor
+				color: hexToRgbA(parhst[ppt].pzcolor,parhst[ppt].zopac),
 			},
 			line: {
 				width: parhst[ppt].ztsize,
-				color: parhst[ppt].pzcolor,
-				shape: parhst[ppt].zshape
+				// color: parhst[ppt].pzcolor,
+				color: hexToRgbA(parhst[ppt].pzcolor,parhst[ppt].zopac),
+				shape: parhst[ppt].zshape,
 			}
 		};
 		
-		if (parhst[ppt].selz1 != "") zstack.name = header[z1][0];
-		if (parhst[ppt].selz2 != "") zstack.name = zstack.name + " + " + header[z2][0];
-		if (parhst[ppt].selz3 != "") zstack.name = zstack.name + " + " + header[z3][0];
-		if (parhst[ppt].selz4 != "") zstack.name = zstack.name + " + " + header[z4][0];
+		try {
+			if (parhst[ppt].selz1 != "") zstack.name = header[z1][0];
+			if (parhst[ppt].selz2 != "") zstack.name = zstack.name + " + " + header[z2][0];
+			if (parhst[ppt].selz3 != "") zstack.name = zstack.name + " + " + header[z3][0];
+			if (parhst[ppt].selz4 != "") zstack.name = zstack.name + " + " + header[z4][0];
+	  } catch (err) {}
 
 		var strace1 = {
 			x: [],
@@ -5762,6 +5827,8 @@ function graphic() {
 			var tt = 0;
 			var zz = 0;
 			
+			zdat = [];
+			
 
 			n = 0;
 			for (i = 0; i < sdat.length; i++) {
@@ -5776,18 +5843,20 @@ function graphic() {
 					showlegend: true,
 					marker: {
 						size: parhst[ppt].dtsize,
-						color: parhst[ppt].ptcolor
+						color: hexToRgbA(parhst[ppt].ptcolor,parhst[ppt].opaci),
 					},
 					fill: filmod,
 					name: '',
 					line: {
-						color: parhst[ppt].ptcolor,
+						color: hexToRgbA(parhst[ppt].ptcolor,parhst[ppt].opaci),
 						width: lnsize,
 						shape: parhst[ppt].sshape
 					},
 				};
+				
+				
 
-				stackn.marker.color = stackn.line.color = rgbint(i, sdat.length - 1);
+				stackn.marker.color = stackn.line.color = stackn.fillcolor = hexToRgbA(rgbint(i, sdat.length - 1),parhst[ppt].opaci);
 
 				var sx = [];
 				var sy = [];
@@ -5941,6 +6010,11 @@ function graphic() {
 				slayout.yaxis.type = "log";
 				slayout.yaxis.dtick = "";
 				slayout.yaxis.range = [Math.log10(ymin), Math.log10(ymax)];
+			}
+			if (parhst[ppt].zlogdis) {
+				slayout.yaxis2.type = "log";
+				slayout.yaxis2.dtick = "";
+				slayout.yaxis2.range = [Math.log10(zmin), Math.log10(zmax)];
 			}
 
 			tmptl = slayout.title.text;
@@ -6373,6 +6447,19 @@ function graphic() {
 				// th.appendChild(grip);
 			});
 	}
+}
+
+function hexToRgbA(hex,opacity){
+    var c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+        c= hex.substring(1).split('');
+        if(c.length== 3){
+            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+        }
+        c= '0x'+c.join('');
+        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',' + opacity + ')';
+    }
+    return hex;
 }
 
 // round values up/down
