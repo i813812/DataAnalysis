@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.10";
+var prgvers = "8.11";
 
 // arrays
 var dtmp = [];
@@ -584,7 +584,6 @@ function readtext(file, numtotal, filenum) {
   var reader = new FileReader();
   document.getElementById("IDtextarea").value  = "";
   reader.onload = function() {
-  	debugger;
     textcont += reader.result + "\n";
     if (filenum == numtotal) {
       document.getElementById("IDtextarea").value = textcont;
@@ -1033,139 +1032,141 @@ function identify(content, fname = "") {
 		var tbi6 = 0;
 		tab0[0] = "Host\tMachine\tProcessor\tTime\tDate\t";
 		for (i = 0; i < text.length; i++) {
-			tmp = text[i].split(",");
-			switch (tmp[0]) {
-				case "CPU_ALL":
-					tab1[tbi1] = "";
-					for (n = 0; n < tmp.length; n++) {
-						if (n < 2) continue;
-						if (tbi1 == 0) tmp[n] = "CPU " + tmp[n];
-						tab1[tbi1] += tmp[n] + "\t";
-					}
-					tbi1 += 1;
-					break;
-				case "MEM":
-					tab2[tbi2] = "";
-					for (n = 0; n < tmp.length; n++) {
-						tmp[n] = tmp[n].replace("Size of the Compressed pool(MB)", "Cmpr.Pool(MB)");
-						tmp[n] = tmp[n].replace("Size of true memory(MB)", "True Mem.(MB)");
-						tmp[n] = tmp[n].replace("Expanded memory size(MB)", "Exp.Mem.(MB)");
-						tmp[n] = tmp[n].replace("Size of the Uncompressed pool(MB)", "UnCmpr.Pool(MB)");
-						if (n < 2) continue;
-						if (n > 7) continue;
-						if (tbi2 == 0) tmp[n] = "MEM " + tmp[n];
-						tab2[tbi2] += tmp[n] + "\t";
-					}
-					tbi2 += 1;
-					break;
-				case "MEMNEW":
-					tab3[tbi3] = "";
-					for (n = 0; n < tmp.length; n++) {
-						tmp[n] = tmp[n].replace("Compressed Pool", "Cmpr.Pool");
-						if (n < 2) continue;
-						if (n > 7) continue;
-						if (tbi3 == 0) tmp[n] = "MEM " + tmp[n];
-						tab3[tbi3] += tmp[n] + "\t";
-					}
-					tbi3 += 1;
-					break;
-				case "PROC":
-					tab4[tbi4] = "";
-					for (n = 0; n < tmp.length; n++) {
-						if (n < 2 || n > 7) continue;
-						if (tbi4 == 0) tmp[n] = "PROC " + tmp[n];
-						tab4[tbi4] += tmp[n] + "\t";
-					}
-					tbi4 += 1;
-					break;
-				case "LPAR":
-					tab5[tbi5] = "";
-					for (n = 0; n < tmp.length; n++) {
-						if (n < 2 || n > 12) continue;
-						if (tbi5 == 0) tmp[n] = "LPAR " + tmp[n];
-						tab5[tbi5] += tmp[n] + "\t";
-					}
-					tbi5 += 1;
-					break;
-				case "PAGE":
-					tab6[tbi6] = "";
-					for (n = 0; n < tmp.length; n++) {
-						if (n < 2 || n > 4) continue;
-						if (tbi6 == 0) tmp[n] = "PAGE " + tmp[n];
-						tab6[tbi6] += tmp[n] + "\t";
-					}
-					tbi6 += 1;
-					break;
-				case "AAA":
-					if (tmp[1] == "host") {
-						host = tmp[2];
-					}
-					break;
-				case "BBBP":
-					if (tmp[2] == "lsconf") {
-						if (tmp.length > 3) {
-							var cfg = tmp[3].replace(/\"/g, "").split(":");
-							if (cfg[0] == "System Model") mach = cfg[1] + " " + tmp[4].replace(/\"/g, "");
-							if (cfg[0] == "Machine Serial Number") mach += " (" + cfg[1].trim() + ")";
-							if (cfg[0] == "Processor Implementation Mode") proc = cfg[1];
-							if (cfg[0] == "Number Of Processors") proc += " (# " + cfg[1] + ")";
-							if (cfg[0] == "Processor Clock Speed") proc += " - " + cfg[1];
+		  if (text[i].startsWith("CPU_ALL") || text[i].startsWith("MEM") ||  text[i].startsWith("MEMNEW") ||  text[i].startsWith("PROC") ||  text[i].startsWith("LPAR") ||  text[i].startsWith("PAGE") ||  text[i].startsWith("AAA") ||  text[i].startsWith("BBBP") || text[i].startsWith("ZZZZ") ) { 
+			  tmp = text[i].split(",");
+				switch (tmp[0]) {
+					case "CPU_ALL":
+						tab1[tbi1] = "";
+						for (n = 0; n < tmp.length; n++) {
+							if (n < 2) continue;
+							if (tbi1 == 0) tmp[n] = "CPU " + tmp[n];
+							tab1[tbi1] += tmp[n] + "\t";
 						}
-					}
-					break;
-				case "ZZZZ":
-					tab0[tbi0] = host + "\t";
-					tab0[tbi0] += mach + "\t";
-					tab0[tbi0] += proc + "\t";
-					for (n = 0; n < tmp.length; n++) {
-						if (n < 2) continue;
-						if (n == 3) {
-							var dt = tmp[n].split("-");
-							switch (dt[1]) {
-								case "JAN":
-									month = "01";
-									break;
-								case "FEB":
-									month = "02";
-									break;
-								case "MAR":
-									month = "03";
-									break;
-								case "APR":
-									month = "04";
-									break;
-								case "MAY":
-									month = "05";
-									break;
-								case "JUN":
-									month = "06";
-									break;
-								case "JUL":
-									month = "07";
-									break;
-								case "AUG":
-									month = "08";
-									break;
-								case "SEP":
-									month = "09";
-									break;
-								case "OCT":
-									month = "10";
-									break;
-								case "NOV":
-									month = "11";
-									break;
-								case "DEC":
-									month = "12";
-									break;
+						tbi1 += 1;
+						break;
+					case "MEM":
+						tab2[tbi2] = "";
+						for (n = 0; n < tmp.length; n++) {
+							tmp[n] = tmp[n].replace("Size of the Compressed pool(MB)", "Cmpr.Pool(MB)");
+							tmp[n] = tmp[n].replace("Size of true memory(MB)", "True Mem.(MB)");
+							tmp[n] = tmp[n].replace("Expanded memory size(MB)", "Exp.Mem.(MB)");
+							tmp[n] = tmp[n].replace("Size of the Uncompressed pool(MB)", "UnCmpr.Pool(MB)");
+							if (n < 2) continue;
+							if (n > 7) continue;
+							if (tbi2 == 0) tmp[n] = "MEM " + tmp[n];
+							tab2[tbi2] += tmp[n] + "\t";
+						}
+						tbi2 += 1;
+						break;
+					case "MEMNEW":
+						tab3[tbi3] = "";
+						for (n = 0; n < tmp.length; n++) {
+							tmp[n] = tmp[n].replace("Compressed Pool", "Cmpr.Pool");
+							if (n < 2) continue;
+							if (n > 7) continue;
+							if (tbi3 == 0) tmp[n] = "MEM " + tmp[n];
+							tab3[tbi3] += tmp[n] + "\t";
+						}
+						tbi3 += 1;
+						break;
+					case "PROC":
+						tab4[tbi4] = "";
+						for (n = 0; n < tmp.length; n++) {
+							if (n < 2 || n > 7) continue;
+							if (tbi4 == 0) tmp[n] = "PROC " + tmp[n];
+							tab4[tbi4] += tmp[n] + "\t";
+						}
+						tbi4 += 1;
+						break;
+					case "LPAR":
+						tab5[tbi5] = "";
+						for (n = 0; n < tmp.length; n++) {
+							if (n < 2 || n > 12) continue;
+							if (tbi5 == 0) tmp[n] = "LPAR " + tmp[n];
+							tab5[tbi5] += tmp[n] + "\t";
+						}
+						tbi5 += 1;
+						break;
+					case "PAGE":
+						tab6[tbi6] = "";
+						for (n = 0; n < tmp.length; n++) {
+							if (n < 2 || n > 4) continue;
+							if (tbi6 == 0) tmp[n] = "PAGE " + tmp[n];
+							tab6[tbi6] += tmp[n] + "\t";
+						}
+						tbi6 += 1;
+						break;
+					case "AAA":
+						if (tmp[1] == "host") {
+							host = tmp[2];
+						}
+						break;
+					case "BBBP":
+						if (tmp[2] == "lsconf") {
+							if (tmp.length > 3) {
+								var cfg = tmp[3].replace(/\"/g, "").split(":");
+								if (cfg[0] == "System Model") mach = cfg[1] + " " + tmp[4].replace(/\"/g, "");
+								if (cfg[0] == "Machine Serial Number") mach += " (" + cfg[1].trim() + ")";
+								if (cfg[0] == "Processor Implementation Mode") proc = cfg[1];
+								if (cfg[0] == "Number Of Processors") proc += " (# " + cfg[1] + ")";
+								if (cfg[0] == "Processor Clock Speed") proc += " - " + cfg[1];
 							}
-							tmp[n] = dt[2] + "." + month + "." + dt[0];
 						}
-						tab0[tbi0] += tmp[n] + "\t";
-					}
-					tbi0 += 1;
-					break;
-			}
+						break;
+					case "ZZZZ":
+						tab0[tbi0] = host + "\t";
+						tab0[tbi0] += mach + "\t";
+						tab0[tbi0] += proc + "\t";
+						for (n = 0; n < tmp.length; n++) {
+							if (n < 2) continue;
+							if (n == 3) {
+								var dt = tmp[n].split("-");
+								switch (dt[1]) {
+									case "JAN":
+										month = "01";
+										break;
+									case "FEB":
+										month = "02";
+										break;
+									case "MAR":
+										month = "03";
+										break;
+									case "APR":
+										month = "04";
+										break;
+									case "MAY":
+										month = "05";
+										break;
+									case "JUN":
+										month = "06";
+										break;
+									case "JUL":
+										month = "07";
+										break;
+									case "AUG":
+										month = "08";
+										break;
+									case "SEP":
+										month = "09";
+										break;
+									case "OCT":
+										month = "10";
+										break;
+									case "NOV":
+										month = "11";
+										break;
+									case "DEC":
+										month = "12";
+										break;
+								}
+								tmp[n] = dt[2] + "." + month + "." + dt[0];
+							}
+							tab0[tbi0] += tmp[n] + "\t";
+						}
+						tbi0 += 1;
+						break;
+				}
+			} 
 		}
 		for (i = 0; i < tab1.length; i++) {
 			nmon += tab0[i] + tab1[i] + tab2[i] + tab3[i] + tab4[i] + tab5[i] + tab6[i] + "\n";
@@ -1307,8 +1308,10 @@ function identify(content, fname = "") {
 				output += "\n";
 			}
 		}
+		text = null;
 		return output;
 	} else {
+	  text = null;
 		return content;
 	}
 }
@@ -4518,35 +4521,46 @@ function CompData() {
 
   if (data.length < 10000) return;
 
-  document.getElementById("IDDOT").className = "dotred";
-  
-  debugger;
+	document.body.style.cursor = "none";
+	document.title = 'Data Analysis - Compact data';
+	document.getElementById("IDDOT").className = "dotred";
+	document.getElementById("IDDOT").hidden = true;
+	document.getElementById("IDDOT").hidden = false;
 
-  var n = 0;
-  var m = 0;
+  setTimeout(function() {
+		var n = 0;
+		var m = 0;
 
-  var x1 = parseInt(parhst[ppt].selx1);
-  
-	data.sort(function(a, b) {
-        var t1 = a[x1];
-        var t2 = b[x1];
-		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-	});
+		var x1 = parseInt(parhst[ppt].selx1);
 	
-	var ov = data[0][x1]
-	for (n = 0; n < data.length; n++) {
-	   if (data[n][x1] != ov) {
-	     var tv = "" + data[n][x1];
-	     while ( n < data.length && data[n][x1] == tv ) {
-	         data.splice(n,1)
-	     }
-	     if ( n < data.length ) {
-	       ov = data[n][x1];
-	     }
-	   }
-	}
+		data.sort(function(a, b) {
+					var t1 = a[x1];
+					var t2 = b[x1];
+			return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+		});
 	
-	graphic();
+		var ov = data[0][x1]
+		for (n = 0; n < data.length; n++) {
+			 if (data[n][x1] != ov) {
+				 var tv = "" + data[n][x1];
+				 while ( n < data.length && data[n][x1] == tv ) {
+						 data.splice(n,1)
+				 }
+				 if ( n < data.length ) {
+					 ov = data[n][x1];
+				 }
+			 }
+		}
+		
+		data.sort(function(a, b) {
+					var t1 = a[0] + " " + a[1];
+					var t2 = b[0] + " " + b[1];
+			return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+		});
+	
+		graphic();
+	
+	}, 25);
   
 }
 
