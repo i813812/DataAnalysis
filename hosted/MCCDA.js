@@ -222,6 +222,7 @@ var autohide = false;
 var impel = null;
 var previewstyle = false;
 var mainstyle = false;
+var pgstart = 0;
 
 // var AudioContextCtor = window.AudioContext || window.webkitAudioContext; var audioCtx = new AudioContextCtor();
 
@@ -1386,7 +1387,7 @@ function checkhdr() {
 	}
 }
 
-function reprocess() {
+function editdata() {
 	// re-process graphic (go-back button)
 
 	displaymode = "";
@@ -1857,7 +1858,7 @@ function preview() {
 	} else {
 		str += "<button onclick='toggleusefnam()' title='Toggle File Name / File count' >File Name</button>";
 	}
-	str += "</small><br>";
+	str += "</small><br><br>";
 
 	str += "<font color='#444488' style='font-size: 10px;'>";
 	str += "<table><tr>";
@@ -1867,13 +1868,12 @@ function preview() {
 		// str += "<td>" + header[n] + "</td>";
 	}
 	str += "</tr>";
-	for (n = 0; n < data.length; n++) {
+	for (n = pgstart; n < pgstart + 40; n++) {
 		str += "<tr>";
 		for (i = 0; i < data[n].length; i++) {
 			// if (col[i] == "") continue;
 			str += "<td>" + data[n][i] + "</td>";
 		}
-		if (n > 25) break;
 		str += "</tr>";
 	}
 	str += "<tr><td colspan=" + data[n-1].length + "> ... </td></tr>";
@@ -1887,18 +1887,24 @@ function preview() {
 	}
 	str += "</table>";
 	str += "</font>";
-	document.getElementById('IDoutput').innerHTML = "<button id='IDbutret' style='color:gray' onclick='goback()'><i>go back</i></button>";
-	document.getElementById('IDoutput').innerHTML += "<button id='IDgrpic' onclick='parameters()'><b>Graphic</b></button><br><br>";
+
+	document.getElementById('IDoutput').innerHTML = "<button id='IDgrpic' onclick='parameters()'><b>Graphic</b></button><br><br>";
 
 	document.getElementById('IDpreview').innerHTML = str;
 	document.getElementById('IDpreview').innerHTML += "<div style='overflow: hidden; position: relative;'><div style='position: absolute; height: 10px; width: 10px;  right: -100px; top: -100px;'><textarea id='IDexport' rows='1' cols='1' style='tabSize:30; font-family:Courier; font-size:10px; color:#000044'  ></textarea></div><div>";
-	document.getElementById('IDpreview').innerHTML += "<br><button onclick='exppre()'>Copy to Clipboard</button>";
+	
+	document.getElementById('IDpreview').innerHTML += "<br>";
+	document.getElementById('IDpreview').innerHTML += "<button onclick='pagedown()'>PgD &#x25BC;</button>";
+	document.getElementById('IDpreview').innerHTML += "<button onclick='pageup()'>PgU  &#x25B2;</button>";
+	
+	document.getElementById('IDpreview').innerHTML += "<button onclick='exppre()'>Copy to Clipboard</button>";
 
 	document.getElementById('IDpreview').innerHTML += " <small>   replace: </small><input id='IDFIND' size='30' >";
 	document.getElementById('IDpreview').innerHTML += " <small>with: </small><input id='IDREPL' size='30' >";
-	document.getElementById('IDpreview').innerHTML += "<button onclick='findrepl()' title='find and replace in non-numeric fields' >Replace</button>";
-	document.getElementById('IDpreview').innerHTML += "<button onclick='splithdr()' title='Split Column' >Split</button>";
-	document.getElementById('IDpreview').innerHTML += "<div id='IDdel' style='display: inline-block;'></div><br><br> ";
+	document.getElementById('IDpreview').innerHTML += " <div id='IDrep' style='display: inline-block;'></div>";
+	document.getElementById('IDpreview').innerHTML += " <div id='IDdel' style='display: inline-block;'></div>";
+	document.getElementById('IDpreview').innerHTML += " <div id='IDspl' style='display: inline-block;'></div>"
+	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br> ";
 
 	document.getElementById('IDload').innerHTML = SAPlogo(100, 50);
 	document.getElementById('ID(C)').innerHTML = "";
@@ -1906,9 +1912,21 @@ function preview() {
 	p1 = perfnow();
 	var dt = (p1 - p0).toFixed(2);
 	document.getElementById('IDdetail').innerHTML = " <small> Runtime: " + dt + " ms  -- " + data.length + " records loaded </small>";
-	document.title = 'data preview ready';
+	document.title = 'Edit Data';
 	document.body.style.cursor = "default";
 
+}
+
+function pagedown() {
+  pgstart += 40;
+  if (pgstart +40 > data.length) pgstart = data.length - 40;
+  preview();
+}
+
+function pageup() {
+  pgstart -= 40;
+  if (pgstart < 0) pgstart = 0;
+  preview();
 }
 
 function toggleusefnam() {
@@ -1936,6 +1954,9 @@ function shdr(e) {
 	var ID = event.target.id;
 	selhdr = parseInt(ID.replace("IDhdr", ""));
 	document.getElementById('IDdel').innerHTML = "<button onclick='dtdelete(event)' title='Delete Selected Values' >Delete Values</button>";
+	document.getElementById('IDrep').innerHTML = "<button onclick='findrepl()' title='find and replace in non-numeric fields' >Replace</button>";
+	if ( selhdr > 1) document.getElementById('IDspl').innerHTML = "<button onclick='splithdr()' title='Split Column' >Split Column</button>";
+	if ( selhdr > 1) document.getElementById('IDcol').innerHTML = "<button onclick='delcol()'   title='Delete Column' >Delete Column</button>";
 }
 
 function bhdr(e) {
@@ -1943,8 +1964,10 @@ function bhdr(e) {
 		var actel = document.activeElement;
 		if (actel.id.includes("IDhdr")) return;
 		document.getElementById('IDdel').innerHTML = "";
-		selhdr = "";
-	}, 100);
+		document.getElementById('IDrep').innerHTML = "";
+		document.getElementById('IDspl').innerHTML = "";
+		document.getElementById('IDcol').innerHTML = "";
+	}, 1000);
 }
 
 function findrepl() {
@@ -1952,7 +1975,7 @@ function findrepl() {
 	var repl = document.getElementById('IDREPL').value;
 	for (var n = 0; n < data.length; n++) {
 		for (var i = 0; i < data[n].length; i++) {
-			if (isNaN(data[n][i])) data[n][i] = data[n][i].replace(find, repl);
+			if (isNaN(data[n][selhdr])) data[n][selhdr] = data[n][selhdr].replace(find, repl);
 		}
 	}
 	preview();
@@ -1993,11 +2016,6 @@ function seldatfrm() {
 	parhst[ppt].datind = document.getElementById("IDDTF").value;
 }
 
-function goback() {
-	// reload (go-back from 2nd screen)
-	location.reload();
-}
-
 function readhdr() {
 	// update header from preview 
 	for (var n = 0; n < header.length; n++) {
@@ -2013,6 +2031,7 @@ function dtdelete(e) {
 	var cnt = 0;
 
 	if (selhdr == "") return;
+
 	cc = parseInt(selhdr);
 
 	while (true) {
@@ -2076,20 +2095,33 @@ function dtdelete(e) {
 
 }
 
+function delcol() {
+  var cc = selhdr;
+  if (selhdr == "") return;
+
+  while (true) {
+		var con = confirm("Confirm Deletion of column: " + header[cc][0] + " ");
+		break;
+	}  
+	if (!con) return;
+	header.splice(selhdr,1);
+  for (var n = 0; n < data.length; n++) {
+    data[n].splice(cc,1);
+  }
+  preview();
+}
+
 function splithdr() {
 	var col = "";
 	var cc = 0;
 	var pos = "";
 	var pp = 0;
 	var ll = 0;
+	if (selhdr == "") return;
+	
 	while (true) {
 		// get column index
-		while (true) {
-			col = prompt("Specify column number to split (column '" + header[2][0] + "' = 2):", "");
-			if (col == "" || col == null) return;
-			cc = parseInt(col);
-			if (cc > 1 && cc < header.length) break;
-		}
+		cc = selhdr;
 		// get position
 		while (true) {
 			pos = prompt("Split column (" + header[cc][0] + ") - specify position (from left):", "");
@@ -2099,12 +2131,13 @@ function splithdr() {
 		}
 		// confirm split
 		ll = data[0][cc].length;
-		var con = confirm("Confirm Result: " + data[0][cc].substring(0, pp) + " -- " + data[0][cc].substring(pp, ll) + " ");
-		if (con) break;
+		var con = confirm("Confirm Split: " + data[0][cc].substring(0, pp) + " -- " + data[0][cc].substring(pp, ll) + " ");
+		break;
 	}
-	cc += 1;
+	if (!con) return;
+	cc++;
 
-	if (cc < 1 || col == "") return;
+	if (cc < 1) return;
 	if (pp < 1 || pos == "") return;
 	// create new entry in header table
 	var tmp = ["", "", 0];
@@ -3225,7 +3258,7 @@ function parameters() {
 	str += "</select>";
 	htmlcont += str;
 
-	if (infile != null) htmlcont += " <button id='IDbutret' style='color:gray' onclick='reprocess()'><i>go back</i></button>";
+	if (infile != null) htmlcont += " <button id='IDEdit' style='color:gray' onclick='editdata()'><i>Edit Data</i></button>";
 	htmlcont += " <button title='Set Chart and Axis Title(s)' onclick='settitle()'>Title</button>";
 	htmlcont += " <button id='ID+' title='Increase font size' onclick='incfonts()'>+</button><button id='ID-' title='Decrease font size' onclick='decfonts()'>-</button>";
 
@@ -3307,7 +3340,7 @@ function onKeyDown(e) {
 	if (x == 119) graphic(); // F8 Key
 	if (x == 16) {
 		keyshift = true;
-		document.getElementById('IDEXP').innerHTML = "<b style='color:blue'>Exp.</b>";
+		try {	document.getElementById('IDEXP').innerHTML = "<b style='color:blue'>Exp.</b>"; } catch (e) { }
 	}
 }
 
@@ -3316,7 +3349,7 @@ function onKeyUp(e) {
 	var x = e.keyCode;
 	if (x == 16) {
 		keyshift = false;
-		document.getElementById('IDEXP').innerHTML = "Exp.";
+		try { document.getElementById('IDEXP').innerHTML = "Exp."; } catch (e) { }
 	}
 }
 
