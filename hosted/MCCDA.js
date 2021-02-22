@@ -1828,6 +1828,13 @@ function preview() {
 	
 	start = true;
 	
+	// re-create output 
+	data.sort(function(a, b) {
+      var t1 = a[0] + a[1];
+      var t2 = b[0] + b[1];
+		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+	});
+	
 	if ( data.length < 5) return;
 
 	var dtf = "";
@@ -1868,7 +1875,7 @@ function preview() {
 		// str += "<td>" + header[n] + "</td>";
 	}
 	str += "</tr>";
-	for (n = pgstart; n < pgstart + 40; n++) {
+	for (n = pgstart; n < pgstart + 51; n++) {
 		str += "<tr>";
 		for (i = 0; i < data[n].length; i++) {
 			// if (col[i] == "") continue;
@@ -1896,35 +1903,32 @@ function preview() {
 	document.getElementById('IDpreview').innerHTML += "<br>";
 	document.getElementById('IDpreview').innerHTML += "<button onclick='pagedown()'>PgD &#x25BC;</button>";
 	document.getElementById('IDpreview').innerHTML += "<button onclick='pageup()'>PgU  &#x25B2;</button>";
-	
-	document.getElementById('IDpreview').innerHTML += "<button onclick='exppre()'>Copy to Clipboard</button>";
-
-	document.getElementById('IDpreview').innerHTML += " <small>   replace: </small><input id='IDFIND' size='30' >";
-	document.getElementById('IDpreview').innerHTML += " <small>with: </small><input id='IDREPL' size='30' >";
+	document.getElementById('IDpreview').innerHTML += " <small> find: </small><input id='IDFIND' size='30' >";
+	document.getElementById('IDpreview').innerHTML += " <small> replace with: </small><input id='IDREPL' size='30' >";
+	document.getElementById('IDpreview').innerHTML += " <div id='IDfnd' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDrep' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDdel' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDspl' style='display: inline-block;'></div>"
 	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br> ";
+	
+	document.getElementById('IDpreview').innerHTML += "<button onclick='exppre()'>Copy to Clipboard</button><br><br>";
 
 	document.getElementById('IDload').innerHTML = SAPlogo(100, 50);
 	document.getElementById('ID(C)').innerHTML = "";
 
-	p1 = perfnow();
-	var dt = (p1 - p0).toFixed(2);
-	document.getElementById('IDdetail').innerHTML = " <small> Runtime: " + dt + " ms  -- " + data.length + " records loaded </small>";
 	document.title = 'Edit Data';
 	document.body.style.cursor = "default";
 
 }
 
 function pagedown() {
-  pgstart += 40;
-  if (pgstart +40 > data.length) pgstart = data.length - 40;
+  pgstart += 50;
+  if (pgstart +50 > data.length) pgstart = data.length - 50;
   preview();
 }
 
 function pageup() {
-  pgstart -= 40;
+  pgstart -= 50;
   if (pgstart < 0) pgstart = 0;
   preview();
 }
@@ -1954,6 +1958,7 @@ function shdr(e) {
 	var ID = event.target.id;
 	selhdr = parseInt(ID.replace("IDhdr", ""));
 	document.getElementById('IDdel').innerHTML = "<button onclick='dtdelete(event)' title='Delete Selected Values' >Delete Values</button>";
+	document.getElementById('IDfnd').innerHTML = "<button onclick='findtxt()' title='find text/number' >Find</button>";
 	document.getElementById('IDrep').innerHTML = "<button onclick='findrepl()' title='find and replace in non-numeric fields' >Replace</button>";
 	if ( selhdr > 1) document.getElementById('IDspl').innerHTML = "<button onclick='splithdr()' title='Split Column' >Split Column</button>";
 	if ( selhdr > 1) document.getElementById('IDcol').innerHTML = "<button onclick='delcol()'   title='Delete Column' >Delete Column</button>";
@@ -1964,19 +1969,29 @@ function bhdr(e) {
 		var actel = document.activeElement;
 		if (actel.id.includes("IDhdr")) return;
 		document.getElementById('IDdel').innerHTML = "";
+		document.getElementById('IDfnd').innerHTML = "";
 		document.getElementById('IDrep').innerHTML = "";
 		document.getElementById('IDspl').innerHTML = "";
 		document.getElementById('IDcol').innerHTML = "";
 	}, 1000);
 }
 
+function findtxt() {
+	var find = document.getElementById('IDFIND').value;
+	for (var n = 0; n < data.length; n++) {
+		if (data[n][selhdr].includes(find) ) { 
+		  pgstart = n;
+		  break;
+		}
+	}
+	preview();
+}
+
 function findrepl() {
 	var find = document.getElementById('IDFIND').value;
 	var repl = document.getElementById('IDREPL').value;
 	for (var n = 0; n < data.length; n++) {
-		for (var i = 0; i < data[n].length; i++) {
-			if (isNaN(data[n][selhdr])) data[n][selhdr] = data[n][selhdr].replace(find, repl);
-		}
+		if (isNaN(data[n][selhdr])) data[n][selhdr] = data[n][selhdr].replace(find, repl);
 	}
 	preview();
 }
