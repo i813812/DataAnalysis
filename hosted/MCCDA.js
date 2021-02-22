@@ -2864,7 +2864,7 @@ function parameters() {
 	// select Field to Filter
 	htmlcont += "Filter: ";
 	str = "";
-	str += "<select id='IDFX' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changefx()'>\n";
+	str += "<select id='IDFX' style='width:6em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changefx()'>\n";
 	if (parhst[ppt].selx2 === "") str += "<option value='' selected > - </option>";
 	else str += "<option value=''> - </option>";
 	for (x = 0; x < header.length; x++) {
@@ -2885,7 +2885,7 @@ function parameters() {
 	str += "</select>";
 	htmlcont += str;
 
-	htmlcont += " <input id='IDFILTER' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' ondblclick='promptfilter()' onchange='changeparam()' type='text' name='filter' size='17' value='" + parhst[ppt].filter + "'>";
+	htmlcont += " <input id='IDFILTER' style='width:12em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' ondblclick='promptfilter()' onchange='changeparam()' type='text' name='filter' size='17' value='" + parhst[ppt].filter + "'>";
 
 	if (parhst[ppt].tround) {
 		htmlcont += " <button id='IDROUND' title='round time to n seconds' style='color:black' onclick='settround()'><B>R</b></button> ";
@@ -3009,7 +3009,7 @@ function parameters() {
 
 	// select Stack Group Variable 
 	str = "";
-	str += "StkGrp: <select id='IDVSTACK' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changevstack()'>\n";
+	str += "StkGrp: <select id='IDVSTACK' style='width:11em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changevstack()'>\n";
 	if (parhst[ppt].vstack === "") str += "<option value='' selected > - </option>";
 	else str += "<option value=''> - </option>";
 	for (x = 0; x < header.length; x++) {
@@ -3021,7 +3021,7 @@ function parameters() {
 	}
 	str += "</select>";
 	htmlcont += str;
-	htmlcont += " <input id='IDSCNT' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='9999' type='number' name='scnt' value='" + parhst[ppt].scnt + "'>";
+	htmlcont += " <input id='IDSCNT' style='width:6em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='9999' type='number' name='scnt' value='" + parhst[ppt].scnt + "'>";
 
 	htmlcont += "</div></td><td><div>";
 
@@ -3143,8 +3143,8 @@ function parameters() {
 		str += "</select>";
 		htmlcont += str;
 	
-	  htmlcont += " Avg:  <input id='IDZAVG'   style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='900' type='number' name='dtsize' value='" + parhst[ppt].zavg + "'>";
-		htmlcont += " Size: <input id='IDZTSIZE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10'  type='number' name='dtsize' value='" + parhst[ppt].ztsize + "'>";
+	  htmlcont += " Avg:  <input id='IDZAVG'   style='width:3em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='900' type='number' name='dtsize' value='" + parhst[ppt].zavg + "'>";
+		htmlcont += " Size: <input id='IDZTSIZE' style='width:3em;color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10'  type='number' name='dtsize' value='" + parhst[ppt].ztsize + "'>";
 		
 		htmlcont += " Color: <input id='IDpzcolor' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].pzcolor + "'>";
 		htmlcont += " <input type='number' title='Opacity' onchange='changeparam()' id='IDzopac'  style='width:4em;' size='6' step='0.05' value='" + parhst[ppt].zopac +  "' min='0' max='1'>";
@@ -3241,9 +3241,9 @@ function parameters() {
 	}
 	htmlcont += str;
 
-	htmlcont += " Points: <input id='IDMAXPNT' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1000' max='1000000' type='number' name='maxpnt' value='" + parhst[ppt].maxpnt + "'>";
-	htmlcont += " Size: <input id='IDDTSIZE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10' type='number' name='dtsize' value='" + parhst[ppt].dtsize + "'>";
-	htmlcont += " Average: <input id='IDAVGINT' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1' max='1000000' type='number' name='avgint' value='" + parhst[ppt].avgint + "'>";
+	htmlcont += " Points: <input id='IDMAXPNT' style='width:6em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1000' max='1000000' type='number' name='maxpnt' value='" + parhst[ppt].maxpnt + "'>";
+	htmlcont += " Size: <input id='IDDTSIZE' style='width:3em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10' type='number' name='dtsize' value='" + parhst[ppt].dtsize + "'>";
+	htmlcont += " Average: <input id='IDAVGINT' style='width:3em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1' max='1000000' type='number' name='avgint' value='" + parhst[ppt].avgint + "'>";
 
 	// SUM / AVG / MIN / AMX
 	if (parhst[ppt].opr == 'SUM') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM' selected >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
