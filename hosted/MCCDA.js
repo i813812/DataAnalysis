@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.11";
+var prgvers = "8.12";
 
 // arrays
 var dtmp = [];
@@ -1875,7 +1875,7 @@ function preview() {
 		// str += "<td>" + header[n] + "</td>";
 	}
 	str += "</tr>";
-	for (n = pgstart; n < pgstart + 51; n++) {
+	for (n = pgstart; n < pgstart + 26; n++) {
 		str += "<tr>";
 		for (i = 0; i < data[n].length; i++) {
 			// if (col[i] == "") continue;
@@ -1922,13 +1922,13 @@ function preview() {
 }
 
 function pagedown() {
-  pgstart += 50;
-  if (pgstart +50 > data.length) pgstart = data.length - 50;
+  pgstart += 25;
+  if (pgstart + 25 > data.length) pgstart = data.length - 25;
   preview();
 }
 
 function pageup() {
-  pgstart -= 50;
+  pgstart -= 25;
   if (pgstart < 0) pgstart = 0;
   preview();
 }
