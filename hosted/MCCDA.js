@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.12";
+var prgvers = "8.13";
 
 // arrays
 var dtmp = [];
@@ -1339,7 +1339,7 @@ function findhdr(lookup) {
 	return false;
 }
 
-function checkhdr() {
+function CheckHdr() {
 	// pre-select fields for X-Axis, Y-Axis
 	// x-Axis = Index
 	parhst[ppt].selx1 = 1;
@@ -1403,6 +1403,17 @@ function checkhdr() {
 		parhst[ppt].pzcolor = '#EE8800';
 		parhst[ppt].ztsize = 2;
 		parhst[ppt].zopac = 0.8;
+	} 
+	if (findhdr("Instance")) {
+		if (findhdr("Free Mem.")) {
+			parhst[ppt].sndyaxis = true;
+			parhst[ppt].selz1 = hdrpos;
+			parhst[ppt].zavg = 5;
+			parhst[ppt].grztype = 'area';
+			parhst[ppt].pzcolor = '#AAAAAA';
+			parhst[ppt].ztsize = 1;
+			parhst[ppt].zopac = 0.25;
+		}
 	}
 }
 
@@ -1538,7 +1549,7 @@ function ProcessSingle(index) {
 					thl = charCount(text[i], "\t");
 					txtarea += text[i] + "\n";
 					prephd = false;
-					checkhdr();
+					CheckHdr();
 				}
 				globalhd = false;
 			}
@@ -1650,7 +1661,7 @@ function FinishFiles() {
 			data[i][4] = "" + yyyy + "-" + pad(mm, 2) + "-" + pad(dd, 2);
 			data[i][5] = "" + pad(HH, 2) + ":" + pad(MM, 2) + ":" + pad(SS, 2);
 		}
-		checkhdr();
+		CheckHdr();
 	}
 
 	var regex = new RegExp('');
@@ -1928,9 +1939,10 @@ function preview() {
 	document.getElementById('IDpreview').innerHTML += " <div id='IDrep' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDdel' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDspl' style='display: inline-block;'></div>"
-	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br> ";
+	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br>";
 	
-	document.getElementById('IDpreview').innerHTML += "<button onclick='exppre()'>Copy to Clipboard</button><br><br>";
+	document.getElementById('IDpreview').innerHTML += "<button onclick='exppre()'>Copy to Clipboard</button>";
+	document.getElementById('IDpreview').innerHTML += "<button onclick='delempty()'>Delete empty columns</button><br><br>";
 
 	document.getElementById('IDload').innerHTML = SAPlogo(100, 50);
 	document.getElementById('ID(C)').innerHTML = "";
@@ -1950,6 +1962,83 @@ function pageup() {
   pgstart -= 25;
   if (pgstart < 0) pgstart = 0;
   preview();
+}
+
+function delempty() {
+  document.title = 'Deleting empty columns ...';
+  pgstart = 0;
+  var ParameterReset = false;
+  for (var h = 2; h < header.length; h++) {
+    var cont = data[0][h];
+    var dc = true;
+    for (var n = 0; n < data.length; n++) {
+      if (n > 25) break;
+      if (data[n][h] != cont && !data[n][h].startsWith('undefined')) {
+        dc = false;
+        break;
+      }
+    }
+    if (dc) {
+      if ( header[h][1] == 'n' ) {
+        var value = parseFloat(data[n][h]);
+        if ( value != 0 && cont != -1 && !isNaN(value)) dc = false; 
+					for (var n = 0; n < data.length && dc; n++) {
+						if (data[n][h] != cont && !data[n][h].startsWith('undefined')) {
+							if (pgstart == 0 && header[h][1] == 'n') pgstart = n - 1;
+							dc = false;
+							break;
+						}
+					}
+      } else {
+        if (cont != "" && !data[n][h].startsWith('undefined')) dc = false;
+				for (var n = 0; n < data.length && dc; n++) {
+					if (data[n][h] != cont && !data[n][h].startsWith('undefined')) {
+						dc = false;
+						break;
+					}
+				}
+      }
+    }
+    if (dc) {
+      ParameterReset = true;
+      ppt = 0;
+			header.splice(h,1);
+			for (var n = 0; n < data.length; n++) {
+				data[n].splice(h,1);
+			}
+			h--;
+    }
+  }
+  if (ParameterReset) {
+		ppt = 0;
+		parhst[ppt].Gw = 0;
+		parhst[ppt].xinpmin = "";
+		parhst[ppt].xinpmax = "";
+		parhst[ppt].hstinpmin = "";
+		parhst[ppt].hstinpmax = "";
+		parhst[ppt].ytmin = "";
+		parhst[ppt].ytmax = "";
+		parhst[ppt].ztmin = "";
+		parhst[ppt].ztmax = "";
+    parhst[ppt].selx1 = "";
+    parhst[ppt].selx2 = "";
+    parhst[ppt].selx3 = "";
+    parhst[ppt].selx4 = "";
+    parhst[ppt].sely1 = "";
+    parhst[ppt].sely2 = "";
+    parhst[ppt].sely3 = "";
+    parhst[ppt].sely4 = "";
+    parhst[ppt].selz1 = "";
+    parhst[ppt].selz2 = "";
+    parhst[ppt].selz3 = "";
+    parhst[ppt].selz4 = "";
+    dprev = true;
+    CheckHdr();
+    FinishFiles();  
+  } else {
+    preview();
+  }
+
 }
 
 function toggleusefnam() {
@@ -2142,7 +2231,31 @@ function delcol() {
   for (var n = 0; n < data.length; n++) {
     data[n].splice(cc,1);
   }
-  preview();
+  ppt = 0;
+  parhst[ppt].Gw = 0;
+	parhst[ppt].xinpmin = "";
+	parhst[ppt].xinpmax = "";
+	parhst[ppt].hstinpmin = "";
+	parhst[ppt].hstinpmax = "";
+	parhst[ppt].ytmin = "";
+	parhst[ppt].ytmax = "";
+	parhst[ppt].ztmin = "";
+	parhst[ppt].ztmax = "";
+	parhst[ppt].selx1 = "";
+	parhst[ppt].selx2 = "";
+	parhst[ppt].selx3 = "";
+	parhst[ppt].selx4 = "";
+	parhst[ppt].sely1 = "";
+	parhst[ppt].sely2 = "";
+	parhst[ppt].sely3 = "";
+	parhst[ppt].sely4 = "";
+	parhst[ppt].selz1 = "";
+	parhst[ppt].selz2 = "";
+	parhst[ppt].selz3 = "";
+	parhst[ppt].selz4 = "";
+	dprev = true;
+	CheckHdr();
+	FinishFiles(); 
 }
 
 function splithdr() {
