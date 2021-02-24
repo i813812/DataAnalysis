@@ -1379,11 +1379,30 @@ function checkhdr() {
 		parhst[ppt].colsc[2][0] = 200;
 		parhst[ppt].grtype = 'scatter';
 		parhst[ppt].sely1 = hdrpos;
+		parhst[ppt].selx1 = 0;
+		parhst[ppt].selx2 = 1;
+		parhst[ppt].sndyaxis = true;
+		parhst[ppt].selz1 = hdrpos;
+		parhst[ppt].zavg = 50;
+		parhst[ppt].grztype = 'line';
+		parhst[ppt].pzcolor = '#0000FF';
+		parhst[ppt].ztsize = 2;
+		parhst[ppt].zopac = 0.8;
 	} else if (findhdr("Resp (ms)")) {
 		parhst[ppt].colsc[0][0] = 0.50;
 		parhst[ppt].colsc[1][0] = 0.70;
 		parhst[ppt].colsc[2][0] = 1.20;
-		parhst[ppt].sely1 = 4;
+		parhst[ppt].grtype = 'scatter';
+		parhst[ppt].sely1 = hdrpos;
+		parhst[ppt].selx1 = 0;
+		parhst[ppt].selx2 = 1;
+		parhst[ppt].sndyaxis = true;
+		parhst[ppt].selz1 = hdrpos;
+		parhst[ppt].zavg = 150;
+		parhst[ppt].grztype = 'line';
+		parhst[ppt].pzcolor = '#EE8800';
+		parhst[ppt].ztsize = 2;
+		parhst[ppt].zopac = 0.8;
 	}
 }
 
@@ -5049,6 +5068,8 @@ function CalcMaxMinAvg() {
 			zmax = Math.ceil(zmax);
 			zmax = zmax * flen;
 		}
+		
+		if (parhst[ppt].sely1 == parhst[ppt].selz1) { zmin = ymin; zmax = ymax; }
 
     if (parhst[ppt].sndyaxis) {
 		  document.getElementById("IDZTMAX").value = zmax;
@@ -5673,8 +5694,6 @@ function graphic() {
 			zhmode = 'lines';
 			filmoz = 'tozeroy'
 		}	
-		
-		
 		
 		if (parhst[ppt].stsel == 'ADD') {
 			slegend = false;
