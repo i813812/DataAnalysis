@@ -351,49 +351,57 @@ function expset() {
 	var tmp = parhst[ppt];
 	var obj;
 	var filename;
-	if (keyshift) {
-		keyshift = false;
-		document.getElementById('IDEXP').innerHTML = "Exp.";
-		document.title = 'Export Data';
-		zip = new JSZip();
-		var container = {
-			id: 'DataAnalysisContainer',
-			config: tmp,
-			ghead: header,
-			gdata: data
-		};
-		obj = JSON.stringify(container);
-		document.title = 'add data to ZIP container';
-		if (filelist.length > 0) {
-			filename = prompt("Specify name of DataAnalysis container:", filelist[0].name);
-		} else {
-			filename = prompt("Specify name of DataAnalysis container:", "DataAnalysisContainer");
-		}
-		if (filename == null) return;
-		if (filename == "") filename = "DataAnalysisContainer";
-		filename = filename.replace(".dac", "");
-		zip.file(filename + ".dac", obj);
-		zip.generateAsync({
-				type: "base64",
-				compression: "DEFLATE",
-				compressionOptions: {
-					level: 5
-				}
-			},
-			function updateCallback(metadata) {
-				document.title = "compress container " + metadata.percent.toFixed(2) + " % ";
-			}
-		).then(function(base64) {
-			download64(filename + ".dzip", base64);
-		});
+
+	obj = JSON.stringify(tmp);
+	filename = prompt("Specify name of configuration file:", "*.json");
+	if (filename == null) return;
+	if (filename == "") filename = "DataAnalysisConfig";
+	if (!filename.endsWith(".json")) filename += ".json";
+	download(filename, obj);
+
+}
+
+function expdzip() {
+	// save data analysis container as DZIP
+	var tmp = parhst[ppt];
+	var obj;
+	var filename;
+
+	keyshift = false;
+	document.getElementById('IDEXP').innerHTML = "Exp.";
+	document.title = 'Export Data';
+	zip = new JSZip();
+	var container = {
+		id: 'DataAnalysisContainer',
+		config: tmp,
+		ghead: header,
+		gdata: data
+	};
+	obj = JSON.stringify(container);
+	document.title = 'add data to ZIP container';
+	if (filelist.length > 0) {
+		filename = prompt("Specify name of DataAnalysis container:", filelist[0].name);
 	} else {
-		obj = JSON.stringify(tmp);
-		filename = prompt("Specify name of configuration file:", "*.json");
-		if (filename == null) return;
-		if (filename == "") filename = "DataAnalysisConfig";
-		if (!filename.endsWith(".json")) filename += ".json";
-		download(filename, obj);
+		filename = prompt("Specify name of DataAnalysis container:", "DataAnalysisContainer");
 	}
+	if (filename == null) return;
+	if (filename == "") filename = "DataAnalysisContainer";
+	filename = filename.replace(".dac", "");
+	zip.file(filename + ".dac", obj);
+	zip.generateAsync({
+			type: "base64",
+			compression: "DEFLATE",
+			compressionOptions: {
+				level: 5
+			}
+		},
+		function updateCallback(metadata) {
+			document.title = "compress container " + metadata.percent.toFixed(2) + " % ";
+		}
+	).then(function(base64) {
+		download64(filename + ".dzip", base64);
+	});
+
 }
 
 function importconfig() {
@@ -403,39 +411,24 @@ function importconfig() {
 	setTimeout(function() {
 		var impfile = document.getElementById('IMPORT').files;
 		var reader = new FileReader();
-		if (impfile[0].name.endsWith(".dac")) {
-			reader.onload = function() {
-				var obj = reader.result;
-				if (!obj.includes('DataAnalysisContainer')) return;
-				var container = JSON.parse(obj);
-				parhst[ppt] = container.config;
-				data = container.gdata;
-				header = container.ghead;
-				document.body.removeChild(impel);
-				parameters();
-				graphic();
-			};
-			reader.readAsText(impfile[0], "UTF-8");
-		} else {
-			reader.onload = function() {
-				var obj = reader.result;
-				var tmp = JSON.parse(obj);
-				parhst[ppt] = tmp;
-				parhst[ppt].Gw = 0;
-				parhst[ppt].xinpmin = "";
-				parhst[ppt].xinpmax = "";
-				document.body.removeChild(impel);
-				parameters();
-				graphic();
-			};
-			reader.readAsText(impfile[0], "UTF-8");
-		}
+		reader.onload = function() {
+			var obj = reader.result;
+			var tmp = JSON.parse(obj);
+			parhst[ppt] = tmp;
+			parhst[ppt].Gw = 0;
+			parhst[ppt].xinpmin = "";
+			parhst[ppt].xinpmax = "";
+			document.body.removeChild(impel);
+			parameters();
+			graphic();
+		};
+		reader.readAsText(impfile[0], "UTF-8");
 	}, 25);
 
 }
 
 function impset() {
-	// trigger file select dialog to import configuration file
+	// trigger file select dialog to import JSON configuration file
 var tmp;
 var obj;
 	document.body.style.cursor = "progress";
@@ -444,31 +437,17 @@ var obj;
 	document.getElementById("IDDOT").hidden = true;
 	document.getElementById("IDDOT").hidden = false;
 
-	if (keyshift) {
-		keyshift = false;
-		document.getElementById('IDEXP').innerHTML = "Exp.";
-		tmp = parhst[ppt];
-		obj = JSON.stringify(tmp);
-		impel = document.createElement('input');
-		impel.setAttribute('type', 'file');
-		impel.setAttribute('id', 'IMPORT');
-		impel.setAttribute('onchange', 'importconfig()');
-		impel.setAttribute('accept', '.dac');
-		impel.setAttribute('hidden', 'true');
-		document.body.appendChild(impel);
-		impel.click();
-	} else {
-		tmp = parhst[ppt];
-		obj = JSON.stringify(tmp);
-		impel = document.createElement('input');
-		impel.setAttribute('type', 'file');
-		impel.setAttribute('id', 'IMPORT');
-		impel.setAttribute('onchange', 'importconfig()');
-		impel.setAttribute('accept', '.json');
-		impel.setAttribute('hidden', 'true');
-		document.body.appendChild(impel);
-		impel.click();
-	}
+	tmp = parhst[ppt];
+	obj = JSON.stringify(tmp);
+	impel = document.createElement('input');
+	impel.setAttribute('type', 'file');
+	impel.setAttribute('id', 'IMPORT');
+	impel.setAttribute('onchange', 'importconfig()');
+	impel.setAttribute('accept', '.json');
+	impel.setAttribute('hidden', 'true');
+	document.body.appendChild(impel);
+	impel.click();
+
 }
 
 function savehist() {
@@ -2032,6 +2011,9 @@ function delempty() {
     parhst[ppt].selz2 = "";
     parhst[ppt].selz3 = "";
     parhst[ppt].selz4 = "";
+    parhst[ppt].vstack = "";
+    parhst[ppt].selfc = "";
+    parhst[ppt].selfx = "";
     dprev = true;
     CheckHdr();
     FinishFiles();  
@@ -2253,6 +2235,9 @@ function delcol() {
 	parhst[ppt].selz2 = "";
 	parhst[ppt].selz3 = "";
 	parhst[ppt].selz4 = "";
+  parhst[ppt].vstack = "";
+  parhst[ppt].selfc = "";
+  parhst[ppt].selfx = "";
 	dprev = true;
 	CheckHdr();
 	FinishFiles(); 
@@ -3409,7 +3394,7 @@ function parameters() {
 	htmlcont += " <button title='Set Chart and Axis Title(s)' onclick='settitle()'>Title</button>";
 	htmlcont += " <button id='ID+' title='Increase font size' onclick='incfonts()'>+</button><button id='ID-' title='Decrease font size' onclick='decfonts()'>-</button>";
 
-	htmlcont += " <button id='IDEXP' title='Export Configuration Settings \n(hold Shift-Key to export Data Container)' onclick='expset()'>Exp.</button><button id='IDIMP' title='Import Configuration Settings \n(hold Shift-Key to import Data Container)' onclick='impset()'>Imp.</button>";
+	htmlcont += " <button id='IDEXP' title='Export JSON Configuration Settings' onclick='expset()'>Exp.</button><button id='IDEXP' title='Export Data Analysis DZIP Container' onclick='expdzip()'>DZIP</button><button id='IDIMP' title='Import JSON Configuration Settings \n(hold Shift-Key to import Data Container)' onclick='impset()'>Imp.</button>";
 
 	htmlcont += "<button id='IDDECHST' title='revert back to previous settings' onclick='dechist()'> &lt; </button>";
 	htmlcont += "<button id='IDLOAD' title='Load Settings' onclick='loadhist()'>Load</button>";
@@ -3485,19 +3470,11 @@ function onKeyDown(e) {
 	// HotKeys
 	var x = e.keyCode;
 	if (x == 119) graphic(); // F8 Key
-	if (x == 16) {
-		keyshift = true;
-		try {	document.getElementById('IDEXP').innerHTML = "<b style='color:blue'>Exp.</b>"; } catch (e) { }
-	}
 }
 
 function onKeyUp(e) {
 	// HotKeys
 	var x = e.keyCode;
-	if (x == 16) {
-		keyshift = false;
-		try { document.getElementById('IDEXP').innerHTML = "Exp."; } catch (e) { }
-	}
 }
 
 function incfonts() {
