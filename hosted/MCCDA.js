@@ -4839,7 +4839,8 @@ function LoadData() {
 
 		tickf = "";
 		if (header[parhst[ppt].selx1][1] == "n" && parhst[ppt].selx2 == "" && parhst[ppt].selx3 == "" && parhst[ppt].selx4 == "") {
-			num = parseFloat(data[x][x1]);  valt = num.toFixed(dc1); valt = valt.padStart(sl1); valx = valt; 
+			// num = parseFloat(data[x][x1]);  valt = num.toFixed(dc1); valt = valt.padStart(sl1); valx = valt; 
+			valx = parseFloat(data[x][x1]);
 			tickf = "g";
 		} else {
 			if (parhst[ppt].selx1 !== "") {
