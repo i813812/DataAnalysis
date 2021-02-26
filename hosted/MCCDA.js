@@ -506,7 +506,8 @@ function processFiles(event) {
 		JSZip.loadAsync(filelist[0]).then(function(zip) {
 			Object.keys(zip.files).forEach(function(filename) {
 				zip.files[filename].async('string').then(function(fileData) {
-					if (fileData.includes('DataAnalysisContainer')) {
+					// if (fileData.includes('DataAnalysisContainer')) {
+					  if (fileData.startsWith('{"id":"DataAnalysisContainer"')) {
 						var container = JSON.parse(fileData);
 						parhst[ppt] = container.config;
 						addhist();
@@ -705,7 +706,8 @@ function readfile(file, numtotal, filenum) {
 		// 	content: reader.result,
 		// 	fname: file.name
 		// };
-		if (tmpfile.content.includes('DataAnalysisContainer')) {
+		// if (tmpfile.content.includes('DataAnalysisContainer')) {
+		if (tmpfile.content.startsWith('{"id":"DataAnalysisContainer"')) {
 			var container = JSON.parse(tmpfile.content);
 			parhst[ppt] = container.config;
 			data = container.gdata;
