@@ -4161,15 +4161,31 @@ function tabkey(evt) {
 function stack(vdat) {
 	// sort VDAT by stack & X-values (numeric or text)
 	vdat.sort(function(a, b) {
-		var t1 = a.s + a.x;
-		var t2 = b.s + b.x;
-		if (t1 < t2) {
-			return -1;
+	  if ( ! isNaN(a.x) && ! isNaN(b.x) ) {
+	    var n1 = parseFloat(a.x);
+	    var n2 = parseFloat(b.x);
+			var t1 = a.s;
+			var t2 = b.s;
+			if (t1 < t2) {
+				return -1;
+			}
+			if (t1 > t2) {
+				return 1;
+			}
+			if (t1 == t2) {
+			  return n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
+			}
+	  } else {
+			var t1 = a.s + a.x;
+			var t2 = b.s + b.x;
+			if (t1 < t2) {
+				return -1;
+			}
+			if (t1 > t2) {
+				return 1;
+			}
+			return 0;
 		}
-		if (t1 > t2) {
-			return 1;
-		}
-		return 0;
 	});
 
 	var x = 0;
@@ -4784,36 +4800,70 @@ function LoadData() {
 			re[i] = new RegExp(rs);
 		}
 	}
-
+	
+	// Calculate Max Min of different x-values if numeric
+	var minx1 = 0; var maxx1 = 0;
+	var minx2 = 0; var maxx2 = 0;
+	var minx3 = 0; var maxx3 = 0;
+	var minx4 = 0; var maxx4 = 0;
+	for (x = 0; x < data.length; x++) {
+	  if (parhst[ppt].selx1 !== "" && header[x1][1] == "n"  ) { 
+	    if (parseFloat(data[x][x1]) > maxx1) maxx1 = parseFloat(data[x][x1]); 
+	    if (parseFloat(data[x][x1]) < minx1) minx1 = parseFloat(data[x][x1]); 
+	  }
+	  if (parhst[ppt].selx2 !== "" && header[x2][1] == "n"  ) { 
+	    if (parseFloat(data[x][x2]) > maxx2) maxx2 = parseFloat(data[x][x2]); 
+	    if (parseFloat(data[x][x2]) < minx2) minx2 = parseFloat(data[x][x2]); 
+	  }
+	  if (parhst[ppt].selx3 !== "" && header[x3][1] == "n"  ) { 
+	    if (parseFloat(data[x][x3]) > maxx3) maxx3 = parseFloat(data[x][x3]);
+	    if (parseFloat(data[x][x3]) < minx3) minx3 = parseFloat(data[x][x3]); 
+	  }
+	  if (parhst[ppt].selx4 !== "" && header[x4][1] == "n"  ) { 
+	    if (parseFloat(data[x][x4]) > maxx4) maxx4 = parseFloat(data[x][x4]);
+	    if (parseFloat(data[x][x4]) < minx4) minx4 = parseFloat(data[x][x4]); 
+	  }
+	}
+	if (parhst[ppt].selx1 !== "" && header[x1][1] == "n"  ) { if ( maxx1 - minx1 < 1 ) { var dc1 = 2 + Math.trunc(Math.abs(Math.log10( maxx1-minx1 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc1 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl1 = 2 + Math.trunc(Math.log10( maxx1 )) + dc1; }
+	if (parhst[ppt].selx2 !== "" && header[x2][1] == "n"  ) { if ( maxx2 - minx2 < 1 ) { var dc2 = 2 + Math.trunc(Math.abs(Math.log10( maxx2-minx2 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc2 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl2 = 2 + Math.trunc(Math.log10( maxx2 )) + dc2; }
+	if (parhst[ppt].selx3 !== "" && header[x3][1] == "n"  ) { if ( maxx3 - minx3 < 1 ) { var dc3 = 2 + Math.trunc(Math.abs(Math.log10( maxx3-minx3 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc3 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl3 = 2 + Math.trunc(Math.log10( maxx3 )) + dc3; }
+	if (parhst[ppt].selx4 !== "" && header[x4][1] == "n"  ) { if ( maxx4 - minx4 < 1 ) { var dc4 = 2 + Math.trunc(Math.abs(Math.log10( maxx4-minx4 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc4 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl4 = 2 + Math.trunc(Math.log10( maxx4 )) + dc4; }
+	
 	// add selected X/Y values to internal array VDAT
 	var ind = 0;
+	var num = 0;
 	for (x = 0; x < data.length; x++) {
 
 		var valx = "";
+		var valt = "";
 
 		tickf = "";
 		if (header[parhst[ppt].selx1][1] == "n" && parhst[ppt].selx2 == "" && parhst[ppt].selx3 == "" && parhst[ppt].selx4 == "") {
-			valx = parseFloat(data[x][x1]);
+			num = parseFloat(data[x][x1]);  valt = num.toFixed(dc1); valt = valt.padStart(sl1); valx = valt; 
 			tickf = "g";
 		} else {
 			if (parhst[ppt].selx1 !== "") {
 				if (header[parhst[ppt].selx1][1] == "d") valx += " " + convdate(data[x][x1]);
 				else if (header[parhst[ppt].selx1][1] == "t") valx += " " + convtime(data[x][x1]);
+				else if (header[x1][1] == "n" ) { num = parseFloat(data[x][x1]);  valt = num.toFixed(dc1); valt = valt.padStart(sl1); valx += " " + valt; }
 				else valx += " " + data[x][x1];
 			}
 			if (parhst[ppt].selx2 !== "") {
 				if (header[parhst[ppt].selx2][1] == "d") valx += " " + convdate(data[x][x2]);
 				else if (header[parhst[ppt].selx2][1] == "t") valx += " " + convtime(data[x][x2]);
+				else if (header[x2][1] == "n" ) { num = parseFloat(data[x][x2]);  valt = num.toFixed(dc2); valt = valt.padStart(sl2); valx += " " + valt; }
 				else valx += " " + data[x][x2];
 			}
 			if (parhst[ppt].selx3 !== "") {
 				if (header[parhst[ppt].selx3][1] == "d") valx += " " + convdate(data[x][x3]);
 				else if (header[parhst[ppt].selx3][1] == "t") valx += " " + convtime(data[x][x3]);
+				else if (header[x3][1] == "n" ) { num = parseFloat(data[x][x3]);  valt = num.toFixed(dc3); valt = valt.padStart(sl3); valx += " " + valt; }
 				else valx += " " + data[x][x3];
 			}
 			if (parhst[ppt].selx4 !== "") {
 				if (header[parhst[ppt].selx4][1] == "d") valx += " " + convdate(data[x][x4]);
 				else if (header[parhst[ppt].selx4][1] == "t") valx += " " + convtime(data[x][x4]);
+				else if (header[x4][1] == "n" ) { num = parseFloat(data[x][x4]);  valt = num.toFixed(dc4); valt = valt.padStart(sl4); valx += " " + valt; }
 				else valx += " " + data[x][x4];
 			}
 			if (header[parhst[ppt].selx1][1] == "t" && parhst[ppt].selx2 == "" && parhst[ppt].selx3 == "" && parhst[ppt].selx4 == "") {
@@ -4924,11 +4974,32 @@ function LoadData() {
 		ind++;
 	}
 
-	// sort VDAT by x values (numeric or text)
 	vdat.sort(function(a, b) {
-		var t1 = a.x + '' + a.s,
-			t2 = b.x + '' + b.s;
-		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+	  if ( ! isNaN(a.x) && ! isNaN(b.x) ) {
+	    var n1 = parseFloat(a.x);
+	    var n2 = parseFloat(b.x);
+			var t1 = a.s;
+			var t2 = b.s;
+			if (n1 < n2) {
+				return -1;
+			}
+			if (n1 > n2) {
+				return 1;
+			}
+			if (n1 == n2) {
+			  return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+			}
+	  } else {
+			var t1 = a.x + '' + a.s,
+					t2 = b.x + '' + b.s;
+			if (t1 < t2) {
+				return -1;
+			}
+			if (t1 > t2) {
+				return 1;
+			}
+			return 0;
+		}
 	});
 
 }
@@ -6218,7 +6289,11 @@ function graphic() {
 				(header[x1][1] == "d" && header[x2][1] == "t" && parhst[ppt].selx3 == "")) {
 				slayout.xaxis.type = '';
 			} else {
-				slayout.xaxis.type = 'category';
+			  if (header[x1][1] == "n" && parhst[ppt].selx2 == "" ) {
+			    slayout.xaxis.type = '-';
+			  } else {
+			    slayout.xaxis.type = 'category';
+			  }
 			}
 
 			slayout.title.text = "<b>Data: ";
@@ -6368,7 +6443,12 @@ function graphic() {
 				(header[x1][1] == "d" && header[x2][1] == "t" && parhst[ppt].selx3 == "")) {
 				slayout.xaxis.type = '';
 			} else {
-				slayout.xaxis.type = 'category';
+			  if (header[x1][1] == "n" && parhst[ppt].selx2 == "" ) {
+			    slayout.xaxis.type = '-';
+			  } else {
+			    slayout.xaxis.type = 'category';
+			  }
+				
 			}
 
 			if (parhst[ppt].sely1 != "") slayout.title.text += " " + header[y1][0];
