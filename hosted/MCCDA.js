@@ -688,6 +688,17 @@ function charCount(s, c) {
 	return result;
 }
 
+function charDelete(string, c) {
+	// count characters in string
+	var result = "",
+		  i = 0;
+	for (i; i < string.length; i++)
+		if (string[i] != c) {
+		  result += string[i];
+		}
+	return result;
+}
+
 function escapeRegExp(string) {
 	// escape special characters
 	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -1543,9 +1554,11 @@ function ProcessSingle(index) {
 				if (decpnt == '.') {
 					if (coldel != ',') {
 						text[i] = text[i].replace(/,/g, '');
+						// text[i] = charDelete(text[i],",");
 					}
 				} else {
 					text[i] = text[i].replace(/\./g, '');
+					// text[i] = charDelete(text[i],".");
 					text[i] = text[i].replace(/,/g, '\.');
 				}
 				var cols = charCount(text[i], coldel);
@@ -1559,7 +1572,8 @@ function ProcessSingle(index) {
 				else text[i] = "F" + fln + coldel + idx + coldel + text[i];
 				// text[i] = text[i].replace(re5, "\t");
 				// text[i] = text[i].replace(/,/g, "");
-				text[i] = text[i].replace(/ /g, "");
+				// text[i] = text[i].replace(/ /g, "");
+				text[i] = charDelete(text[i]," ");
 				for (var col = charCount(text[i], coldel); col < thl; col++) {
 					text[i] = text[i] + coldel;
 				}
