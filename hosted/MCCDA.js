@@ -4800,10 +4800,10 @@ function LoadData() {
 	}
 	
 	// Calculate Max Min of different x-values if numeric
-	var minx1 = 0; var maxx1 = 0;
-	var minx2 = 0; var maxx2 = 0;
-	var minx3 = 0; var maxx3 = 0;
-	var minx4 = 0; var maxx4 = 0;
+	var minx1 = 0; var maxx1 = 0; var dc1 = 0; var sl1 = 0;
+	var minx2 = 0; var maxx2 = 0; var dc2 = 0; var sl2 = 0;
+	var minx3 = 0; var maxx3 = 0; var dc3 = 0; var sl3 = 0;
+	var minx4 = 0; var maxx4 = 0; var dc4 = 0; var sl4 = 0;
 	for (x = 0; x < data.length; x++) {
 	  if (parhst[ppt].selx1 !== "" && header[x1][1] == "n"  ) { 
 	    if (parseFloat(data[x][x1]) > maxx1) maxx1 = parseFloat(data[x][x1]); 
@@ -4822,10 +4822,15 @@ function LoadData() {
 	    if (parseFloat(data[x][x4]) < minx4) minx4 = parseFloat(data[x][x4]); 
 	  }
 	}
-	if (parhst[ppt].selx1 !== "" && header[x1][1] == "n"  ) { if ( maxx1 - minx1 < 1 ) { var dc1 = 2 + Math.trunc(Math.abs(Math.log10( maxx1-minx1 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc1 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl1 = 2 + Math.trunc(Math.log10( maxx1 )) + dc1; }
-	if (parhst[ppt].selx2 !== "" && header[x2][1] == "n"  ) { if ( maxx2 - minx2 < 1 ) { var dc2 = 2 + Math.trunc(Math.abs(Math.log10( maxx2-minx2 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc2 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl2 = 2 + Math.trunc(Math.log10( maxx2 )) + dc2; }
-	if (parhst[ppt].selx3 !== "" && header[x3][1] == "n"  ) { if ( maxx3 - minx3 < 1 ) { var dc3 = 2 + Math.trunc(Math.abs(Math.log10( maxx3-minx3 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc3 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl3 = 2 + Math.trunc(Math.log10( maxx3 )) + dc3; }
-	if (parhst[ppt].selx4 !== "" && header[x4][1] == "n"  ) { if ( maxx4 - minx4 < 1 ) { var dc4 = 2 + Math.trunc(Math.abs(Math.log10( maxx4-minx4 ))) + Math.trunc(Math.abs(Math.log10( data.length ))) } else { dc4 = Math.trunc(Math.abs(Math.log10( data.length ))); } var sl4 = 2 + Math.trunc(Math.log10( maxx4 )) + dc4; }
+	var inc1 = (maxx1 - minx1) / data.length;
+	var inc2 = (maxx2 - minx2) / data.length;
+	var inc3 = (maxx3 - minx3) / data.length;
+	var inc4 = (maxx4 - minx4) / data.length;
+	
+	if (parhst[ppt].selx1 !== "" && header[x1][1] == "n"  ) { if ( inc1 < 1 && inc1 > 0 ) { dc1 = Math.ceil(Math.abs(Math.log10( inc1 ))) } else { dc1 = 0; } sl1 = 3 + Math.ceil(Math.abs(Math.log10( maxx1 ))) + dc1; }
+	if (parhst[ppt].selx2 !== "" && header[x2][1] == "n"  ) { if ( inc2 < 1 && inc2 > 0 ) { dc2 = Math.ceil(Math.abs(Math.log10( inc2 ))) } else { dc2 = 0; } sl2 = 3 + Math.ceil(Math.abs(Math.log10( maxx2 ))) + dc2; }
+	if (parhst[ppt].selx3 !== "" && header[x3][1] == "n"  ) { if ( inc3 < 1 && inc3 > 0 ) { dc3 = Math.ceil(Math.abs(Math.log10( inc3 ))) } else { dc3 = 0; } sl3 = 3 + Math.ceil(Math.abs(Math.log10( maxx3 ))) + dc3; }
+	if (parhst[ppt].selx4 !== "" && header[x4][1] == "n"  ) { if ( inc4 < 1 && inc4 > 0 ) { dc4 = Math.ceil(Math.abs(Math.log10( inc4 ))) } else { dc4 = 0; } sl4 = 3 + Math.ceil(Math.abs(Math.log10( maxx4 ))) + dc4; }
 	
 	// add selected X/Y values to internal array VDAT
 	var ind = 0;
