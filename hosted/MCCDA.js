@@ -895,6 +895,7 @@ function identify(content, fname = "") {
 		text = text.replace(re, '\n');
 		re = new RegExp('' + escapeRegExp('</tr></table></body></html>') + '.+', 'g');
 		text = text.replace(re, '');
+		colsep = '\t';
 		return text;
 
 	} else if (content.includes("swap") && content.includes("r b w") && content.includes("kthr")) {
@@ -1157,6 +1158,7 @@ function identify(content, fname = "") {
 		for (i = 0; i < tab1.length; i++) {
 			nmon += tab0[i] + tab1[i] + tab2[i] + tab3[i] + tab4[i] + tab5[i] + tab6[i] + "\n";
 		}
+		colsep = '\t';
 		return nmon;
 	} else if (content.startsWith("Linux")) {
 		// SAR		
@@ -1208,6 +1210,7 @@ function identify(content, fname = "") {
 				text = text + tmp[i] + "\n";
 			}
 			text = text.replace(/\t\n/g, "\n");
+			colsep = '\t';
 			return text;
 		}
 	} else if (content.includes("host;tenant;time;searchCount")) {
@@ -1222,6 +1225,7 @@ function identify(content, fname = "") {
 		return output;
 	} else if (content.includes("connect to server o.k.")) {
 		// NIPING
+		colsep = '\t';
 		text = text.replace(/(\r\n\r\n|\n\n|\r\r|\r\n)/gm, "\n"); //  replace multiple line breaks with single line break
 		text = text.replace(/(\r)/gm, "\n");
 		text = text.replace(/( ms\n)/gm, "\n"); //  remove ms
@@ -1464,6 +1468,7 @@ function ProcessSingle(index) {
 				var ctab = [];
 				for (n = 0; n < 256; n++) { ctab[n] = { count : 0, idx : n, char : String.fromCharCode(n) }; }
 				for (n = 0; n < text.length; n++) {
+				  if (text[n].includes('----------') ) continue;
 					for (i = 0; i < text[n].length; i++) {
 						var charcode = text[n].charCodeAt(i);
 						if ( ( charcode >= 48 && charcode <= 57  ) ||
