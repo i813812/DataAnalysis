@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.13";
+var prgvers = "8.14";
 
 // arrays
 var dtmp = [];
@@ -175,16 +175,6 @@ var dtfrm = [
 
 var hdrpos = 0;
 var decpnt = '.';
-
-// Column Delimiters
-var delim = [
-	[0, ","],
-	[0, ";"],
-	[0, "|"],
-	[0, "\t"],
-	[0, "/"]
-];
-
 var detect = true;
 var wait = false;
 var init = true;
@@ -1469,22 +1459,30 @@ function ProcessSingle(index) {
 			text = tmpfile.content.split("\n");
 			// detect column separator if empty
 			if (colsep == "") {
-
-				if (detect) {
-					for (i = 0; i < delim.length; i++) {
-						delim[i][0] = 0;
-						for (n = 0; n < text.length; n++) {
-							re = new RegExp('' + delim[i][1] + '', 'g');
-							delim[i][0] += charCount(text[n], delim[i][1]);
-							if (n == 20) break;
-						}
+			
+			  // test the first 33 lines for the most often occurring character which is not between 0..9,A..Z,a..z or space
+				var ctab = [];
+				for (n = 0; n < 256; n++) { ctab[n] = { count : 0, idx : n, char : String.fromCharCode(n) }; }
+				for (n = 0; n < text.length; n++) {
+					for (i = 0; i < text[n].length; i++) {
+						var charcode = text[n].charCodeAt(i);
+						if ( ( charcode >= 48 && charcode <= 57  ) ||
+						     ( charcode >= 65 && charcode <= 90  ) ||
+						     ( charcode >= 97 && charcode <= 122 ) ||
+						       charcode == 32 ) {} else ctab[charcode].count += 1;
 					}
-					detect = false;
+					if (n == 33) break;
 				}
-				delim.sort((a, b) => b[0] - a[0]);
-				coldel = delim[0][1];
+				ctab.sort(function(a,b){
+					var s1 = a.count,
+							s2 = b.count;
+					return s1 > s2 ? -1 : s1 < s2 ? 1 : 0;
+				});
+
+				coldel = ctab[0].char;
 			} else {
 				coldel = colsep;
+				if (coldel == "t" || coldel == "T" ) coldel = "\t";
 			}
 		}
 
@@ -7165,7 +7163,7 @@ function BuildInit() {
 	// Color
 	document.body.style.backgroundColor = parhst[ppt].bgcolor;
 	// SAP Logo
-	document.getElementById('IDload').innerHTML = "" + SAPlogo(100, 50) + " " + document.getElementById('IDload').innerHTML + "<small><font style='color:teal'> Column Separator: <input id='IDsep' oninput='getsep()' onchange='getsep()' type='text' maxlength='1' size='1' name='colsep' value='" + colsep + "'> (enter <b>S</B> for space; build in:<B> \|;,tab/ </B>)</font></small>";
+	document.getElementById('IDload').innerHTML = "" + SAPlogo(100, 50) + " " + document.getElementById('IDload').innerHTML + "<small><font style='color:teal'> Column Separator: <input id='IDsep' oninput='getsep()' onchange='getsep()' type='text' maxlength='1' size='1' name='colsep' value='" + colsep + "'> (enter <b>S</B> for space; <B>t</B> for tab - all others are build in:<B> \|;,tab/ </B>)</font></small>";
 	if (decpnt == '.') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1,023,045<font style='color:red;font-size:16px;'><b>.</b></font>06</span></small>";
 	if (decpnt == ',') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1.023.045<font style='color:red;font-size:16px;'><b>,</b></font>06</span></small>";
 	document.getElementById('IDload').innerHTML += "  <small><font style='color:steelblue'><span onclick='selchk(event)'><i><b>check to preview data</b></i> </span><input id='IDcheckpreview' type='checkbox' style='width:12px; height:12px; margin:0px;'></small></small>";

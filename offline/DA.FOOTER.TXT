@@ -35,7 +35,7 @@
 // Color
 document.body.style.backgroundColor = parhst[ppt].bgcolor;
 // SAP Logo
-document.getElementById('IDload').innerHTML = "" + SAPlogo(100,50) + " " + document.getElementById('IDload').innerHTML + "<small><font style='color:teal'> Column Separator: <input id='IDsep' oninput='getsep()' onchange='getsep()' type='text' maxlength='1' size='1' name='colsep' value='" + colsep +"'> (enter <b>S</B> for space; build in:<B> \|;,tab/ </B>)</font></small>";
+document.getElementById('IDload').innerHTML = "" + SAPlogo(100,50) + " " + document.getElementById('IDload').innerHTML + "<small><font style='color:teal'> Column Separator: <input id='IDsep' oninput='getsep()' onchange='getsep()' type='text' maxlength='1' size='1' name='colsep' value='" + colsep +"'> (enter <b>S</B> for space; <B>t</B> for tab - all others are build in:<B> \|;,tab/ </B>)</font></small>";
 if ( decpnt == '.') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1,023,045<font style='color:red;font-size:16px;'><b>.</b></font>06</span></small>";
 if ( decpnt == ',') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1.023.045<font style='color:red;font-size:16px;'><b>,</b></font>06</span></small>";
 document.getElementById('IDload').innerHTML += "  <small><font style='color:steelblue'><span onclick='selchk(event)'><i><b>check to preview data</b></i> </span><input id='IDcheckpreview' type='checkbox' style='width:12px; height:12px; margin:0px;'></font></small>";
