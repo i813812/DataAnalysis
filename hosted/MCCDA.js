@@ -63,12 +63,6 @@ var keyshift = false;
 var DAC = false;
 var selhdr = "";
 var zip;
-var hlegposx = 0.25;
-var hlegposy = 0.85;
-var mlegposx = 0;
-var mlegposy = -0.35;
-var slegposx = 1;
-var slegposy = 1;
 var hdrs = 1;
 var usefnam = false;
 var trex = false;
@@ -155,7 +149,13 @@ var inparam = {
 	legend: true,
 	shxtick: true,
 	shytick: true,
-	shztick: true
+	shztick: true,
+  hlegposx: 0.25,
+  hlegposy: 0.85,
+  mlegposx: 0,
+  mlegposy: -0.35,
+  slegposx: 1,
+  slegposy: 1
 };
 
 // Input parameter history
@@ -311,6 +311,12 @@ function loaddefault() {
 	parhst[ppt].shxtick = tmp.shxtick;
 	parhst[ppt].shytick = tmp.shytick;
 	parhst[ppt].shztick = tmp.shztick;
+  parhst[ppt].hlegposx = tmp.hlegposx;
+  parhst[ppt].hlegposy = tmp.hlegposy;
+  parhst[ppt].mlegposx = tmp.mlegposx;
+  parhst[ppt].mlegposy = tmp.mlegposy;
+  parhst[ppt].slegposx = tmp.slegposx;
+  parhst[ppt].slegposy = tmp.slegposy;
 }
 
 function dnlexport() {
@@ -2875,6 +2881,12 @@ function parameters() {
 	if ( parhst[ppt].shxtick == undefined) parhst[ppt].shxtick = true;
 	if ( parhst[ppt].shytick == undefined) parhst[ppt].shytick = true;
 	if ( parhst[ppt].shztick == undefined) parhst[ppt].shztick = true;
+  if ( parhst[ppt].hlegposx == undefined) parhst[ppt].hlegposx = 0.25;
+  if ( parhst[ppt].hlegposy == undefined) parhst[ppt].hlegposy = 0.85;
+  if ( parhst[ppt].mlegposx == undefined) parhst[ppt].mlegposx = 0;
+  if ( parhst[ppt].mlegposy == undefined) parhst[ppt].mlegposy = -0.35;
+  if ( parhst[ppt].slegposx == undefined) parhst[ppt].slegposx = 1;
+  if ( parhst[ppt].slegposy == undefined) parhst[ppt].slegposy = 1;
 
 	document.getElementById('ID(C)').innerHTML = "";
 	document.getElementById('IDdata').innerHTML = "";
@@ -3710,7 +3722,13 @@ function addhist() {
 	    legend: tmp.legend,
 	    shxtick: tmp.shxtick,
 	    shytick: tmp.shytick,
-	    shztick: tmp.shztick
+	    shztick: tmp.shztick,
+      hlegposx: tmp.hlegposx,
+      hlegposy: tmp.hlegposy,
+      mlegposx: tmp.mlegposx,
+      mlegposy: tmp.mlegposy,
+      slegposx: tmp.slegposx,
+      slegposy: tmp.slegposy
 		};
 		ppt = parhst.length - 1;
 	}
@@ -3757,10 +3775,10 @@ function toggleshxtick() {
 	// show/hide tick labels (x-axis)
 	if (parhst[ppt].shxtick) {
 		parhst[ppt].shxtick = false;
-    mlegposx = 0.05; mlegposy = 0.95;
+    parhst[ppt].mlegposx = 0.05; parhst[ppt].mlegposy = 0.95;
 	} else {
 		parhst[ppt].shxtick = true;
-		mlegposx = 0; mlegposy = -0.35;
+		parhst[ppt].mlegposx = 0; parhst[ppt].mlegposy = -0.35;
 	}
 	parameters();
 	graphic();
@@ -5614,7 +5632,7 @@ function showhistogram() {
 				tickfont: {
 					size: parhst[ppt].tfonts
 				},
-				showticklabels: parhst[ppt].shytick,
+				// showticklabels: parhst[ppt].shytick,
 				autorange: false,
 				gridcolor: parhst[ppt].grcolor
 			},
@@ -5627,7 +5645,7 @@ function showhistogram() {
 					size: parhst[ppt].tfonts
 				},
 				title: '',
-				showticklabels: parhst[ppt].shxtick,
+				// showticklabels: parhst[ppt].shxtick,
 				gridcolor: parhst[ppt].grcolor,
 				margin: {
 					b: 120,
@@ -5642,7 +5660,7 @@ function showhistogram() {
 					size: parhst[ppt].tfonts
 				},
 				title: '',
-				showticklabels: parhst[ppt].shxtick,
+				// showticklabels: parhst[ppt].shxtick,
 				side: 'top'
 			},
 			title: {
@@ -5655,8 +5673,8 @@ function showhistogram() {
 				color: parhst[ppt].fgcolor
 			},
 			legend: {
-				x: hlegposx,
-				y: hlegposy,
+				x: parhst[ppt].hlegposx,
+				y: parhst[ppt].hlegposy,
 				font: {
 					family: 'courier',
 					size: parhst[ppt].tfonts,
@@ -6240,8 +6258,8 @@ function graphic() {
 					},
 				},
 				legend: {
-					x: slegposx,
-					y: slegposy,
+					x: parhst[ppt].slegposx,
+					y: parhst[ppt].slegposy,
 					font: {
 						family: 'courier',
 						color: parhst[ppt].fgcolor,
@@ -6572,8 +6590,8 @@ function graphic() {
 					},
 				},
 				legend: {
-					x: mlegposx,
-					y: mlegposy,
+					x: parhst[ppt].mlegposx,
+					y: parhst[ppt].mlegposy,
 					font: {
 						family: 'courier',
 						color: parhst[ppt].fgcolor,
@@ -6748,12 +6766,12 @@ function graphic() {
 			evdata = data;
 		});
 
-		myPlot.on('plotly_relayout', function(data) {
-			evdata = data;
+		// myPlot.on('plotly_relayout', function(data) {
+		// 	evdata = data;
 			// var key = Object.keys(evdata);
 			// var str = Object.values(evdata);
 			// if (key == "title.text") title = str;
-		});
+		// });
 
 		// click or double-click on graph
 		myPlot.on('plotly_click', function(data) {
@@ -6990,10 +7008,11 @@ function roundscale(value, mode = 'floor') {
 
 // handle scale/zoom event
 function scaleaxishist(eventdata) {
+  addhist();
 	//if (parhst[ppt].logdis) return;
 	var tmp = JSON.parse(JSON.stringify(eventdata), function(key, value) {
-		if (key == "legend.x") hlegposx = value;
-		if (key == "legend.y") hlegposy = value;
+		if (key == "legend.x") parhst[ppt].hlegposx = value;
+		if (key == "legend.y") parhst[ppt].hlegposy = value;
 		// console.log("Key:" + key + " Value:" + value);
 	});
 	parameters();
@@ -7003,6 +7022,7 @@ function scaleaxishist(eventdata) {
 
 // handle scale/zoom event
 function scaleaxis(eventdata) {
+  addhist();
 	var x0 = "";
 	var x1 = "";
 	var y0 = "";
@@ -7017,19 +7037,25 @@ function scaleaxis(eventdata) {
 		if (key == "yaxis.range[1]") y1 = value;
 		if (key == "yaxis2.range[0]") z0 = value;
 		if (key == "yaxis2.range[1]") z1 = value;
+		
+		if (key == "xaxis.title.text") { parhst[ppt].xtitle = prompt("Enter Title for X-Axis:", value); return; }
+		if (key == "yaxis.title.text") { parhst[ppt].ytitle = prompt("Enter Title for Y-Axis:", value); return; }
+		if (key == "title.text") 	     { parhst[ppt].gtitle = prompt("Enter Chart Title:", value); return; }
+
 		if (parhst[ppt].vstack == "") {
-			if (key == "legend.x") mlegposx = value;
-			if (key == "legend.y") mlegposy = value;
+			if (key == "legend.x") parhst[ppt].mlegposx = value;
+			if (key == "legend.y") parhst[ppt].mlegposy = value;
 			return;
 		} else {
-			if (key == "legend.x") slegposx = value;
-			if (key == "legend.y") slegposy = value;
+			if (key == "legend.x") parhst[ppt].slegposx = value;
+			if (key == "legend.y") parhst[ppt].slegposy = value;
 			return;
 		}
 
 		// console.log("Key:" + key + " Value:" + value);
 	});
-	if (JSON.stringify(eventdata).includes("xaxis")) {
+	
+	if (JSON.stringify(eventdata).includes("xaxis") && !JSON.stringify(eventdata).includes("title.text")) {
 		try {
 			// scale
 			xmin = x0;
@@ -7083,7 +7109,6 @@ function scaleaxis(eventdata) {
 			if (isNaN(val0)) valt0 = valt0.replace(/\<br\>.+/, '');
 			if (isNaN(val1)) valt1 = valt1.replace(/\<br\>.+/, '');
 
-			addhist();
 			if (valt0 == "@") valt0 = vdat[0].x;
 			if (valt1 == "@") valt1 = vdat[vdat.length - 1].x;
 			parhst[ppt].xinpmin = xmin = valt0;
@@ -7100,7 +7125,7 @@ function scaleaxis(eventdata) {
 			return;
 		}
 	}
-	if (JSON.stringify(eventdata).includes("yaxis.")) {
+	if (JSON.stringify(eventdata).includes("yaxis.") && !JSON.stringify(eventdata).includes("title.text")) {
 		try {
 			// scale
 			var tmin = parseFloat(y0);
@@ -7142,7 +7167,7 @@ function scaleaxis(eventdata) {
 			return;
 		}
 	}
-	if (JSON.stringify(eventdata).includes("yaxis2.")) {
+	if (JSON.stringify(eventdata).includes("yaxis2.") && !JSON.stringify(eventdata).includes("title.text")) {
 		try {
 			// scale
 			var tmin = parseFloat(z0);
@@ -7188,6 +7213,21 @@ function scaleaxis(eventdata) {
 	graphic();
 	return;
 }
+
+// handle scale/zoom event
+function edittitle(eventdata) {
+
+	var tmp = JSON.parse(JSON.stringify(eventdata), function(key, value) {
+
+	  if (key == "xaxis.title.text") parhst[ppt].xtitle = prompt("Enter Title for X-Axis:", parhst[ppt].xtitle);
+		if (key == "yaxis.title.text") parhst[ppt].ytitle = prompt("Enter Title for Y-Axis:", parhst[ppt].ytitle);
+		if (key == "title.text") 	     parhst[ppt].gtitle = prompt("Enter Chart Title:", parhst[ppt].gtitle);
+
+	});
+
+	return;
+}
+
 
 function big() {
 	if (displaymode == "graphic" && autohide) {
