@@ -154,7 +154,8 @@ var inparam = {
 	zopac: 0.5,
 	legend: true,
 	shxtick: true,
-	shytick: true
+	shytick: true,
+	shztick: true
 };
 
 // Input parameter history
@@ -309,6 +310,7 @@ function loaddefault() {
 	parhst[ppt].legend = tmp.legend;
 	parhst[ppt].shxtick = tmp.shxtick;
 	parhst[ppt].shytick = tmp.shytick;
+	parhst[ppt].shztick = tmp.shztick;
 }
 
 function dnlexport() {
@@ -2872,6 +2874,7 @@ function parameters() {
 	if ( parhst[ppt].legend == undefined) parhst[ppt].legend = true;
 	if ( parhst[ppt].shxtick == undefined) parhst[ppt].shxtick = true;
 	if ( parhst[ppt].shytick == undefined) parhst[ppt].shytick = true;
+	if ( parhst[ppt].shztick == undefined) parhst[ppt].shztick = true;
 
 	document.getElementById('ID(C)').innerHTML = "";
 	document.getElementById('IDdata').innerHTML = "";
@@ -3271,6 +3274,12 @@ function parameters() {
 		}
 		str += "</select>";
 		htmlcont += str;
+		
+		if (parhst[ppt].shztick ) {
+			htmlcont += " <button title='Hide Tick Labels' style='color:navy' onclick='toggleshztick()'><B>T</B></button>";
+		} else {
+			htmlcont += " <button title='Show Tick Labels' style='color:gray' onclick='toggleshztick()'>T</button>";
+		}
 
 		htmlcont += "</div></td><td colspan='2'><div>";
 
@@ -3700,7 +3709,8 @@ function addhist() {
 	    zopac: tmp.zopac,
 	    legend: tmp.legend,
 	    shxtick: tmp.shxtick,
-	    shytick: tmp.shytick
+	    shytick: tmp.shytick,
+	    shztick: tmp.shztick
 		};
 		ppt = parhst.length - 1;
 	}
@@ -3730,13 +3740,27 @@ function toggleshytick() {
 	graphic();
 }
 
+function toggleshztick() {
+  addhist();
+	// show/hide tick labels (x-axis)
+	if (parhst[ppt].shztick) {
+		parhst[ppt].shztick = false;
+	} else {
+		parhst[ppt].shztick = true;
+	}
+	parameters();
+	graphic();
+}
+
 function toggleshxtick() {
   addhist();
 	// show/hide tick labels (x-axis)
 	if (parhst[ppt].shxtick) {
 		parhst[ppt].shxtick = false;
+    mlegposx = 0.05; mlegposy = 0.95;
 	} else {
 		parhst[ppt].shxtick = true;
+		mlegposx = 0; mlegposy = -0.35;
 	}
 	parameters();
 	graphic();
@@ -5590,6 +5614,7 @@ function showhistogram() {
 				tickfont: {
 					size: parhst[ppt].tfonts
 				},
+				showticklabels: parhst[ppt].shytick,
 				autorange: false,
 				gridcolor: parhst[ppt].grcolor
 			},
@@ -5602,6 +5627,7 @@ function showhistogram() {
 					size: parhst[ppt].tfonts
 				},
 				title: '',
+				showticklabels: parhst[ppt].shxtick,
 				gridcolor: parhst[ppt].grcolor,
 				margin: {
 					b: 120,
@@ -5616,6 +5642,7 @@ function showhistogram() {
 					size: parhst[ppt].tfonts
 				},
 				title: '',
+				showticklabels: parhst[ppt].shxtick,
 				side: 'top'
 			},
 			title: {
@@ -5638,6 +5665,18 @@ function showhistogram() {
 			},
 			// barmode: 'stack'
 		};
+		
+		if (parhst[ppt].shxtick ) {
+			layout.margin.b = 150;
+		} else {
+			layout.margin.b = 50;
+		}
+		
+		if (parhst[ppt].shytick ) {
+			layout.margin.l = 75;
+		} else {
+			layout.margin.l = 50;
+		}
 
 		var trace1 = {
 			type: 'scatter',
@@ -6167,7 +6206,7 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
-					showticklabels: parhst[ppt].shytick,
+					showticklabels: parhst[ppt].shztick,
 					type: "",
 					// autorange: true,
 					side: 'right'
@@ -6210,6 +6249,24 @@ function graphic() {
 					},
 				},
 			};
+			
+			if (parhst[ppt].shxtick ) {
+			  slayout.margin.b = 150;
+		  } else {
+		    slayout.margin.b = 50;
+		  }
+		  
+			if (parhst[ppt].shytick ) {
+			  slayout.margin.l = 100;
+		  } else {
+		    slayout.margin.l = 50;
+		  }
+		  
+			if (parhst[ppt].shztick ) {
+			  slayout.margin.r = 100;
+		  } else {
+		    slayout.margin.r = 50;
+		  }
 
 			if (tickf !== "") slayout.xaxis.tickformat = tickf;
 
@@ -6481,7 +6538,7 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
-					showticklabels: parhst[ppt].shytick,
+					showticklabels: parhst[ppt].shztick,
 					type: "",
 					// autorange: true,
 					side: 'right'
@@ -6524,6 +6581,24 @@ function graphic() {
 					},
 				},
 			};
+			
+			if (parhst[ppt].shxtick ) {
+			  slayout.margin.b = 150;
+		  } else {
+		    slayout.margin.b = 50;
+		  }
+		  
+			if (parhst[ppt].shytick ) {
+			  slayout.margin.l = 100;
+		  } else {
+		    slayout.margin.l = 50;
+		  }
+		  
+			if (parhst[ppt].shztick ) {
+			  slayout.margin.r = 100;
+		  } else {
+		    slayout.margin.r = 50;
+		  }
 
 			if (tickf !== "") slayout.xaxis.tickformat = tickf;
 			// set axis category
