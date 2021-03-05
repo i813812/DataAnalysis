@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Concatenate and Format ABAPMETER Files</title>
+    <script>
+        // (C)hristoph Weyd - c.weyd@sap.com
+        // https://jam4.sapjam.com/groups/ptqhagz5ePB2nGoqApUgbB/documents/Asnvd9oHcsKs84FWROWYKC
+        var spn = [];
+        var spd = [];
+        var spt = [];
+        var ind = 0;
+        var hdr = 0;
+        var content = "";
+
+        function processSpoolFiles() {
+            var filelist = document.getElementById('files').files;
+            var str = "";
+            content = "";
+            document.getElementById('load').innerHTML = "";
+            document.getElementById('output').innerHTML = "";
+            for (var i = 0; i < filelist.length; i++) {
+                writeSpoolfiles(filelist[i], filelist.length, i + 1);
+            }
+            document.title = 'Format ABAPMETER completed';
+        }
+
+        function processFiles() {
+            var filelist = document.getElementById('files').files;
+            var str = "";
+
+            str += 'Select downloaded ABAPMETER spool files: ';
+            str += '<input type="file" accept="text/plain" multiple id="files" onchange="processSpoolFiles()" />';
+
+            document.getElementById('load').innerHTML = str;
+            document.getElementById('output').innerHTML = "";
+            for (var i = 0; i < filelist.length; i++) {
+                writefiles(filelist[i], filelist.length, i + 1);
+            }
+            document.title = 'Format ABAPMETER completed';
+        }
+
+        function writefiles(file, numtotal, filenum) {
+            content = "";
+            var reader = new FileReader();
+            var i = 0;
+            var n = 0;
+            reader.onload = function() {
+                text = reader.result.split("\n");
+                for (i = 0; i < text.length; i++) {
+                    var res = text[i];
+                    res = res.substring(1, 4);
+
+                    text[i] = text[i].replace(/ /g, '');  // remove spaces
+                    text[i] = text[i].replace("||", "|"); // remove duplicate separators
+                    text[i] = text[i].replace(/X/g, '');  // remove checkboxes
+
+                    if (res == "---" || res == "===" || text[i].includes("Title") || text[i].includes("Status") || text[i].includes("Spool") || text[i] == "") {} else {
+                        var sp = text[i].split("|");
+                        var rgtim = new RegExp(/(\d{2}):(\d{2})/);
+                        var rgdt1 = new RegExp(/(\d{4})[\/.-](\d{2})[\/.-](\d{2})/);
+                        var rgdt2 = new RegExp(/(\d{2})[\/.-](\d{2})[\/.-](\d{4})/);
+                        for (n = 2; n < sp.length; n++) {
+                            if ( rgtim.test(sp[n]) ) { spt[ind] = sp[n]; break; }
+                            if ( rgdt1.test(sp[n]) ) spd[ind] = sp[n];
+                            if ( rgdt2.test(sp[n]) ) spd[ind] = sp[n];
+                        }
+                        spn[ind] = sp[1];
+                        ind += 1;
+                    }
+                }
+            }
+            reader.readAsText(file, "UTF-8");
+        }
+
+        function writeSpoolfiles(file, numtotal, filenum) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                text = reader.result.split("\n");
+                for (i = 0; i < text.length; i++) {
+                    var res = text[i];
+                    res = res.substring(1, 4);
+                    if (res == "---" || text[i].includes("statistics") || text[i].includes("Records") || text[i] == "") {} else {
+                        if ( text[i].includes("Instance") && hdr == 1 ) {
+                            continue;
+                        }
+                        var spool = file.name;
+                        spool = spool.toLowerCase();
+                        spool = spool.replace(".txt", "");
+                        spool = spool.substr(spool.length - 10);
+                        spool = spool.replace(/^0+/, '');
+                        
+                        if (hdr == 0) {
+                            content = "SPOOL" + "\t" + "DATE" + "\t" + "TIME";
+                        } else {
+                            content += spool;
+                            for (x = 0; x < spn.length; x++) {
+                                if (spn[x] == spool) {
+                                    content += "\t" + spd[x] + "\t" + spt[x];
+                                }
+                            }
+                        }
+                        var line = text[i].split("|");
+                        for (n = 0; n < line.length; n++) {
+                            if (line[n] != "") {
+                                line[n] = line[n].replace(/ /g, '');
+                                content += "\t" + line[n];
+                            }
+                        }
+                        content += "\n";
+                        hdr = 1;
+                    }
+                }
+                // content += "</table>"; 
+                var perct = Math.trunc(filenum * 100 / numtotal);
+                // document.getElementById('output').innerHTML += content;
+                if (filenum == numtotal) {
+                    document.title = 'Spool: ' + perct + '% - Completed';
+
+                    document.getElementById('output').innerHTML += "<button onclick='copy()'>Copy</button><br><br>";
+                    document.getElementById('output').innerHTML += "<textarea id='textarea' rows='60' cols='250' style='font-family:Courier; font-size:6px; color:#000044'  >" + content + "</textarea>";
+                } else {
+                    document.title = 'Spool: ' + perct + '% - ' + filenum + ' - ' + file.name;
+                }
+
+            }
+            reader.readAsText(file, "UTF-8");
+        }
+
+        function copy() {
+            let textarea = document.getElementById("textarea");
+            textarea.select();
+            document.execCommand("copy");
+        }
+    </script>
+</head>
+
+<style>
+    table {
+        border-collapse: collapse;
+    }
+    
+    table,
+    td,
+    th {
+        border: 1px solid lightgray;
+        padding: 5px;
+        text-align: left;
+    }
+</style>
+
+<body>
+
+    <pre id="load">
+Select spool overview file: <input type="file" accept='text/plain' id="files" onchange="processFiles()" />
+</pre>
+
+    <pre>
+<table id="output">
+</table>
+</pre>
+
+</body>
+
+</html>

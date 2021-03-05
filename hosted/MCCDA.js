@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.14";
+var prgvers = "8.15";
 
 // arrays
 var dtmp = [];
@@ -54,7 +54,6 @@ var vmax = "";
 var evdata = "";
 var start = true;
 var sspace = false;
-var slegend = false;
 var average = 0;
 var FWHM = 0;
 var slider = false;
@@ -152,8 +151,10 @@ var inparam = {
 	ztsize: 1,
 	sndyaxis: false,
 	opaci: 0.75,
-	zopac: 0.5
-	
+	zopac: 0.5,
+	legend: true,
+	shxtick: true,
+	shytick: true
 };
 
 // Input parameter history
@@ -305,6 +306,9 @@ function loaddefault() {
 	parhst[ppt].sndyaxis = tmp.sndyaxis;
 	parhst[ppt].zopac = tmp.zopac;
 	parhst[ppt].opaci = tmp.opaci;
+	parhst[ppt].legend = tmp.legend;
+	parhst[ppt].shxtick = tmp.shxtick;
+	parhst[ppt].shytick = tmp.shytick;
 }
 
 function dnlexport() {
@@ -1365,8 +1369,9 @@ function CheckHdr() {
 		parhst[ppt].colsc[2][0] = 200;
 		parhst[ppt].grtype = 'scatter';
 		parhst[ppt].sely1 = hdrpos;
-		parhst[ppt].selx1 = 0;
-		parhst[ppt].selx2 = 1;
+		parhst[ppt].selx1 = 5;
+		parhst[ppt].selx2 = 3;
+		parhst[ppt].selx2 = 4;
 		parhst[ppt].sndyaxis = true;
 		parhst[ppt].selz1 = hdrpos;
 		parhst[ppt].zavg = 50;
@@ -2864,6 +2869,9 @@ function parameters() {
 	if ( parhst[ppt].ztsize == undefined) parhst[ppt].ztsize = 1;
 	if ( parhst[ppt].sndyaxis == undefined) parhst[ppt].sndyaxis = false;
 	if ( parhst[ppt].zopac == undefined) parhst[ppt].zopac = 0.5;
+	if ( parhst[ppt].legend == undefined) parhst[ppt].legend = true;
+	if ( parhst[ppt].shxtick == undefined) parhst[ppt].shxtick = true;
+	if ( parhst[ppt].shytick == undefined) parhst[ppt].shytick = true;
 
 	document.getElementById('ID(C)').innerHTML = "";
 	document.getElementById('IDdata').innerHTML = "";
@@ -2995,6 +3003,12 @@ function parameters() {
 	str += "</select>";
 	htmlcont += str;
 	
+	if (parhst[ppt].shxtick ) {
+		htmlcont += " <button title='Hide Tick Labels' style='color:navy' onclick='toggleshxtick()'><B>T</B></button>";
+	} else {
+	  htmlcont += " <button title='Show Tick Labels' style='color:gray' onclick='toggleshxtick()'>T</button>";
+	}
+	
 	htmlcont += "</div></td><td colspan=2><div>";		
 
 	// select Field to Filter
@@ -3024,7 +3038,7 @@ function parameters() {
 	htmlcont += " <input id='IDFILTER' style='width:12em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' ondblclick='promptfilter()' onchange='changeparam()' type='text' name='filter' size='17' value='" + parhst[ppt].filter + "'>";
 
 	if (parhst[ppt].tround) {
-		htmlcont += " <button id='IDROUND' title='round time to n seconds' style='color:black' onclick='settround()'><B>R</b></button> ";
+		htmlcont += " <button id='IDROUND' title='round time to n seconds' style='color:navy' onclick='settround()'><B>R</b></button> ";
 	} else {
 		htmlcont += " <button id='IDROUND' title='round time to n seconds' style='color:gray' onclick='settround()'>R</button> ";
 	}
@@ -3064,8 +3078,9 @@ function parameters() {
 	if (parhst[ppt].cleand) {
 		htmlcont += " <button id='IDCLEAND' title='eliminate data points not present in all stacks' onclick='setcleand()'>E</button> ";
 	} else {
-		htmlcont += " <button id='IDCLEAND' title='add missing data points' style='color:black' onclick='setcleand()'>A</button> ";
+		htmlcont += " <button id='IDCLEAND' title='add missing data points' style='color:navy' onclick='setcleand()'>A</button> ";
 	}
+
 
 	htmlcont += "</div></td>";
 
@@ -3140,6 +3155,12 @@ function parameters() {
 	}
 	str += "</select>";
 	htmlcont += str;
+	
+	if (parhst[ppt].shytick ) {
+		htmlcont += " <button title='Hide Tick Labels' style='color:navy' onclick='toggleshytick()'><B>T</B></button>";
+	} else {
+	  htmlcont += " <button title='Show Tick Labels' style='color:gray' onclick='toggleshytick()'>T</button>";
+	}
 
 	htmlcont += "</div></td><td><div>";
 
@@ -3264,7 +3285,7 @@ function parameters() {
 		htmlcont += "</select>";
 		
 		if (parhst[ppt].zlogdis) {
-			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: logarithmic scale' style='color:black' onclick='setzlogdis()'><B>Log</b></button>";
+			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: logarithmic scale' style='color:navy' onclick='setzlogdis()'><B>Log</b></button>";
 		} else {
 			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: linear scale' style='color:gray' onclick='setzlogdis()'>Lin</button>";
 		}
@@ -3320,9 +3341,9 @@ function parameters() {
 	htmlcont += "<button title='Compact Data (delete every second value for first X-Axis)' onclick='CompData()'> C </button>";
 	
 	if (parhst[ppt].sndyaxis) {
-		htmlcont += " <button title='Hide 2nd Y-Axis' onclick='toggle2ndaxis()'><B> 2nd Y-Axis </B></button>";
+		htmlcont += " <button title='Hide 2nd Y-Axis' style='color:navy' onclick='toggle2ndaxis()'><B> 2nd Y-Axis </B></button>";
 	} else {
-		htmlcont += " <button title='Display 2nd Y-Axis' onclick='toggle2ndaxis()'> 2nd Y-Axis </button>";
+		htmlcont += " <button title='Display 2nd Y-Axis' style='color:gray' onclick='toggle2ndaxis()'> 2nd Y-Axis </button>";
 	}
 
 
@@ -3388,13 +3409,13 @@ function parameters() {
 	if (parhst[ppt].opr == 'MIN') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'	         >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN' selected >MIN</option></select>";
 
 	if (parhst[ppt].smooth) {
-		htmlcont += " <button id='IDSMOOTH' title='Add Random Decimals' style='color:black' onclick='setsmooth()'><B>ARD</b></button>";
+		htmlcont += " <button id='IDSMOOTH' title='Add Random Decimals' style='color:navy' onclick='setsmooth()'><B>ARD</b></button>";
 	} else {
 		htmlcont += " <button id='IDSMOOTH' title='Add Random Decimals' style='color:gray' onclick='setsmooth()'>ARD</button>";
 	}
 
 	if (parhst[ppt].logdis) {
-		htmlcont += " <button id='IDLOGDIS' title='Y-Axis: logarithmic scale' style='color:black' onclick='setlogdis()'><B>Log</b></button>";
+		htmlcont += " <button id='IDLOGDIS' title='Y-Axis: logarithmic scale' style='color:navy' onclick='setlogdis()'><B>Log</b></button>";
 	} else {
 		htmlcont += " <button id='IDLOGDIS' title='Y-Axis: linear scale' style='color:gray' onclick='setlogdis()'>Lin</button>";
 	}
@@ -3410,6 +3431,12 @@ function parameters() {
 	htmlcont += str;
 
 	if (infile != null) htmlcont += " <button id='IDEdit' style='color:gray' onclick='editdata()'><i>Edit Data</i></button>";
+	
+	if (parhst[ppt].legend ) {
+		htmlcont += " <button title='Hide Legend' style='color:navy' onclick='togglelegend()'><B>L</B></button>";
+	} else {
+	  htmlcont += " <button title='Show Legend' style='color:gray' onclick='togglelegend()'>L</button>";
+	}
 	htmlcont += " <button title='Set Chart and Axis Title(s)' onclick='settitle()'>Title</button>";
 	htmlcont += " <button id='ID+' title='Increase font size' onclick='incfonts()'>+</button><button id='ID-' title='Decrease font size' onclick='decfonts()'>-</button>";
 
@@ -3670,13 +3697,64 @@ function addhist() {
 	    ztsize: tmp.ztsize,
 	    sndyaxis: tmp.sndyaxis,
 	    opaci: tmp.opaci,
-	    zopac: tmp.zopac
+	    zopac: tmp.zopac,
+	    legend: tmp.legend,
+	    shxtick: tmp.shxtick,
+	    shytick: tmp.shytick
 		};
 		ppt = parhst.length - 1;
 	}
 }
 
-function toggleautohide() {
+function toggleshytick() {
+  addhist();
+	// show/hide tick labels (x-axis)
+	if (parhst[ppt].shytick) {
+		parhst[ppt].shytick = false;
+	} else {
+		parhst[ppt].shytick = true;
+	}
+	parameters();
+	graphic();
+}
+
+function toggleshytick() {
+  addhist();
+	// show/hide tick labels (x-axis)
+	if (parhst[ppt].shytick) {
+		parhst[ppt].shytick = false;
+	} else {
+		parhst[ppt].shytick = true;
+	}
+	parameters();
+	graphic();
+}
+
+function toggleshxtick() {
+  addhist();
+	// show/hide tick labels (x-axis)
+	if (parhst[ppt].shxtick) {
+		parhst[ppt].shxtick = false;
+	} else {
+		parhst[ppt].shxtick = true;
+	}
+	parameters();
+	graphic();
+}
+
+function togglelegend() {
+  addhist();
+	// show/hide legend
+	if (parhst[ppt].legend) {
+		parhst[ppt].legend = false;
+	} else {
+		parhst[ppt].legend = true;
+	}
+	parameters();
+	graphic();
+}
+
+function toggleautohide(){
 	// show/hide menu
 	if (autohide) {
 		autohide = false;
@@ -3687,6 +3765,7 @@ function toggleautohide() {
 		document.getElementById("IDautohide").innerHTML = "<small><i>Hide</i></small>";
 		sheight = 0.90;
 	}
+
 }
 
 function setlogdis() {
@@ -3829,16 +3908,16 @@ function stackmode() {
 	document.getElementById("IDYTMAX").value = "";
 	if (parhst[ppt].stsel == 'ADD') {
 		showhide(false);
-		slegend = false;
+		// slegend = false;
 		if (parhst[ppt].grtype == 'line') parhst[ppt].dtsize = 1;
 		if (parhst[ppt].grtype == 'scatter') parhst[ppt].dtsize = 3;
 	} else if (parhst[ppt].stsel == 'IND') {
 		showhide(true);
-		slegend = true;
+		// slegend= true;
 		parhst[ppt].dtsize = 1;
 	} else if (parhst[ppt].stsel == 'STK') {
 		showhide(false);
-		slegend = true;
+		// slegend = true;
 		if (parhst[ppt].grtype == 'scatter') parhst[ppt].grtype = 'area';
 		parhst[ppt].dtsize = 1;
 	}
@@ -5882,7 +5961,6 @@ function graphic() {
 		}	
 		
 		if (parhst[ppt].stsel == 'ADD') {
-			slegend = false;
 			stmode = 'group';
 			sgroup0 = "";
 			sgroup1 = "";
@@ -5890,7 +5968,6 @@ function graphic() {
 			sgroup3 = "";
 			lnsize = parhst[ppt].dtsize;
 		} else if (parhst[ppt].stsel == 'IND') {
-			slegend = true;
 			stmode = 'group';
 			sgroup0 = "";
 			sgroup1 = "";
@@ -5898,7 +5975,6 @@ function graphic() {
 			sgroup3 = "";
 			lnsize = parhst[ppt].dtsize;
 		} else if (parhst[ppt].stsel == 'STK') {
-			slegend = true;
 			stmode = 'stack';
 			chmode = 'lines';
 			lnsize = parhst[ppt].dtsize;
@@ -5921,7 +5997,7 @@ function graphic() {
 			this.mode = chmode;
 			this.type = chtype;
 			this.stackgroup = group;
-			this.showlegend = slegend;
+			this.showlegend = parhst[ppt].legend;
 			this.fillcolor = hexToRgbA(color,parhst[ppt].opaci);
 			// this.overlaying = 'x';
 			this.marker = {
@@ -5950,7 +6026,7 @@ function graphic() {
 			yaxis: 'y2',
 			mode: zhmode,
 			type: zhtype,
-			showlegend: true,
+			showlegend: parhst[ppt].legend,
 			// overlaying: 'y',
 			fill: filmoz,
 			name: '',
@@ -6006,7 +6082,7 @@ function graphic() {
 			y: [],
 			mode: 'lines',
 			type: 'scatter',
-			showlegend: true,
+			showlegend: parhst[ppt].legend,
 			overlaying: 'x',
 			name: 'Average',
 			line: {
@@ -6079,6 +6155,7 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
+					showticklabels: parhst[ppt].shytick,
 					autorange: false,
 					gridcolor: parhst[ppt].grcolor
 				},
@@ -6090,6 +6167,7 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
+					showticklabels: parhst[ppt].shytick,
 					type: "",
 					// autorange: true,
 					side: 'right'
@@ -6101,7 +6179,8 @@ function graphic() {
 						size: parhst[ppt].tfonts
 					},
 					dtick: parhst[ppt].xdtick,
-					tickangle: 45,
+					tickangle: 'auto',
+					showticklabels: parhst[ppt].shxtick,
 					domain: [0, 1],
 					title: {
 						text: "",
@@ -6151,7 +6230,7 @@ function graphic() {
 					mode: chmode,
 					type: chtype,
 					stackgroup: sgroup0,
-					showlegend: true,
+					showlegend: parhst[ppt].legend,
 					marker: {
 						size: parhst[ppt].dtsize,
 						color: hexToRgbA(parhst[ppt].ptcolor,parhst[ppt].opaci),
@@ -6389,6 +6468,7 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
+					showticklabels: parhst[ppt].shytick,
 					type: "",
 					autorange: false,
 					gridcolor: parhst[ppt].grcolor
@@ -6401,6 +6481,7 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
+					showticklabels: parhst[ppt].shytick,
 					type: "",
 					// autorange: true,
 					side: 'right'
@@ -6413,6 +6494,7 @@ function graphic() {
 						size: parhst[ppt].tfonts
 					},
 					dtick: parhst[ppt].xdtick,
+					showticklabels: parhst[ppt].shxtick,
 					title: {
 						text: "",
 						font: {

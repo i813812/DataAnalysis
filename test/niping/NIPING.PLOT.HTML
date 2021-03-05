@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Format NIPING Files</title>
+    <script>
+        // (C)hristoph Weyd - c.weyd@sap.com
+        // https://jam4.sapjam.com/groups/ptqhagz5ePB2nGoqApUgbB/documents/NSJXuMs92YRvGSsjcuM2jx 
+        var numfiles = 0;
+        var content = "";
+
+        var datn = [];
+        var datx = [];
+        var daty = [];
+        var dati = 0;
+
+        var content = "";
+
+        var trace1 = {
+            x: [],
+            y: [],
+            mode: 'markers',
+            marker: {
+                size: 2
+            }
+        };
+        var data = [trace1];
+        var layout = {};
+
+        function processFiles() {
+            var filelist = document.getElementById('files').files;
+            document.getElementById('load').innerHTML = "";
+            document.getElementById('output').innerHTML = "";
+            numfiles = filelist.length;
+            for (var i = 0; i < filelist.length; i++) {
+                writefiles(filelist[i], filelist.length, i + 1);
+            }
+        }
+
+        function writefiles(file, numtotal, filenum) {
+            var reader = new FileReader();
+            reader.onload = function() {
+                var timex = 0;
+                var timey = 0;
+                //   NIPING result
+                // ---------------------------------------------------
+                // trc file: "nipingout.txt", trc level: 1, release: "753"
+                // ---------------------------------------------------
+                // 
+                // Tue Sep 17 09:22:54 2019
+                // connect to server o.k.
+                //       0:     3.429 ms
+                // 
+                // Tue Sep 17 09:22:55 2019
+                //       1:     0.633 ms
+                // 
+                // Tue Sep 17 09:22:56 2019
+                //       2:     0.521 ms        
+
+                text = reader.result;
+                text = text.replace(/(\r\n\r\n|\n\n|\r\r)/gm, "\n"); //  replace multiple line breaks with single line break
+                text = text.replace(/( ms\n)/gm, "\n"); //  remove ms
+                text = text.replace(/(connect to server o.k.\n)/gm, ""); //  remove connect to server o.k.
+                text = text.replace(/( 20\d\d\n)/gm, " "); //  remove year + line break after date 
+                text = text.split("\n");
+                for (i = 0; i < text.length; i++) {
+                    var res = text[i];
+                    var perct = Math.trunc((i + 1) * 100 / text.length / numtotal + 100 * (filenum - 1) / numtotal);
+                    var pcold = 0;
+                    if (perct != pcold) {
+                        document.title = 'NIPING: ' + perct + '%';
+                        pcold = perct;
+                    }
+                    res = res.substring(1, 4);
+                    if (res == "---" || text[i].includes("file") || text[i].includes("Records") || text[i].includes("Instance") || text[i] == "") {} else {
+                        if (numfiles == 1) {
+                            content += "";
+                        } else {
+                            content += file.name + "\t";
+                        }
+                        text[i] = text[i].replace(/ +/g, ' '); // remove duplicate space
+                        text[i] = text[i].replace(/ /g, '|');
+
+                        var line = text[i].split("|");
+                        content += line[3] + "\t" + line[4] + "\t" + line[5];
+
+                        datn[dati] = line[3] + "|" + line[5];
+                        dati += 1;
+                        content += "\n";
+                    }
+                }
+                if (filenum == numtotal) {
+                    document.title = 'NIPING: ' + perct + '% - Completed';
+
+                    content = content.replace(/\t\n/g, '\n')
+
+                    document.getElementById('output').innerHTML += "<button onclick='copy()'>Copy</button> <button onclick='graphic()'>Graphic</button><br><br>";
+                    document.getElementById('output').innerHTML += "<textarea id='textarea' rows='30' cols='80' style='font-family:Courier; font-size:6px; color:#000044'  >" + content + "</textarea>";
+                }
+            }
+            reader.readAsText(file, "UTF-8");
+
+        }
+
+        function copy() {
+            let textarea = document.getElementById("textarea");
+            textarea.select();
+            document.execCommand("copy");
+        }
+
+        function graphic() {
+            document.title = "NIPING Results";
+            document.getElementById('output').innerHTML = "";
+            document.getElementById('output').innerHTML += "<button onclick='graphic()'>Refresh Graphic</button><br><br>";
+
+            var layout = {
+                yaxis: {
+                    range: [0, 10]
+                },
+                legend: {
+                    y: 1,
+                    yref: 'ms',
+                    font: {
+                        family: 'Arial, sans-serif',
+                        size: 20,
+                        color: 'grey',
+                    }
+                },
+                title: 'NIPING Results in ms'
+            };
+
+            dati = 0;
+            for (x = 0; x < datn.length; x++) {
+                tmp = datn[x].split("|");
+                datx[dati] = tmp[0];
+                daty[dati] = tmp[1];
+                dati += 1;
+            }
+
+            trace1.x = datx;
+            trace1.y = daty;
+            // see    https://plot.ly/javascript/line-and-scatter/
+            Plotly.newPlot('myDiv', data, layout, {
+                showSendToCloud: true
+            });
+        }
+    </script>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+</head>
+
+<style>
+    table {
+        border-collapse: collapse;
+    }
+    
+    table,
+    td,
+    th {
+        border: 1px solid lightgray;
+        padding: 5px;
+        text-align: right;
+    }
+</style>
+
+<body>
+
+    <pre id="load">
+Select NIPING files to concatenate: <input type="file" accept='text/plain' multiple id="files" onchange="processFiles()" />
+</pre>
+
+    <pre id="output">
+</pre>
+
+    <div style="height:75vh;" id="myDiv">
+        <!-- Plotly chart will be drawn inside this DIV -->
+    </div>
+
+</body>
+
+</html>
