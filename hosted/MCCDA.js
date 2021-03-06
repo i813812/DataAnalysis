@@ -1748,8 +1748,9 @@ function FinishFiles() {
 		}
 	}
 	
-	if (findhdr("Instance")) {
-		// delete records from array
+	// Check if SDFMON file
+	if (findhdr("Instance") && findhdr("Act. WPs") && findhdr("Free Mem.") ) {
+		// delete GlobalData records from array
 		var n = 0;
 		while (true) {
 			if (data[n][hdrpos] == 'GlobalData') {
@@ -1760,13 +1761,12 @@ function FinishFiles() {
 			}
 			if (n > data.length - 1) break;
 		}
-	}
-	
-	if (findhdr("Instance")) {
-	  parhst[ppt].selx1 = hdrpos;
-	  parhst[ppt].vstack = hdrpos;
-	  parhst[ppt].grtype = 'area';
-	  parhst[ppt].dtsize = 1;
+		if (findhdr("Instance")) {
+	    parhst[ppt].selx1 = hdrpos;
+	    parhst[ppt].vstack = hdrpos;
+	    parhst[ppt].grtype = 'area';
+	    parhst[ppt].dtsize = 1;
+	  }
 	  for (var n = 0; n < header.length; n++ ) {
 	    if (header[n][1] == 't') {
 	      parhst[ppt].selx2 = n;
