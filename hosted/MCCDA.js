@@ -1766,6 +1766,53 @@ function FinishFiles() {
 
 }
 
+function sortdt() {
+
+	data.sort(function(a, b) {
+	    var t1 = ":" + a[selhdr];
+	    var t2 = ":" + b[selhdr];
+	    var n = 0;
+	    var equal = true;
+	    
+	    if (t1 != t2 ) { equal = false; }
+	    if (equal) {
+				for (n = 2; n < header.length; n++) {
+					if ( header[n][1] == 'd' && n != selhdr) {
+						t1 = t1 + a[n];
+						t2 = t2 + b[n];
+						if (t1 != t2 ) { equal = false; break; }
+					}
+				}
+	    }
+	    if (equal) {
+				for (n = 2; n < header.length; n++) {
+					if ( header[n][1] == 't'  && n != selhdr) {
+						t1 = t1 + a[n];
+						t2 = t2 + b[n];
+						if (t1 != t2 ) { equal = false; break; }
+					}
+				}
+	    }
+	    if (equal) {
+				for (n = 2; n < header.length; n++) {
+					if ( header[n][1] == '-'  && n != selhdr) {
+						t1 = t1 + a[n];
+						t2 = t2 + b[n];
+						if (t1 != t2 ) { equal = false; break; }
+					}
+				}
+	    }
+	    if (equal) {
+	      t1 = t1 + a[0] + a[1];
+	      t2 = t2 + b[0] + b[1];
+	    }
+		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+	});
+	
+	preview();
+
+}
+
 function remdup() {
 
   var i = 0;
@@ -1925,13 +1972,6 @@ function preview() {
 	
 	start = true;
 	
-	// re-create output 
-	data.sort(function(a, b) {
-      var t1 = a[0] + a[1];
-      var t2 = b[0] + b[1];
-		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-	});
-	
 	if ( data.length < 5) return;
 
 	var dtf = "";
@@ -2004,6 +2044,7 @@ function preview() {
 	document.getElementById('IDpreview').innerHTML += " <small> replace with: </small><input id='IDREPL' size='30' >";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDfnd' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDrep' style='display: inline-block;'></div>";
+	document.getElementById('IDpreview').innerHTML += " <div id='IDsrt' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDdel' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDspl' style='display: inline-block;'></div>"
 	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br>";
@@ -2137,8 +2178,9 @@ function shdr(e) {
 	var ID = event.target.id;
 	selhdr = parseInt(ID.replace("IDhdr", ""));
 	document.getElementById('IDdel').innerHTML = "<button onclick='dtdelete(event)' title='Delete Selected Values' >Delete Values</button>";
-	document.getElementById('IDfnd').innerHTML = "<button onclick='findtxt()' title='find text/number' >Find</button>";
+	document.getElementById('IDfnd').innerHTML = "<button onclick='findtxt()'  title='find text/number' >Find</button>";
 	document.getElementById('IDrep').innerHTML = "<button onclick='findrepl()' title='find and replace in non-numeric fields' >Replace</button>";
+	document.getElementById('IDsrt').innerHTML = "<button onclick='sortdt()'   title='sort data by selected column (then date/time/text)' >Sort</button>";
 	if ( selhdr > 1) document.getElementById('IDspl').innerHTML = "<button onclick='splithdr()' title='Split Column' >Split Column</button>";
 	if ( selhdr > 1) document.getElementById('IDcol').innerHTML = "<button onclick='delcol()'   title='Delete Column' >Delete Column</button>";
 }
@@ -2150,6 +2192,7 @@ function bhdr(e) {
 		document.getElementById('IDdel').innerHTML = "";
 		document.getElementById('IDfnd').innerHTML = "";
 		document.getElementById('IDrep').innerHTML = "";
+		document.getElementById('IDsrt').innerHTML = "";
 		document.getElementById('IDspl').innerHTML = "";
 		document.getElementById('IDcol').innerHTML = "";
 	}, 1000);
