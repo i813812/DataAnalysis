@@ -1764,6 +1764,36 @@ function FinishFiles() {
 		parameters();
 	}
 
+}
+
+function remdup() {
+
+  var i = 0;
+  var n = 0;
+  var df = false;
+  
+	data.sort(function(a, b) {
+	    var t1 = ":";
+	    var t2 = ":";
+	    var n = 0;
+	    for (n = 2; n < header.length; n++) {
+	      t1 = t1 + a[n];
+	      t2 = t2 + b[n];
+	      if (t1 != t2 ) break;
+	    }
+		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+	});
+
+  for (i = 1; i < data.length; i++) {
+    var duplicate = true;
+    for (n = 2; n < header.length; n++) {
+      if (data[i-1][n] != data[i][n]) { duplicate = false; break;}
+    }
+    if (duplicate) { data.splice(i,1); df = true; }
+  }
+  if (df) alert("duplicate records found and removed");
+  
+  preview();
 
 }
 
@@ -1979,6 +2009,7 @@ function preview() {
 	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br>";
 	
 	document.getElementById('IDpreview').innerHTML += "<button onclick='exppre()'>Copy to Clipboard</button>";
+	document.getElementById('IDpreview').innerHTML += "<button onclick='remdup()'>Remove Duplicates</button>";
 	document.getElementById('IDpreview').innerHTML += "<button onclick='delempty()'>Delete empty columns</button><br><br>";
 
 	document.getElementById('IDload').innerHTML = SAPlogo(100, 50);
