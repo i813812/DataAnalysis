@@ -1408,6 +1408,7 @@ function CheckHdr() {
 			parhst[ppt].sndyaxis = true;
 			parhst[ppt].selz1 = hdrpos;
 			parhst[ppt].zavg = 5;
+			parhst[ppt].grtype = 'scatter';
 			parhst[ppt].grztype = 'area';
 			parhst[ppt].pzcolor = '#AAAAAA';
 			parhst[ppt].ztsize = 1;
@@ -2759,6 +2760,54 @@ function getsep() {
 	}
 }
 
+function switchyz() {
+  addhist();
+  debugger;
+  var tmp = {
+		sely1: parhst[ppt].sely1,
+		sely2: parhst[ppt].sely2,
+		sely3: parhst[ppt].sely3,
+		sely4: parhst[ppt].sely4,
+		dtsize: parhst[ppt].dtsize,
+		grtype: parhst[ppt].grtype,
+		logdis: parhst[ppt].logdis,
+		ytmin: parhst[ppt].ytmin,
+		ytmax: parhst[ppt].ytmax,
+		sshape: parhst[ppt].sshape,
+		avgint: parhst[ppt].avgint,
+  }
+  
+  parhst[ppt].sely1 = parhst[ppt].selz1;
+  parhst[ppt].sely2 = parhst[ppt].selz2;
+  parhst[ppt].sely3 = parhst[ppt].selz3;
+  parhst[ppt].sely4 = parhst[ppt].selz4;
+  parhst[ppt].dtsize = parhst[ppt].ztsize;
+  parhst[ppt].grtype = parhst[ppt].grztype;
+  parhst[ppt].logdis = parhst[ppt].zlogdis;
+  parhst[ppt].ytmin = parhst[ppt].ztmin;
+  parhst[ppt].ytmax = parhst[ppt].ztmax;
+  parhst[ppt].sshape = parhst[ppt].zshape;
+  parhst[ppt].avgint = parhst[ppt].zavg;
+  
+  parhst[ppt].selz1 = tmp.sely1;
+  parhst[ppt].selz2 = tmp.sely2;
+  parhst[ppt].selz3 = tmp.sely3;
+  parhst[ppt].selz4 = tmp.sely4;
+  parhst[ppt].ztsize = tmp.dtsize;
+  parhst[ppt].grztype = tmp.grtype;
+  parhst[ppt].zlogdis = tmp.logdis;
+  parhst[ppt].ztmin = tmp.ytmin;
+  parhst[ppt].ztmax = tmp.ytmax;
+  parhst[ppt].zshape = tmp.sshape;
+  parhst[ppt].zavg = tmp.avgint;
+  
+  parhst.fact = 1;
+  
+  parameters();
+  graphic();
+  
+}
+
 function changeparam() {
 	// read changed parameters
   var ytmp;
@@ -3352,6 +3401,7 @@ function parameters() {
 		htmlcont += " Color: <input id='IDpzcolor' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].pzcolor + "'>";
 		htmlcont += " <input type='number' title='Opacity' onchange='changeparam()' id='IDzopac'  style='width:4em;' size='6' step='0.05' value='" + parhst[ppt].zopac +  "' min='0' max='1'>";
 
+    htmlcont += " <button id='IDZSWITCH' title='switch primary and secondary Y-Axis' onclick='switchyz()'>&#8596;</button>";
 
 		htmlcont += "</div></td>";
 	
