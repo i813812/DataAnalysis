@@ -12,7 +12,7 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.15";
+var prgvers = "8.16";
 
 // arrays
 var dtmp = [];
@@ -1403,18 +1403,8 @@ function CheckHdr() {
 		parhst[ppt].ztsize = 2;
 		parhst[ppt].zopac = 0.8;
 	} 
-	if (findhdr("Instance")) {
-		if (findhdr("Free Mem.")) {
-			parhst[ppt].sndyaxis = true;
-			parhst[ppt].selz1 = hdrpos;
-			parhst[ppt].zavg = 5;
-			parhst[ppt].grtype = 'scatter';
-			parhst[ppt].grztype = 'area';
-			parhst[ppt].pzcolor = '#AAAAAA';
-			parhst[ppt].ztsize = 1;
-			parhst[ppt].zopac = 0.25;
-		}
-	}
+
+	
 }
 
 function editdata() {
@@ -1758,6 +1748,42 @@ function FinishFiles() {
 		}
 	}
 	
+	if (findhdr("Instance")) {
+		// delete records from array
+		var n = 0;
+		while (true) {
+			if (data[n][hdrpos] == 'GlobalData') {
+				data[n] = data[data.length - 1];
+				data.pop();
+			} else {
+				n = n + 1;
+			}
+			if (n > data.length - 1) break;
+		}
+	}
+	
+	if (findhdr("Instance")) {
+	  parhst[ppt].selx1 = hdrpos;
+	  parhst[ppt].vstack = hdrpos;
+	  parhst[ppt].grtype = 'area';
+	  parhst[ppt].dtsize = 1;
+	  for (var n = 0; n < header.length; n++ ) {
+	    if (header[n][1] == 't') {
+	      parhst[ppt].selx2 = n;
+	      break;
+	    }
+	  }
+		if (findhdr("Free Mem.")) {
+			parhst[ppt].sndyaxis = true;
+			parhst[ppt].selz1 = hdrpos;
+			parhst[ppt].zavg = 5;
+			parhst[ppt].grztype = 'area';
+			parhst[ppt].pzcolor = '#AAAAAA';
+			parhst[ppt].ztsize = 1;
+			parhst[ppt].zopac = 0.25;
+		}
+	}
+	
 	if (dprev) {
 		preview();
 	} else {
@@ -2045,6 +2071,7 @@ function preview() {
 	document.getElementById('IDpreview').innerHTML += " <div id='IDfnd' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDrep' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDsrt' style='display: inline-block;'></div>";
+	document.getElementById('IDpreview').innerHTML += " <div id='IDcom' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDdel' style='display: inline-block;'></div>";
 	document.getElementById('IDpreview').innerHTML += " <div id='IDspl' style='display: inline-block;'></div>"
 	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br>";
@@ -2058,6 +2085,8 @@ function preview() {
 
 	document.title = 'Edit Data';
 	document.body.style.cursor = "default";
+	
+	document.getElementById('IDdetail').innerHTML = "Number of Records: " + data.length;
 
 }
 
@@ -2181,6 +2210,9 @@ function shdr(e) {
 	document.getElementById('IDfnd').innerHTML = "<button onclick='findtxt()'  title='find text/number' >Find</button>";
 	document.getElementById('IDrep').innerHTML = "<button onclick='findrepl()' title='find and replace in non-numeric fields' >Replace</button>";
 	document.getElementById('IDsrt').innerHTML = "<button onclick='sortdt()'   title='sort data by selected column (then date/time/text)' >Sort</button>";
+	if ( (selhdr == 1 || header[selhdr][1] == 't' ) && data.length > 10000 ) {
+	  document.getElementById('IDcom').innerHTML = "<button title='Compact Data (delete every index or time value)' onclick='CompData()'> Compact Data </button>";
+	}
 	if ( selhdr > 1) document.getElementById('IDspl').innerHTML = "<button onclick='splithdr()' title='Split Column' >Split Column</button>";
 	if ( selhdr > 1) document.getElementById('IDcol').innerHTML = "<button onclick='delcol()'   title='Delete Column' >Delete Column</button>";
 }
@@ -2193,6 +2225,7 @@ function bhdr(e) {
 		document.getElementById('IDfnd').innerHTML = "";
 		document.getElementById('IDrep').innerHTML = "";
 		document.getElementById('IDsrt').innerHTML = "";
+		document.getElementById('IDcom').innerHTML = "";
 		document.getElementById('IDspl').innerHTML = "";
 		document.getElementById('IDcol').innerHTML = "";
 	}, 1000);
@@ -3508,7 +3541,6 @@ function parameters() {
 	}
 	
 	htmlcont += "<button title='Display Data' onclick='expvdat()'>Display</button>";
-	htmlcont += "<button title='Compact Data (delete every second value for first X-Axis)' onclick='CompData()'> C </button>";
 	
 	if (parhst[ppt].sndyaxis) {
 		htmlcont += " <button title='Hide 2nd Y-Axis' style='color:navy' onclick='toggle2ndaxis()'><B> 2nd Y-Axis </B></button>";
@@ -4996,46 +5028,31 @@ function CompData() {
 
   if (data.length < 10000) return;
 
-	document.body.style.cursor = "none";
-	document.title = 'Data Analysis - Compact data';
-	document.getElementById("IDDOT").className = "dotred";
-	document.getElementById("IDDOT").hidden = true;
-	document.getElementById("IDDOT").hidden = false;
 
-  setTimeout(function() {
-		var n = 0;
-		var m = 0;
+	var n = 0;
+	var m = 0;
 
-		var x1 = parseInt(parhst[ppt].selx1);
-	
-		data.sort(function(a, b) {
-					var t1 = a[x1];
-					var t2 = b[x1];
-			return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-		});
-	
-		var ov = data[0][x1]
-		for (n = 0; n < data.length; n++) {
-			 if (data[n][x1] != ov) {
-				 var tv = "" + data[n][x1];
-				 while ( n < data.length && data[n][x1] == tv ) {
-						 data.splice(n,1)
-				 }
-				 if ( n < data.length ) {
-					 ov = data[n][x1];
-				 }
+	data.sort(function(a, b) {
+				var t1 = a[selhdr];
+				var t2 = b[selhdr];
+		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
+	});
+
+	var ov = data[0][selhdr]
+	for (n = 0; n < data.length; n++) {
+		 if (data[n][selhdr] != ov) {
+			 var tv = "" + data[n][selhdr];
+			 while ( n < data.length && data[n][selhdr] == tv ) {
+					 data.splice(n,1)
 			 }
-		}
-		
-		data.sort(function(a, b) {
-					var t1 = a[0] + " " + a[1];
-					var t2 = b[0] + " " + b[1];
-			return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-		});
+			 if ( n < data.length ) {
+				 ov = data[n][selhdr];
+			 }
+		 }
+	}
 	
-		graphic();
-	
-	}, 25);
+	sortdt();
+	preview();
   
 }
 
