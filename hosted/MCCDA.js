@@ -1510,6 +1510,31 @@ function ProcessSingle(index) {
 			if (tmp > thl) thl = tmp;
 			if (i > 20) break;
 		}
+		
+		// try to detect thousand delimiter 
+		var dpc = "";
+		for (i = 0; i < text.length; i++) {
+		  // see decimal point
+			if (/.*\d\,\d\d\d\,\d\d\d.*/.test(text[i])) { 
+				dpc = '.';
+				break;
+			}
+			if (/.*\d\,\d\d\d\.\d.*/.test(text[i])) { 
+				dpc = '.';
+				break;
+			}
+			// decimal comma
+			if (/.*\d\.\d\d\d\.\d\d\d.*/.test(text[i])) { 
+				dpc = ',';
+				break;
+			}
+			if (/.*\d\.\d\d\d\,\d.*/.test(text[i])) { 
+				dpc = ',';
+				break;
+			}
+		  if (i > 100) break;
+		}
+		if (dpc != "") decpnt = dpc;
 
 		// Prepare Regular expressions
 		var re1 = new RegExp('^' + escapeRegExp(coldel) + '\\s+' + escapeRegExp(coldel) + '', 'g');
@@ -4071,10 +4096,11 @@ function setshape() {
 	// set shape (linear, spline, steps)
 	addhist();
 	parhst[ppt].sshape = document.getElementById("IDSSHAPE").value;
-	parhst[ppt].zshape = document.getElementById("IDZSHAPE").value;
+	try { parhst[ppt].zshape = document.getElementById("IDZSHAPE").value; } catch (e) {} 
 	parameters();
 	graphic();
 }
+
 
 function convdate(value) {
 	// convert date into target format YYYY-MM-DD - because the date does not change often - therefore we try to buffer the regex.match result
