@@ -12,13 +12,12 @@
 // https://jshint.com
 // -->
 
-var prgvers = "8.17";
+var prgvers = "7.29";
 
 // arrays
 var dtmp = [];
 var data = [];
 var vdat = [];
-var zdat = [];
 var sdat = [];
 var cntlbl = [];
 var cntmin = [];
@@ -27,10 +26,6 @@ var cntval = [];
 var cntcum = [];
 var header = [];
 var filelist = [];
-var globalhd = true;
-var globalhdend = "";
-var globalnum = 0;
-
 
 // Variables
 var dati = 0;
@@ -38,8 +33,6 @@ var txtarea = "";
 var colsep = "";
 var ymin = 0;
 var ymax = 0;
-var zmin = 0;
-var zmax = 0;
 var xmin = 0;
 var xmax = 0;
 var xlen = 0;
@@ -54,6 +47,7 @@ var vmax = "";
 var evdata = "";
 var start = true;
 var sspace = false;
+var slegend = false;
 var average = 0;
 var FWHM = 0;
 var slider = false;
@@ -63,6 +57,12 @@ var keyshift = false;
 var DAC = false;
 var selhdr = "";
 var zip;
+var hlegposx = 0.25;
+var hlegposy = 0.85;
+var mlegposx = 0;
+var mlegposy = -0.35;
+var slegposx = 1;
+var slegposy = 1;
 var hdrs = 1;
 var usefnam = false;
 var trex = false;
@@ -121,41 +121,16 @@ var inparam = {
 	chcolor: '#FEFEFE',
 	fgcolor: '#444444',
 	grcolor: '#DDDDDD',
-	ptcolor: '#002E7A',
-	p1color: '#016D8F',
-	p2color: '#FFB440',
-	p3color: '#7B209F',
+	ptcolor: '#0000FF',
+	p1color: '#20B2AA',
+	p2color: '#F4D02F',
+	p3color: '#FF0000',
 	colsc: [
-		[0, '#74a7fe'],
+		[0, '#cccccc'],
 		[0, '#ff9900'],
 		[0, '#ff0000'],
 		[0, '#660066']
-	],
-	selz1: "",
-	selz2: "",
-	selz3: "",
-	selz4: "",
-	ztmin: "",
-	ztmax: "",
-	grztype: "line",
-	zlogdis: false,
-	zshape: "linear",
-	pzcolor: '#FFA500',
-	zavg: 1,
-	ztsize: 1,
-	sndyaxis: false,
-	opaci: 0.75,
-	zopac: 0.5,
-	legend: true,
-	shxtick: true,
-	shytick: true,
-	shztick: true,
-  hlegposx: 0.25,
-  hlegposy: 0.85,
-  mlegposx: 0,
-  mlegposy: -0.35,
-  slegposx: 1,
-  slegposy: 1
+	]
 };
 
 // Input parameter history
@@ -177,12 +152,21 @@ var dtfrm = [
 
 var hdrpos = 0;
 var decpnt = '.';
+
+// Column Delimiters
+var delim = [
+	[0, ","],
+	[0, ";"],
+	[0, "|"],
+	[0, "\t"],
+	[0, "/"]
+];
+
 var detect = true;
 var wait = false;
 var init = true;
 var maxys = 0;
 var infile = [];
-var tmpfile = "";
 var prephd = true;
 var textarea = "";
 var tplclick = 0;
@@ -192,11 +176,8 @@ var lnsize = 1;
 var lntype = 'solid';
 var chtype = 'scatter';
 var chmode = 'markers';
-var zhtype = 'scatter';
-var zhmode = 'markers';
 var stmode = 'group';
 var filmod = '';
-var filmoz = '';
 var sgroup0 = '';
 var sgroup1 = '';
 var sgroup2 = '';
@@ -214,7 +195,6 @@ var autohide = false;
 var impel = null;
 var previewstyle = false;
 var mainstyle = false;
-var pgstart = 0;
 
 // var AudioContextCtor = window.AudioContext || window.webkitAudioContext; var audioCtx = new AudioContextCtor();
 
@@ -292,31 +272,6 @@ function loaddefault() {
 		[tmp.colsc[2][0], tmp.colsc[2][1]],
 		[tmp.colsc[3][0], tmp.colsc[3][1]]
 	];
-	parhst[ppt].selz1 = tmp.selz1;
-	parhst[ppt].selz2 = tmp.selz2;
-	parhst[ppt].selz3 = tmp.selz3;
-	parhst[ppt].selz4 = tmp.selz4;
-	parhst[ppt].ztmin = tmp.ztmin;
-	parhst[ppt].ztmax = tmp.ztmax;
-	parhst[ppt].grztype = tmp.grztype;
-	parhst[ppt].zlogdis = tmp.zlogdis;
-	parhst[ppt].zshape = tmp.zshape;
-	parhst[ppt].pzcolor = tmp.pzcolor;
-	parhst[ppt].zavg = tmp.zavg;
-	parhst[ppt].ztsize = tmp.ztsize;
-	parhst[ppt].sndyaxis = tmp.sndyaxis;
-	parhst[ppt].zopac = tmp.zopac;
-	parhst[ppt].opaci = tmp.opaci;
-	parhst[ppt].legend = tmp.legend;
-	parhst[ppt].shxtick = tmp.shxtick;
-	parhst[ppt].shytick = tmp.shytick;
-	parhst[ppt].shztick = tmp.shztick;
-  parhst[ppt].hlegposx = tmp.hlegposx;
-  parhst[ppt].hlegposy = tmp.hlegposy;
-  parhst[ppt].mlegposx = tmp.mlegposx;
-  parhst[ppt].mlegposy = tmp.mlegposy;
-  parhst[ppt].slegposx = tmp.slegposx;
-  parhst[ppt].slegposy = tmp.slegposy;
 }
 
 function dnlexport() {
@@ -353,57 +308,49 @@ function expset() {
 	var tmp = parhst[ppt];
 	var obj;
 	var filename;
-
-	obj = JSON.stringify(tmp);
-	filename = prompt("Specify name of configuration file:", "*.json");
-	if (filename == null) return;
-	if (filename == "") filename = "DataAnalysisConfig";
-	if (!filename.endsWith(".json")) filename += ".json";
-	download(filename, obj);
-
-}
-
-function expdzip() {
-	// save data analysis container as DZIP
-	var tmp = parhst[ppt];
-	var obj;
-	var filename;
-
-	keyshift = false;
-	document.getElementById('IDEXP').innerHTML = "Exp.";
-	document.title = 'Export Data';
-	zip = new JSZip();
-	var container = {
-		id: 'DataAnalysisContainer',
-		config: tmp,
-		ghead: header,
-		gdata: data
-	};
-	obj = JSON.stringify(container);
-	document.title = 'add data to ZIP container';
-	if (filelist.length > 0) {
-		filename = prompt("Specify name of DataAnalysis container:", filelist[0].name);
-	} else {
-		filename = prompt("Specify name of DataAnalysis container:", "DataAnalysisContainer");
-	}
-	if (filename == null) return;
-	if (filename == "") filename = "DataAnalysisContainer";
-	filename = filename.replace(".dac", "");
-	zip.file(filename + ".dac", obj);
-	zip.generateAsync({
-			type: "base64",
-			compression: "DEFLATE",
-			compressionOptions: {
-				level: 5
-			}
-		},
-		function updateCallback(metadata) {
-			document.title = "compress container " + metadata.percent.toFixed(2) + " % ";
+	if (keyshift) {
+		keyshift = false;
+		document.getElementById('IDEXP').innerHTML = "Exp.";
+		document.title = 'Export Data';
+		zip = new JSZip();
+		var container = {
+			id: 'DataAnalysisContainer',
+			config: tmp,
+			ghead: header,
+			gdata: data
+		};
+		obj = JSON.stringify(container);
+		document.title = 'add data to ZIP container';
+		if (filelist.length > 0) {
+			filename = prompt("Specify name of DataAnalysis container:", filelist[0].name);
+		} else {
+			filename = prompt("Specify name of DataAnalysis container:", "DataAnalysisContainer");
 		}
-	).then(function(base64) {
-		download64(filename + ".dzip", base64);
-	});
-
+		if (filename == null) return;
+		if (filename == "") filename = "DataAnalysisContainer";
+		filename = filename.replace(".dac", "");
+		zip.file(filename + ".dac", obj);
+		zip.generateAsync({
+				type: "base64",
+				compression: "DEFLATE",
+				compressionOptions: {
+					level: 5
+				}
+			},
+			function updateCallback(metadata) {
+				document.title = "compress container " + metadata.percent.toFixed(2) + " % ";
+			}
+		).then(function(base64) {
+			download64(filename + ".dzip", base64);
+		});
+	} else {
+		obj = JSON.stringify(tmp);
+		filename = prompt("Specify name of configuration file:", "*.json");
+		if (filename == null) return;
+		if (filename == "") filename = "DataAnalysisConfig";
+		if (!filename.endsWith(".json")) filename += ".json";
+		download(filename, obj);
+	}
 }
 
 function importconfig() {
@@ -413,24 +360,39 @@ function importconfig() {
 	setTimeout(function() {
 		var impfile = document.getElementById('IMPORT').files;
 		var reader = new FileReader();
-		reader.onload = function() {
-			var obj = reader.result;
-			var tmp = JSON.parse(obj);
-			parhst[ppt] = tmp;
-			parhst[ppt].Gw = 0;
-			parhst[ppt].xinpmin = "";
-			parhst[ppt].xinpmax = "";
-			document.body.removeChild(impel);
-			parameters();
-			graphic();
-		};
-		reader.readAsText(impfile[0], "UTF-8");
+		if (impfile[0].name.endsWith(".dac")) {
+			reader.onload = function() {
+				var obj = reader.result;
+				if (!obj.includes('DataAnalysisContainer')) return;
+				var container = JSON.parse(obj);
+				parhst[ppt] = container.config;
+				data = container.gdata;
+				header = container.ghead;
+				document.body.removeChild(impel);
+				parameters();
+				graphic();
+			};
+			reader.readAsText(impfile[0], "UTF-8");
+		} else {
+			reader.onload = function() {
+				var obj = reader.result;
+				var tmp = JSON.parse(obj);
+				parhst[ppt] = tmp;
+				parhst[ppt].Gw = 0;
+				parhst[ppt].xinpmin = "";
+				parhst[ppt].xinpmax = "";
+				document.body.removeChild(impel);
+				parameters();
+				graphic();
+			};
+			reader.readAsText(impfile[0], "UTF-8");
+		}
 	}, 25);
 
 }
 
 function impset() {
-	// trigger file select dialog to import JSON configuration file
+	// trigger file select dialog to import configuration file
 var tmp;
 var obj;
 	document.body.style.cursor = "progress";
@@ -439,17 +401,31 @@ var obj;
 	document.getElementById("IDDOT").hidden = true;
 	document.getElementById("IDDOT").hidden = false;
 
-	tmp = parhst[ppt];
-	obj = JSON.stringify(tmp);
-	impel = document.createElement('input');
-	impel.setAttribute('type', 'file');
-	impel.setAttribute('id', 'IMPORT');
-	impel.setAttribute('onchange', 'importconfig()');
-	impel.setAttribute('accept', '.json');
-	impel.setAttribute('hidden', 'true');
-	document.body.appendChild(impel);
-	impel.click();
-
+	if (keyshift) {
+		keyshift = false;
+		document.getElementById('IDEXP').innerHTML = "Exp.";
+		tmp = parhst[ppt];
+		obj = JSON.stringify(tmp);
+		impel = document.createElement('input');
+		impel.setAttribute('type', 'file');
+		impel.setAttribute('id', 'IMPORT');
+		impel.setAttribute('onchange', 'importconfig()');
+		impel.setAttribute('accept', '.dac');
+		impel.setAttribute('hidden', 'true');
+		document.body.appendChild(impel);
+		impel.click();
+	} else {
+		tmp = parhst[ppt];
+		obj = JSON.stringify(tmp);
+		impel = document.createElement('input');
+		impel.setAttribute('type', 'file');
+		impel.setAttribute('id', 'IMPORT');
+		impel.setAttribute('onchange', 'importconfig()');
+		impel.setAttribute('accept', '.json');
+		impel.setAttribute('hidden', 'true');
+		document.body.appendChild(impel);
+		impel.click();
+	}
 }
 
 function savehist() {
@@ -478,7 +454,6 @@ function processFiles(event) {
 	filelist = document.getElementById('files').files;
 	dprev = document.getElementById('IDcheckpreview').checked;
 	document.title = 'loading data....';
-	document.body.style.cursor = "progress";
 	p0 = perfnow();
 	DAC = false;
 	
@@ -508,8 +483,7 @@ function processFiles(event) {
 		JSZip.loadAsync(filelist[0]).then(function(zip) {
 			Object.keys(zip.files).forEach(function(filename) {
 				zip.files[filename].async('string').then(function(fileData) {
-					// if (fileData.includes('DataAnalysisContainer')) {
-					  if (fileData.startsWith('{"id":"DataAnalysisContainer"')) {
+					if (fileData.includes('DataAnalysisContainer')) {
 						var container = JSON.parse(fileData);
 						parhst[ppt] = container.config;
 						addhist();
@@ -553,16 +527,15 @@ function processFiles(event) {
 	if (filelist.length > 1) fname += "..." + flname;
 
 	// only read files with matching file extensions
-	document.getElementById('IDdata').innerHTML = "";
 	for (i = 0; i < filelist.length; i++) {
 		if (filelist[i].name.startsWith(".")) continue;
-		  if (filelist[i].name.endsWith(fext)) readfile(filelist[i], fcnt, i + 1);
-      // if (filelist[i].name.endsWith(fext)) setTimeout(readfile, 10 , filelist[i], fcnt, i + 1);
-
+		if (filelist[i].name.endsWith(fext)) readfile(filelist[i], fcnt, i + 1);
 	}
 
 	document.getElementById('IDdata').innerHTML = "";
 	document.getElementById("IDbutupd").style.display = "none";
+	document.title = 'Format Data completed';
+	document.body.style.cursor = "default";
 }
 
 function readtext(file, numtotal, filenum) {
@@ -570,6 +543,7 @@ function readtext(file, numtotal, filenum) {
   var reader = new FileReader();
   document.getElementById("IDtextarea").value  = "";
   reader.onload = function() {
+  	debugger;
     textcont += reader.result + "\n";
     if (filenum == numtotal) {
       document.getElementById("IDtextarea").value = textcont;
@@ -641,12 +615,11 @@ function parsexcel() {
 	re = new RegExp('' + escapeRegExp('</tr></table></body></html>') + '.*', 'g');
 	text = text.replace(re, '');
 
-	tmpfile = {
+	infile[0] = {
 		content: text,
 		file: fname
 	};
-	ProcessSingle(0);
-	FinishFiles();
+	process();
 }
 
 function readexcel(file) {
@@ -690,17 +663,6 @@ function charCount(s, c) {
 	return result;
 }
 
-function charDelete(string, c) {
-	// count characters in string
-	var result = "",
-		  i = 0;
-	for (i; i < string.length; i++)
-		if (string[i] != c) {
-		  result += string[i];
-		}
-	return result;
-}
-
 function escapeRegExp(string) {
 	// escape special characters
 	return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
@@ -709,19 +671,15 @@ function escapeRegExp(string) {
 function readfile(file, numtotal, filenum) {
 	// read selected input file
 	var reader = new FileReader();
+
 	reader.onload = function() {
 
-    tmpfile = {
+		infile[filecnt] = {
 			content: reader.result,
 			fname: file.name
 		};
-		// infile[filecnt] = {
-		// 	content: reader.result,
-		// 	fname: file.name
-		// };
-		// if (tmpfile.content.includes('DataAnalysisContainer')) {
-		if (tmpfile.content.startsWith('{"id":"DataAnalysisContainer"')) {
-			var container = JSON.parse(tmpfile.content);
+		if (infile[filecnt].content.includes('DataAnalysisContainer')) {
+			var container = JSON.parse(infile[filecnt].content);
 			parhst[ppt] = container.config;
 			data = container.gdata;
 			header = container.ghead;
@@ -729,14 +687,19 @@ function readfile(file, numtotal, filenum) {
 			DAC = true;
 			return;
 		}
-		ProcessSingle(filecnt);
 		filecnt += 1;
 		if (filecnt == numtotal) {
-		  FinishFiles();
+			process();
+			if (data.length < 3) {
+				if (!sspace) {
+					document.getElementById('IDsep').value = "S";
+					detect = true;
+					prephd = true;
+					getsep();
+					process();
+				}
+			}
 		}
-
-		tmpfile = null;
-		reader = null;
 	};
 	reader.readAsText(file, "UTF-8");
 }
@@ -745,17 +708,16 @@ function update() {
 	//	read textarea and update preview
 	infile = [];
 	dprev = document.getElementById('IDcheckpreview').checked;
-	tmpfile = {
+	infile[0] = {
 		content: document.getElementById('IDtextarea').value,
 		fname: ''
 	};
-	if (tmpfile.content == "") return;
+	if (infile[0].content == "") return;
 	document.getElementById('IDdata').style.display = "none";
 	document.getElementById("IDbutupd").style.display = "none";
 	prephd = true;
 	detect = true;
-	ProcessSingle(0);
-	FinishFiles()
+	process();
 	if (data.length == 0) {
 		document.getElementById('IDdata').style.display = "inline-block";
 		document.getElementById("IDbutupd").style.display = "inline-block";
@@ -907,7 +869,6 @@ function identify(content, fname = "") {
 		text = text.replace(re, '\n');
 		re = new RegExp('' + escapeRegExp('</tr></table></body></html>') + '.+', 'g');
 		text = text.replace(re, '');
-		colsep = '\t';
 		return text;
 
 	} else if (content.includes("swap") && content.includes("r b w") && content.includes("kthr")) {
@@ -1031,146 +992,143 @@ function identify(content, fname = "") {
 		var tbi6 = 0;
 		tab0[0] = "Host\tMachine\tProcessor\tTime\tDate\t";
 		for (i = 0; i < text.length; i++) {
-		  if (text[i].startsWith("CPU_ALL") || text[i].startsWith("MEM") ||  text[i].startsWith("MEMNEW") ||  text[i].startsWith("PROC") ||  text[i].startsWith("LPAR") ||  text[i].startsWith("PAGE") ||  text[i].startsWith("AAA") ||  text[i].startsWith("BBBP") || text[i].startsWith("ZZZZ") ) { 
-			  tmp = text[i].split(",");
-				switch (tmp[0]) {
-					case "CPU_ALL":
-						tab1[tbi1] = "";
-						for (n = 0; n < tmp.length; n++) {
-							if (n < 2) continue;
-							if (tbi1 == 0) tmp[n] = "CPU " + tmp[n];
-							tab1[tbi1] += tmp[n] + "\t";
+			tmp = text[i].split(",");
+			switch (tmp[0]) {
+				case "CPU_ALL":
+					tab1[tbi1] = "";
+					for (n = 0; n < tmp.length; n++) {
+						if (n < 2) continue;
+						if (tbi1 == 0) tmp[n] = "CPU " + tmp[n];
+						tab1[tbi1] += tmp[n] + "\t";
+					}
+					tbi1 += 1;
+					break;
+				case "MEM":
+					tab2[tbi2] = "";
+					for (n = 0; n < tmp.length; n++) {
+						tmp[n] = tmp[n].replace("Size of the Compressed pool(MB)", "Cmpr.Pool(MB)");
+						tmp[n] = tmp[n].replace("Size of true memory(MB)", "True Mem.(MB)");
+						tmp[n] = tmp[n].replace("Expanded memory size(MB)", "Exp.Mem.(MB)");
+						tmp[n] = tmp[n].replace("Size of the Uncompressed pool(MB)", "UnCmpr.Pool(MB)");
+						if (n < 2) continue;
+						if (n > 7) continue;
+						if (tbi2 == 0) tmp[n] = "MEM " + tmp[n];
+						tab2[tbi2] += tmp[n] + "\t";
+					}
+					tbi2 += 1;
+					break;
+				case "MEMNEW":
+					tab3[tbi3] = "";
+					for (n = 0; n < tmp.length; n++) {
+						tmp[n] = tmp[n].replace("Compressed Pool", "Cmpr.Pool");
+						if (n < 2) continue;
+						if (n > 7) continue;
+						if (tbi3 == 0) tmp[n] = "MEM " + tmp[n];
+						tab3[tbi3] += tmp[n] + "\t";
+					}
+					tbi3 += 1;
+					break;
+				case "PROC":
+					tab4[tbi4] = "";
+					for (n = 0; n < tmp.length; n++) {
+						if (n < 2 || n > 7) continue;
+						if (tbi4 == 0) tmp[n] = "PROC " + tmp[n];
+						tab4[tbi4] += tmp[n] + "\t";
+					}
+					tbi4 += 1;
+					break;
+				case "LPAR":
+					tab5[tbi5] = "";
+					for (n = 0; n < tmp.length; n++) {
+						if (n < 2 || n > 12) continue;
+						if (tbi5 == 0) tmp[n] = "LPAR " + tmp[n];
+						tab5[tbi5] += tmp[n] + "\t";
+					}
+					tbi5 += 1;
+					break;
+				case "PAGE":
+					tab6[tbi6] = "";
+					for (n = 0; n < tmp.length; n++) {
+						if (n < 2 || n > 4) continue;
+						if (tbi6 == 0) tmp[n] = "PAGE " + tmp[n];
+						tab6[tbi6] += tmp[n] + "\t";
+					}
+					tbi6 += 1;
+					break;
+				case "AAA":
+					if (tmp[1] == "host") {
+						host = tmp[2];
+					}
+					break;
+				case "BBBP":
+					if (tmp[2] == "lsconf") {
+						if (tmp.length > 3) {
+							var cfg = tmp[3].replace(/\"/g, "").split(":");
+							if (cfg[0] == "System Model") mach = cfg[1] + " " + tmp[4].replace(/\"/g, "");
+							if (cfg[0] == "Machine Serial Number") mach += " (" + cfg[1].trim() + ")";
+							if (cfg[0] == "Processor Implementation Mode") proc = cfg[1];
+							if (cfg[0] == "Number Of Processors") proc += " (# " + cfg[1] + ")";
+							if (cfg[0] == "Processor Clock Speed") proc += " - " + cfg[1];
 						}
-						tbi1 += 1;
-						break;
-					case "MEM":
-						tab2[tbi2] = "";
-						for (n = 0; n < tmp.length; n++) {
-							tmp[n] = tmp[n].replace("Size of the Compressed pool(MB)", "Cmpr.Pool(MB)");
-							tmp[n] = tmp[n].replace("Size of true memory(MB)", "True Mem.(MB)");
-							tmp[n] = tmp[n].replace("Expanded memory size(MB)", "Exp.Mem.(MB)");
-							tmp[n] = tmp[n].replace("Size of the Uncompressed pool(MB)", "UnCmpr.Pool(MB)");
-							if (n < 2) continue;
-							if (n > 7) continue;
-							if (tbi2 == 0) tmp[n] = "MEM " + tmp[n];
-							tab2[tbi2] += tmp[n] + "\t";
-						}
-						tbi2 += 1;
-						break;
-					case "MEMNEW":
-						tab3[tbi3] = "";
-						for (n = 0; n < tmp.length; n++) {
-							tmp[n] = tmp[n].replace("Compressed Pool", "Cmpr.Pool");
-							if (n < 2) continue;
-							if (n > 7) continue;
-							if (tbi3 == 0) tmp[n] = "MEM " + tmp[n];
-							tab3[tbi3] += tmp[n] + "\t";
-						}
-						tbi3 += 1;
-						break;
-					case "PROC":
-						tab4[tbi4] = "";
-						for (n = 0; n < tmp.length; n++) {
-							if (n < 2 || n > 7) continue;
-							if (tbi4 == 0) tmp[n] = "PROC " + tmp[n];
-							tab4[tbi4] += tmp[n] + "\t";
-						}
-						tbi4 += 1;
-						break;
-					case "LPAR":
-						tab5[tbi5] = "";
-						for (n = 0; n < tmp.length; n++) {
-							if (n < 2 || n > 12) continue;
-							if (tbi5 == 0) tmp[n] = "LPAR " + tmp[n];
-							tab5[tbi5] += tmp[n] + "\t";
-						}
-						tbi5 += 1;
-						break;
-					case "PAGE":
-						tab6[tbi6] = "";
-						for (n = 0; n < tmp.length; n++) {
-							if (n < 2 || n > 4) continue;
-							if (tbi6 == 0) tmp[n] = "PAGE " + tmp[n];
-							tab6[tbi6] += tmp[n] + "\t";
-						}
-						tbi6 += 1;
-						break;
-					case "AAA":
-						if (tmp[1] == "host") {
-							host = tmp[2];
-						}
-						break;
-					case "BBBP":
-						if (tmp[2] == "lsconf") {
-							if (tmp.length > 3) {
-								var cfg = tmp[3].replace(/\"/g, "").split(":");
-								if (cfg[0] == "System Model") mach = cfg[1] + " " + tmp[4].replace(/\"/g, "");
-								if (cfg[0] == "Machine Serial Number") mach += " (" + cfg[1].trim() + ")";
-								if (cfg[0] == "Processor Implementation Mode") proc = cfg[1];
-								if (cfg[0] == "Number Of Processors") proc += " (# " + cfg[1] + ")";
-								if (cfg[0] == "Processor Clock Speed") proc += " - " + cfg[1];
+					}
+					break;
+				case "ZZZZ":
+					tab0[tbi0] = host + "\t";
+					tab0[tbi0] += mach + "\t";
+					tab0[tbi0] += proc + "\t";
+					for (n = 0; n < tmp.length; n++) {
+						if (n < 2) continue;
+						if (n == 3) {
+							var dt = tmp[n].split("-");
+							switch (dt[1]) {
+								case "JAN":
+									month = "01";
+									break;
+								case "FEB":
+									month = "02";
+									break;
+								case "MAR":
+									month = "03";
+									break;
+								case "APR":
+									month = "04";
+									break;
+								case "MAY":
+									month = "05";
+									break;
+								case "JUN":
+									month = "06";
+									break;
+								case "JUL":
+									month = "07";
+									break;
+								case "AUG":
+									month = "08";
+									break;
+								case "SEP":
+									month = "09";
+									break;
+								case "OCT":
+									month = "10";
+									break;
+								case "NOV":
+									month = "11";
+									break;
+								case "DEC":
+									month = "12";
+									break;
 							}
+							tmp[n] = dt[2] + "." + month + "." + dt[0];
 						}
-						break;
-					case "ZZZZ":
-						tab0[tbi0] = host + "\t";
-						tab0[tbi0] += mach + "\t";
-						tab0[tbi0] += proc + "\t";
-						for (n = 0; n < tmp.length; n++) {
-							if (n < 2) continue;
-							if (n == 3) {
-								var dt = tmp[n].split("-");
-								switch (dt[1]) {
-									case "JAN":
-										month = "01";
-										break;
-									case "FEB":
-										month = "02";
-										break;
-									case "MAR":
-										month = "03";
-										break;
-									case "APR":
-										month = "04";
-										break;
-									case "MAY":
-										month = "05";
-										break;
-									case "JUN":
-										month = "06";
-										break;
-									case "JUL":
-										month = "07";
-										break;
-									case "AUG":
-										month = "08";
-										break;
-									case "SEP":
-										month = "09";
-										break;
-									case "OCT":
-										month = "10";
-										break;
-									case "NOV":
-										month = "11";
-										break;
-									case "DEC":
-										month = "12";
-										break;
-								}
-								tmp[n] = dt[2] + "." + month + "." + dt[0];
-							}
-							tab0[tbi0] += tmp[n] + "\t";
-						}
-						tbi0 += 1;
-						break;
-				}
-			} 
+						tab0[tbi0] += tmp[n] + "\t";
+					}
+					tbi0 += 1;
+					break;
+			}
 		}
 		for (i = 0; i < tab1.length; i++) {
 			nmon += tab0[i] + tab1[i] + tab2[i] + tab3[i] + tab4[i] + tab5[i] + tab6[i] + "\n";
 		}
-		colsep = '\t';
 		return nmon;
 	} else if (content.startsWith("Linux")) {
 		// SAR		
@@ -1222,7 +1180,6 @@ function identify(content, fname = "") {
 				text = text + tmp[i] + "\n";
 			}
 			text = text.replace(/\t\n/g, "\n");
-			colsep = '\t';
 			return text;
 		}
 	} else if (content.includes("host;tenant;time;searchCount")) {
@@ -1237,7 +1194,6 @@ function identify(content, fname = "") {
 		return output;
 	} else if (content.includes("connect to server o.k.")) {
 		// NIPING
-		colsep = '\t';
 		text = text.replace(/(\r\n\r\n|\n\n|\r\r|\r\n)/gm, "\n"); //  replace multiple line breaks with single line break
 		text = text.replace(/(\r)/gm, "\n");
 		text = text.replace(/( ms\n)/gm, "\n"); //  remove ms
@@ -1310,10 +1266,8 @@ function identify(content, fname = "") {
 				output += "\n";
 			}
 		}
-		text = null;
 		return output;
 	} else {
-	  text = null;
 		return content;
 	}
 }
@@ -1337,7 +1291,7 @@ function findhdr(lookup) {
 	return false;
 }
 
-function CheckHdr() {
+function checkhdr() {
 	// pre-select fields for X-Axis, Y-Axis
 	// x-Axis = Index
 	parhst[ppt].selx1 = 1;
@@ -1377,49 +1331,37 @@ function CheckHdr() {
 		parhst[ppt].colsc[2][0] = 200;
 		parhst[ppt].grtype = 'scatter';
 		parhst[ppt].sely1 = hdrpos;
-		parhst[ppt].selx1 = 5;
-		parhst[ppt].selx2 = 3;
-		parhst[ppt].selx2 = 4;
-		parhst[ppt].sndyaxis = true;
-		parhst[ppt].selz1 = hdrpos;
-		parhst[ppt].zavg = 50;
-		parhst[ppt].grztype = 'line';
-		parhst[ppt].pzcolor = '#0000FF';
-		parhst[ppt].ztsize = 2;
-		parhst[ppt].zopac = 0.8;
 	} else if (findhdr("Resp (ms)")) {
 		parhst[ppt].colsc[0][0] = 0.50;
 		parhst[ppt].colsc[1][0] = 0.70;
 		parhst[ppt].colsc[2][0] = 1.20;
-		parhst[ppt].grtype = 'scatter';
-		parhst[ppt].sely1 = hdrpos;
-		parhst[ppt].selx1 = 0;
-		parhst[ppt].selx2 = 1;
-		parhst[ppt].sndyaxis = true;
-		parhst[ppt].selz1 = hdrpos;
-		parhst[ppt].zavg = 150;
-		parhst[ppt].grztype = 'line';
-		parhst[ppt].pzcolor = '#EE8800';
-		parhst[ppt].ztsize = 2;
-		parhst[ppt].zopac = 0.8;
-	} 
-
-	
+		parhst[ppt].sely1 = 4;
+	}
 }
 
-function editdata() {
+function reprocess() {
 	// re-process graphic (go-back button)
-
+	if (DAC) location.reload();
+	detect = true;
+	prephd = true;
+	start = true;
+	header = [];
+	data = [];
 	displaymode = "";
 	document.getElementById("IDgraphic").style.display = "none";
 	document.getElementById("IDhst").style.display = "none";
 	document.getElementById("IDgrp").style.display = "none";
-	preview();
+	dprev = true;
+	addhist();
+	parhst[ppt].selx1 = parhst[ppt].selx2 = parhst[ppt].selx3 = parhst[ppt].selx4 = "";
+	parhst[ppt].sely1 = parhst[ppt].sely2 = parhst[ppt].sely3 = parhst[ppt].sely4 = "";
+	process();
 }
 
-function ProcessSingle(index) {
- 
-  document.title = 'loading files ( ' + index + ' / ' + filelist.length +' )';
+function process() {
+	// process input files (select header fields, separate data into columns)
+	document.title = 'data loaded, preparing preview';
+	document.body.style.cursor = "progress";
 
 	txtarea = "";
 	var num = 0;
@@ -1432,68 +1374,46 @@ function ProcessSingle(index) {
 	var text = [];
 	var coldel = "";
 	var hdend = "";
+	for (x = 0; x < infile.length; x++) {
+		var ind = 1;
 
-	// process input files (select header fields, separate data into columns)
-
-	txtarea = "";
-	var num = 0;
-
-	var x = 0;
-	var i = 0;
-	var n = 0;
-	var ind = 0;
-	var re = new RegExp('');
-	var tmp = 0;
-	var text = [];
-	var coldel = "";
-	var hdend = "";
-	
-	// for (x = 0; x < infile.length; x++) {
-
-		tmpfile.content = identify(tmpfile.content, tmpfile.fname);
+		infile[x].content = identify(infile[x].content, infile[x].fname);
 		// console.log("File: " + x);
 
 		if (sspace) {
-			tmpfile.content = tmpfile.content.replace(/ +/g, '\t');
+			infile[x].content = infile[x].content.replace(/ +/g, '\t');
 			colsep = "\t";
 		}
 
 		// if column separator = "," then CSV file
 		// if (colsep == "," ) {
 		if (filelist.length > 0 && filelist[0].name.includes('.csv')) {
-			text = CSVToArray(tmpfile.content, colsep);
+			text = CSVToArray(infile[x].content, colsep);
 			coldel = "\t";
 		} else {
-			text = tmpfile.content.split("\n");
+			text = infile[x].content.split("\n");
 			// detect column separator if empty
 			if (colsep == "") {
-			
-			  // test the first 33 lines for the most often occurring character which is not between 0..9,A..Z,a..z or space
-				var ctab = [];
-				for (n = 0; n < 256; n++) { ctab[n] = { count : 0, idx : n, char : String.fromCharCode(n) }; }
-				for (n = 0; n < text.length; n++) {
-				  if (text[n].includes('----------') ) continue;
-					for (i = 0; i < text[n].length; i++) {
-						var charcode = text[n].charCodeAt(i);
-						if ( ( charcode >= 48 && charcode <= 57  ) ||
-						     ( charcode >= 65 && charcode <= 90  ) ||
-						     ( charcode >= 97 && charcode <= 122 ) ||
-						       charcode == 32 ) {} else ctab[charcode].count += 1;
-					}
-					if (n == 33) break;
-				}
-				ctab.sort(function(a,b){
-					var s1 = a.count,
-							s2 = b.count;
-					return s1 > s2 ? -1 : s1 < s2 ? 1 : 0;
-				});
 
-				coldel = ctab[0].char;
+				if (detect) {
+					for (i = 0; i < delim.length; i++) {
+						delim[i][0] = 0;
+						for (n = 0; n < text.length; n++) {
+							re = new RegExp('' + delim[i][1] + '', 'g');
+							delim[i][0] += charCount(text[n], delim[i][1]);
+							if (n == 20) break;
+						}
+					}
+					detect = false;
+				}
+				delim.sort((a, b) => b[0] - a[0]);
+				coldel = delim[0][1];
 			} else {
 				coldel = colsep;
-				if (coldel == "t" || coldel == "T" ) coldel = "\t";
 			}
 		}
+
+		var hd = true;
 
 		var thl = 0;
 		for (i = 0; i < text.length; i++) {
@@ -1501,31 +1421,6 @@ function ProcessSingle(index) {
 			if (tmp > thl) thl = tmp;
 			if (i > 20) break;
 		}
-		
-		// try to detect thousand delimiter 
-		var dpc = "";
-		for (i = 0; i < text.length; i++) {
-		  // see decimal point
-			if (/.*\d\,\d\d\d\,\d\d\d.*/.test(text[i])) { 
-				dpc = '.';
-				break;
-			}
-			if (/.*\d\,\d\d\d\.\d.*/.test(text[i])) { 
-				dpc = '.';
-				break;
-			}
-			// decimal comma
-			if (/.*\d\.\d\d\d\.\d\d\d.*/.test(text[i])) { 
-				dpc = ',';
-				break;
-			}
-			if (/.*\d\.\d\d\d\,\d.*/.test(text[i])) { 
-				dpc = ',';
-				break;
-			}
-		  if (i > 100) break;
-		}
-		if (dpc != "") decpnt = dpc;
 
 		// Prepare Regular expressions
 		var re1 = new RegExp('^' + escapeRegExp(coldel) + '\\s+' + escapeRegExp(coldel) + '', 'g');
@@ -1534,8 +1429,7 @@ function ProcessSingle(index) {
 		var re4 = new RegExp('\s*' + escapeRegExp(coldel) + '\s*$', 'g');
 		var re5 = new RegExp('' + escapeRegExp(coldel) + '', 'g');
 
-		var fln = pad(index, 5);
-		var idl = Math.trunc(Math.log10(text.length) + 1);
+		var fln = pad(x, 1 + Math.trunc(Math.log10(infile.length + 1)));
 
 		for (i = 0; i < text.length; i++) {
 
@@ -1544,11 +1438,11 @@ function ProcessSingle(index) {
 
 			if (res == "---" || text[i] == "") continue;
 
-			if (globalhd) {
+			if (hd) {
 				// Header 
 				if (prephd) {
-					globalnum = charCount(text[i], coldel);
-					if (globalnum < thl) continue;
+					num = charCount(text[i], coldel);
+					if (num < thl) continue;
 
 					text[i] = text[i].replace(re1, '');
 					text[i] = text[i].replace(re2, '');
@@ -1556,7 +1450,7 @@ function ProcessSingle(index) {
 
 					text[i] = "File" + coldel + "Index" + coldel + text[i];
 
-					globalhdend = text[i].slice(Math.trunc(text[i].length / 2));
+					hdend = text[i].slice(Math.trunc(text[i].length / 2));
 					var hdrtmp = text[i].split(coldel);
 					for (n = 0; n < hdrtmp.length; n++) {
 						header[n] = [hdrtmp[n].trim(), ""];
@@ -1573,39 +1467,36 @@ function ProcessSingle(index) {
 					thl = charCount(text[i], "\t");
 					txtarea += text[i] + "\n";
 					prephd = false;
-					CheckHdr();
+					checkhdr();
 				}
-				globalhd = false;
+				hd = false;
 			}
-			if (!globalhd) {
+			if (!hd || hdrempty) {
 				// item records
 				if (header[1][0] == "") break;
 				// if (text[i].includes(header[2][0])) continue;
-				if (text[i].includes(globalhdend)) continue;
+				if (text[i].includes(hdend)) continue;
 				// Decimal Notation
 				if (decpnt == '.') {
 					if (coldel != ',') {
 						text[i] = text[i].replace(/,/g, '');
-						// text[i] = charDelete(text[i],",");
 					}
 				} else {
 					text[i] = text[i].replace(/\./g, '');
-					// text[i] = charDelete(text[i],".");
 					text[i] = text[i].replace(/,/g, '\.');
 				}
 				var cols = charCount(text[i], coldel);
-				if (cols != globalnum) continue;
+				if (cols != num) continue;
 				text[i] = text[i].replace(re1, '');
 				text[i] = text[i].replace(re2, '');
 				text[i] = text[i].replace(re4, '');
 				text[i] = text[i].replace(re3, '');
-				var idx = 'I' + pad(ind, idl);
-				if (usefnam) text[i] = "" + tmpfile.fname + coldel + idx + coldel + text[i];
+				var idx = 'I' + pad(ind, 1 + Math.trunc(Math.log10(infile.length * text.length + 1)));
+				if (usefnam) text[i] = "" + infile[x].fname + coldel + idx + coldel + text[i];
 				else text[i] = "F" + fln + coldel + idx + coldel + text[i];
 				// text[i] = text[i].replace(re5, "\t");
 				// text[i] = text[i].replace(/,/g, "");
-				// text[i] = text[i].replace(/ /g, "");
-				text[i] = charDelete(text[i]," ");
+				text[i] = text[i].replace(/ /g, "");
 				for (var col = charCount(text[i], coldel); col < thl; col++) {
 					text[i] = text[i] + coldel;
 				}
@@ -1620,31 +1511,9 @@ function ProcessSingle(index) {
 				data.push("");
 				data[data.length - 1] = dtmp.slice(0);
 				ind++;
-				
 			}
 		}
-
-    tmpfile = "";
-
-    tcols = null;
-    text = null;
-		
-	// }
-}
-
-function FinishFiles() {
-
-	txtarea = "";
-	var num = 0;
-	var x = 0;
-	var i = 0;
-	var n = 0;
-	var re = new RegExp('');
-	var tmp = 0;
-	var text = [];
-	var coldel = "";
-	var hdend = "";
-
+	}
 	text = [];
 	if (data.length < 3) return;
 
@@ -1688,7 +1557,7 @@ function FinishFiles() {
 			data[i][4] = "" + yyyy + "-" + pad(mm, 2) + "-" + pad(dd, 2);
 			data[i][5] = "" + pad(HH, 2) + ":" + pad(MM, 2) + ":" + pad(SS, 2);
 		}
-		CheckHdr();
+		checkhdr();
 	}
 
 	var regex = new RegExp('');
@@ -1747,161 +1616,11 @@ function FinishFiles() {
 			}
 		}
 	}
-	
-	// Check if SDFMON file
-	if (findhdr("Instance") && findhdr("Act. WPs") && findhdr("Free Mem.") ) {
-		// delete GlobalData records from array
-		findhdr("Instance");
-		var n = 0;
-		while (true) {
-			if (data[n][hdrpos] == 'GlobalData') {
-				data[n] = data[data.length - 1];
-				data.pop();
-			} else {
-				n = n + 1;
-			}
-			if (n > data.length - 1) break;
-		}
-		if (findhdr("Instance")) {
-	    parhst[ppt].selx1 = hdrpos;
-	    parhst[ppt].vstack = hdrpos;
-	    parhst[ppt].grtype = 'area';
-	    parhst[ppt].dtsize = 1;
-	  }
-	  for (var n = 0; n < header.length; n++ ) {
-	    if (header[n][1] == 't') {
-	      parhst[ppt].selx2 = n;
-	      break;
-	    }
-	  }
-		if (findhdr("Free Mem.")) {
-			parhst[ppt].sndyaxis = true;
-			parhst[ppt].selz1 = hdrpos;
-			parhst[ppt].zavg = 5;
-			parhst[ppt].grztype = 'area';
-			parhst[ppt].pzcolor = '#AAAAAA';
-			parhst[ppt].ztsize = 1;
-			parhst[ppt].zopac = 0.25;
-		}
-	}
-	
 	if (dprev) {
 		preview();
 	} else {
 		parameters();
 	}
-
-}
-
-function sortdt() {
-
-	data.sort(function(a, b) {
-	    var t1 = ":" + a[selhdr];
-	    var t2 = ":" + b[selhdr];
-	    var n = 0;
-	    var equal = true;
-	    
-	    if (t1 != t2 ) { equal = false; }
-	    if (equal) {
-				for (n = 2; n < header.length; n++) {
-					if ( header[n][1] == 'd' && n != selhdr) {
-						t1 = t1 + a[n];
-						t2 = t2 + b[n];
-						if (t1 != t2 ) { equal = false; break; }
-					}
-				}
-	    }
-	    if (equal) {
-				for (n = 2; n < header.length; n++) {
-					if ( header[n][1] == 't'  && n != selhdr) {
-						t1 = t1 + a[n];
-						t2 = t2 + b[n];
-						if (t1 != t2 ) { equal = false; break; }
-					}
-				}
-	    }
-	    if (equal) {
-				for (n = 2; n < header.length; n++) {
-					if ( header[n][1] == '-'  && n != selhdr) {
-						t1 = t1 + a[n];
-						t2 = t2 + b[n];
-						if (t1 != t2 ) { equal = false; break; }
-					}
-				}
-	    }
-	    if (equal) {
-	      t1 = t1 + a[0] + a[1];
-	      t2 = t2 + b[0] + b[1];
-	    }
-		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-	});
-	
-	preview();
-
-}
-
-function remdup() {
-
-  var i = 0;
-  var n = 0;
-  var df = false;
-  
-	data.sort(function(a, b) {
-	    var t1 = ":";
-	    var t2 = ":";
-	    var n = 0;
-	    for (n = 2; n < header.length; n++) {
-	      t1 = t1 + a[n];
-	      t2 = t2 + b[n];
-	      if (t1 != t2 ) break;
-	    }
-		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-	});
-
-  for (i = 1; i < data.length; i++) {
-    var duplicate = true;
-    for (n = 2; n < header.length; n++) {
-      if (data[i-1][n] != data[i][n]) { duplicate = false; break;}
-    }
-    if (duplicate) { data.splice(i,1); df = true; }
-  }
-  if (df) alert("duplicate records found and removed");
-  
-  preview();
-
-}
-
-function process() {
-	// process input files (select header fields, separate data into columns)
-	document.title = 'processing data ';
-	document.body.style.cursor = "progress";
-
-	detect = true;
-	prephd = true;
-	start = true;
-	header = [];
-	data = [];
-	displaymode = "";
-	
-  globalhd = true;
-  globalhdend = "";
-
-	txtarea = "";
-	var num = 0;
-	var x = 0;
-	var i = 0;
-	var n = 0;
-	var re = new RegExp('');
-	var tmp = 0;
-	var text = [];
-	var coldel = "";
-	var hdend = "";
-	
-	for (x = 0; x < infile.length; x++) {
-	   tmpfile = infile[x];
-	   ProcessSingle(x);
-	}
-	FinishFiles();
 
 }
 
@@ -1997,8 +1716,6 @@ function preview() {
 	var n = 0;
 	var i = 0;
 	
-	start = true;
-	
 	if ( data.length < 5) return;
 
 	var dtf = "";
@@ -2025,11 +1742,11 @@ function preview() {
 	var str = "<small>Review data, if required edit header description(s), then press <i><b>Graphic</b></i> button to display the histogram & scatterplot - Select Date Format: " + dtf + "  - Use: ";
 
 	if (usefnam) {
-		str += "<button onclick='toggleusefnam()' title='Toggle File Name / File count' >File Count</button>";
-	} else {
 		str += "<button onclick='toggleusefnam()' title='Toggle File Name / File count' >File Name</button>";
+	} else {
+		str += "<button onclick='toggleusefnam()' title='Toggle File Name / File count' >File Count</button>";
 	}
-	str += "</small><br><br>";
+	str += "</small><br>";
 
 	str += "<font color='#444488' style='font-size: 10px;'>";
 	str += "<table><tr>";
@@ -2039,12 +1756,13 @@ function preview() {
 		// str += "<td>" + header[n] + "</td>";
 	}
 	str += "</tr>";
-	for (n = pgstart; n < pgstart + 26; n++) {
+	for (n = 0; n < data.length; n++) {
 		str += "<tr>";
 		for (i = 0; i < data[n].length; i++) {
 			// if (col[i] == "") continue;
 			str += "<td>" + data[n][i] + "</td>";
 		}
+		if (n > 25) break;
 		str += "</tr>";
 	}
 	str += "<tr><td colspan=" + data[n-1].length + "> ... </td></tr>";
@@ -2058,128 +1776,27 @@ function preview() {
 	}
 	str += "</table>";
 	str += "</font>";
-
-	document.getElementById('IDoutput').innerHTML = "<button id='IDgrpic' onclick='parameters()'><b>Graphic</b></button><br><br>";
+	document.getElementById('IDoutput').innerHTML = "<button id='IDbutret' style='color:gray' onclick='goback()'><i>go back</i></button>";
+	document.getElementById('IDoutput').innerHTML += "<button id='IDgrpic' onclick='parameters()'><b>Graphic</b></button><br><br>";
 
 	document.getElementById('IDpreview').innerHTML = str;
 	document.getElementById('IDpreview').innerHTML += "<div style='overflow: hidden; position: relative;'><div style='position: absolute; height: 10px; width: 10px;  right: -100px; top: -100px;'><textarea id='IDexport' rows='1' cols='1' style='tabSize:30; font-family:Courier; font-size:10px; color:#000044'  ></textarea></div><div>";
-	
-	document.getElementById('IDpreview').innerHTML += "<br>";
-	document.getElementById('IDpreview').innerHTML += "<button onclick='pagedown()'>PgD &#x25BC;</button>";
-	document.getElementById('IDpreview').innerHTML += "<button onclick='pageup()'>PgU  &#x25B2;</button>";
-	document.getElementById('IDpreview').innerHTML += " <small> find: </small><input id='IDFIND' size='30' >";
-	document.getElementById('IDpreview').innerHTML += " <small> replace with: </small><input id='IDREPL' size='30' >";
-	document.getElementById('IDpreview').innerHTML += " <div id='IDfnd' style='display: inline-block;'></div>";
-	document.getElementById('IDpreview').innerHTML += " <div id='IDrep' style='display: inline-block;'></div>";
-	document.getElementById('IDpreview').innerHTML += " <div id='IDsrt' style='display: inline-block;'></div>";
-	document.getElementById('IDpreview').innerHTML += " <div id='IDcom' style='display: inline-block;'></div>";
-	document.getElementById('IDpreview').innerHTML += " <div id='IDdel' style='display: inline-block;'></div>";
-	document.getElementById('IDpreview').innerHTML += " <div id='IDspl' style='display: inline-block;'></div>"
-	document.getElementById('IDpreview').innerHTML += " <div id='IDcol' style='display: inline-block;'></div><br><br>";
-	
-	document.getElementById('IDpreview').innerHTML += "<button onclick='exppre()'>Copy to Clipboard</button>";
-	document.getElementById('IDpreview').innerHTML += "<button onclick='remdup()'>Remove Duplicates</button>";
-	document.getElementById('IDpreview').innerHTML += "<button onclick='delempty()'>Delete empty columns</button><br><br>";
+	document.getElementById('IDpreview').innerHTML += "<br><button onclick='exppre()'>Copy to Clipboard</button>";
+
+	document.getElementById('IDpreview').innerHTML += " <small>   replace: </small><input id='IDFIND' size='30' >";
+	document.getElementById('IDpreview').innerHTML += " <small>with: </small><input id='IDREPL' size='30' >";
+	document.getElementById('IDpreview').innerHTML += "<button onclick='findrepl()' title='find and replace in non-numeric fields' >Replace</button>";
+	document.getElementById('IDpreview').innerHTML += "<button onclick='splithdr()' title='Split Column' >Split</button>";
+	document.getElementById('IDpreview').innerHTML += "<div id='IDdel' style='display: inline-block;'></div><br><br> ";
 
 	document.getElementById('IDload').innerHTML = SAPlogo(100, 50);
 	document.getElementById('ID(C)').innerHTML = "";
 
-	document.title = 'Edit Data';
+	p1 = perfnow();
+	var dt = (p1 - p0).toFixed(2);
+	document.getElementById('IDdetail').innerHTML = " <small> Runtime: " + dt + " ms  -- " + data.length + " records loaded </small>";
+	document.title = 'data preview ready';
 	document.body.style.cursor = "default";
-	
-	document.getElementById('IDdetail').innerHTML = "Number of Records: " + data.length;
-
-}
-
-function pagedown() {
-  pgstart += 25;
-  if (pgstart + 25 > data.length) pgstart = data.length - 25;
-  preview();
-}
-
-function pageup() {
-  pgstart -= 25;
-  if (pgstart < 0) pgstart = 0;
-  preview();
-}
-
-function delempty() {
-  document.title = 'Deleting empty columns ...';
-  pgstart = 0;
-  var ParameterReset = false;
-  for (var h = 2; h < header.length; h++) {
-    var cont = data[0][h];
-    var dc = true;
-    for (var n = 0; n < data.length; n++) {
-      if (n > 25) break;
-      if (data[n][h] != cont && !data[n][h].startsWith('undefined')) {
-        dc = false;
-        break;
-      }
-    }
-    if (dc) {
-      if ( header[h][1] == 'n' ) {
-        var value = parseFloat(data[n][h]);
-        if ( value != 0 && cont != -1 && !isNaN(value)) dc = false; 
-					for (var n = 0; n < data.length && dc; n++) {
-						if (data[n][h] != cont && !data[n][h].startsWith('undefined')) {
-							if (pgstart == 0 && header[h][1] == 'n') pgstart = n - 1;
-							dc = false;
-							break;
-						}
-					}
-      } else {
-        if (cont != "" && !data[n][h].startsWith('undefined')) dc = false;
-				for (var n = 0; n < data.length && dc; n++) {
-					if (data[n][h] != cont && !data[n][h].startsWith('undefined')) {
-						dc = false;
-						break;
-					}
-				}
-      }
-    }
-    if (dc) {
-      ParameterReset = true;
-      ppt = 0;
-			header.splice(h,1);
-			for (var n = 0; n < data.length; n++) {
-				data[n].splice(h,1);
-			}
-			h--;
-    }
-  }
-  if (ParameterReset) {
-		ppt = 0;
-		parhst[ppt].Gw = 0;
-		parhst[ppt].xinpmin = "";
-		parhst[ppt].xinpmax = "";
-		parhst[ppt].hstinpmin = "";
-		parhst[ppt].hstinpmax = "";
-		parhst[ppt].ytmin = "";
-		parhst[ppt].ytmax = "";
-		parhst[ppt].ztmin = "";
-		parhst[ppt].ztmax = "";
-    parhst[ppt].selx1 = "";
-    parhst[ppt].selx2 = "";
-    parhst[ppt].selx3 = "";
-    parhst[ppt].selx4 = "";
-    parhst[ppt].sely1 = "";
-    parhst[ppt].sely2 = "";
-    parhst[ppt].sely3 = "";
-    parhst[ppt].sely4 = "";
-    parhst[ppt].selz1 = "";
-    parhst[ppt].selz2 = "";
-    parhst[ppt].selz3 = "";
-    parhst[ppt].selz4 = "";
-    parhst[ppt].vstack = "";
-    parhst[ppt].selfc = "";
-    parhst[ppt].selfx = "";
-    dprev = true;
-    CheckHdr();
-    FinishFiles();  
-  } else {
-    preview();
-  }
 
 }
 
@@ -2187,35 +1804,19 @@ function toggleusefnam() {
 	// Filename or File counter
 	if (usefnam) usefnam = false;
 	else usefnam = true;
-	var fileind = 0;
-	for (var n = 0; n < data.length; n++) {
-	  if (usefnam) { 
-	    fileind = parseInt(data[n][0].substring(1,6));
-	    data[n][0] = filelist[fileind].name;
-	  } else {
-	    for (var i = 0; i < filelist.length; i++) {
-	      if (data[n][0] == filelist[i].name) {
-	        var fln = pad(i, 5);
-	        data[n][0] = "F" + fln;
-	      }
-	    }
-	  }
-	}
-	preview();
+	detect = true;
+	prephd = true;
+	start = true;
+	header = [];
+	data = [];
+	displaymode = "";
+	process();
 }
 
 function shdr(e) {
 	var ID = event.target.id;
 	selhdr = parseInt(ID.replace("IDhdr", ""));
 	document.getElementById('IDdel').innerHTML = "<button onclick='dtdelete(event)' title='Delete Selected Values' >Delete Values</button>";
-	document.getElementById('IDfnd').innerHTML = "<button onclick='findtxt()'  title='find text/number' >Find</button>";
-	document.getElementById('IDrep').innerHTML = "<button onclick='findrepl()' title='find and replace in non-numeric fields' >Replace</button>";
-	document.getElementById('IDsrt').innerHTML = "<button onclick='sortdt()'   title='sort data by selected column (then date/time/text)' >Sort</button>";
-	if ( (selhdr == 1 || header[selhdr][1] == 't' ) && data.length > 10000 ) {
-	  document.getElementById('IDcom').innerHTML = "<button title='Compact Data (delete every index or time value)' onclick='CompData()'> Compact Data </button>";
-	}
-	if ( selhdr > 1) document.getElementById('IDspl').innerHTML = "<button onclick='splithdr()' title='Split Column' >Split Column</button>";
-	if ( selhdr > 1) document.getElementById('IDcol').innerHTML = "<button onclick='delcol()'   title='Delete Column' >Delete Column</button>";
 }
 
 function bhdr(e) {
@@ -2223,31 +1824,17 @@ function bhdr(e) {
 		var actel = document.activeElement;
 		if (actel.id.includes("IDhdr")) return;
 		document.getElementById('IDdel').innerHTML = "";
-		document.getElementById('IDfnd').innerHTML = "";
-		document.getElementById('IDrep').innerHTML = "";
-		document.getElementById('IDsrt').innerHTML = "";
-		document.getElementById('IDcom').innerHTML = "";
-		document.getElementById('IDspl').innerHTML = "";
-		document.getElementById('IDcol').innerHTML = "";
-	}, 1000);
-}
-
-function findtxt() {
-	var find = document.getElementById('IDFIND').value;
-	for (var n = 0; n < data.length; n++) {
-		if (data[n][selhdr].includes(find) ) { 
-		  pgstart = n;
-		  break;
-		}
-	}
-	preview();
+		selhdr = "";
+	}, 100);
 }
 
 function findrepl() {
 	var find = document.getElementById('IDFIND').value;
 	var repl = document.getElementById('IDREPL').value;
 	for (var n = 0; n < data.length; n++) {
-		if (isNaN(data[n][selhdr])) data[n][selhdr] = data[n][selhdr].replace(find, repl);
+		for (var i = 0; i < data[n].length; i++) {
+			if (isNaN(data[n][i])) data[n][i] = data[n][i].replace(find, repl);
+		}
 	}
 	preview();
 }
@@ -2287,6 +1874,23 @@ function seldatfrm() {
 	parhst[ppt].datind = document.getElementById("IDDTF").value;
 }
 
+function goback() {
+	// reload (go-back from 2nd screen)
+	if (typeof BuildInit === "function") {
+		// re-process
+		header = [];
+		data = [];
+		infile = [];
+		txtarea = "";
+		displaymode = "";
+		filecnt = 0;
+		prephd = true;
+		detect = true;
+		start = true;
+		BuildInit();
+	} else location.reload();
+}
+
 function readhdr() {
 	// update header from preview 
 	for (var n = 0; n < header.length; n++) {
@@ -2302,7 +1906,6 @@ function dtdelete(e) {
 	var cnt = 0;
 
 	if (selhdr == "") return;
-
 	cc = parseInt(selhdr);
 
 	while (true) {
@@ -2354,59 +1957,38 @@ function dtdelete(e) {
 		}
 
 		// re-create output 
-		data.sort(function(a, b) {
-        var t1 = a[0] + a[1];
-        var t2 = b[0] + b[1];
-		  return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-	  });
+		var text = "";
+		for (n = 2; n < header.length; n++) {
+			text += header[n][0];
+			if (n < header.length - 1) text += "\t";
+		}
+		text += "\n";
+		for (n = 0; n < data.length; n++) {
+			for (var i = 2; i < data[n].length; i++) {
+				text += data[n][i];
+				if (i < data[n].length - 1) text += "\t";
+			}
+			text += "\n";
+		}
 
 		// re-process
-		preview();
+		infile = [];
+		infile[0] = {
+			content: text,
+			fname: ''
+		};
+		detect = true;
+		prephd = true;
+		start = true;
+		header = [];
+		data = [];
+		displaymode = "";
+		document.getElementById("IDgraphic").style.display = "none";
+		document.getElementById("IDhst").style.display = "none";
+		document.getElementById("IDgrp").style.display = "none";
+		process();
 	}, 25);
 
-}
-
-function delcol() {
-  var cc = selhdr;
-  if (selhdr == "") return;
-
-  while (true) {
-		var con = confirm("Confirm Deletion of column: " + header[cc][0] + " ");
-		break;
-	}  
-	if (!con) return;
-	header.splice(selhdr,1);
-  for (var n = 0; n < data.length; n++) {
-    data[n].splice(cc,1);
-  }
-  ppt = 0;
-  parhst[ppt].Gw = 0;
-	parhst[ppt].xinpmin = "";
-	parhst[ppt].xinpmax = "";
-	parhst[ppt].hstinpmin = "";
-	parhst[ppt].hstinpmax = "";
-	parhst[ppt].ytmin = "";
-	parhst[ppt].ytmax = "";
-	parhst[ppt].ztmin = "";
-	parhst[ppt].ztmax = "";
-	parhst[ppt].selx1 = "";
-	parhst[ppt].selx2 = "";
-	parhst[ppt].selx3 = "";
-	parhst[ppt].selx4 = "";
-	parhst[ppt].sely1 = "";
-	parhst[ppt].sely2 = "";
-	parhst[ppt].sely3 = "";
-	parhst[ppt].sely4 = "";
-	parhst[ppt].selz1 = "";
-	parhst[ppt].selz2 = "";
-	parhst[ppt].selz3 = "";
-	parhst[ppt].selz4 = "";
-  parhst[ppt].vstack = "";
-  parhst[ppt].selfc = "";
-  parhst[ppt].selfx = "";
-	dprev = true;
-	CheckHdr();
-	FinishFiles(); 
 }
 
 function splithdr() {
@@ -2415,11 +1997,14 @@ function splithdr() {
 	var pos = "";
 	var pp = 0;
 	var ll = 0;
-	if (selhdr == "") return;
-	
 	while (true) {
 		// get column index
-		cc = selhdr;
+		while (true) {
+			col = prompt("Specify column number to split (column '" + header[2][0] + "' = 2):", "");
+			if (col == "" || col == null) return;
+			cc = parseInt(col);
+			if (cc > 1 && cc < header.length) break;
+		}
 		// get position
 		while (true) {
 			pos = prompt("Split column (" + header[cc][0] + ") - specify position (from left):", "");
@@ -2429,13 +2014,12 @@ function splithdr() {
 		}
 		// confirm split
 		ll = data[0][cc].length;
-		var con = confirm("Confirm Split: " + data[0][cc].substring(0, pp) + " -- " + data[0][cc].substring(pp, ll) + " ");
-		break;
+		var con = confirm("Confirm Result: " + data[0][cc].substring(0, pp) + " -- " + data[0][cc].substring(pp, ll) + " ");
+		if (con) break;
 	}
-	if (!con) return;
-	cc++;
+	cc += 1;
 
-	if (cc < 1) return;
+	if (cc < 1 || col == "") return;
 	if (pp < 1 || pos == "") return;
 	// create new entry in header table
 	var tmp = ["", "", 0];
@@ -2474,7 +2058,21 @@ function splithdr() {
 	}
 
 	// re-process
-	preview();
+	infile = [];
+	infile[0] = {
+		content: text,
+		fname: ''
+	};
+	detect = true;
+	prephd = true;
+	start = true;
+	header = [];
+	data = [];
+	displaymode = "";
+	document.getElementById("IDgraphic").style.display = "none";
+	document.getElementById("IDhst").style.display = "none";
+	document.getElementById("IDgrp").style.display = "none";
+	process();
 }
 
 function SAPlogo(pwidth, pheight) {
@@ -2608,7 +2206,6 @@ function keyfig() {
 	if (displaymode == "graphic") parhst[ppt].opr = document.getElementById("IDOPR").value;
 	changex();
 	changey();
-	changez();
 }
 
 function changefx() {
@@ -2734,54 +2331,6 @@ function changey() {
 	document.getElementById("IDDOT").className = "dotyel";
 }
 
-function changez() {
-	// read keyfigures
-	addhist();
-	if (displaymode == "graphic") parhst[ppt].selz1 = document.getElementById("IDZ1").value;
-	if (displaymode == "graphic") parhst[ppt].selz2 = document.getElementById("IDZ2").value;
-	if (displaymode == "graphic") parhst[ppt].selz3 = document.getElementById("IDZ3").value;
-	if (displaymode == "graphic") parhst[ppt].selz4 = document.getElementById("IDZ4").value;
-	
-	// if (parhst[ppt].selz1 == parhst[ppt].sely1 || parhst[ppt].selz1 == parhst[ppt].sely2 || parhst[ppt].selz1 == parhst[ppt].sely3 || parhst[ppt].selz1 == parhst[ppt].sely4 ) parhst[ppt].selz1 = '';
-  // if (parhst[ppt].selz2 == parhst[ppt].sely1 || parhst[ppt].selz2 == parhst[ppt].sely2 || parhst[ppt].selz2 == parhst[ppt].sely3 || parhst[ppt].selz2 == parhst[ppt].sely4 ) parhst[ppt].selz2 = '';
-  // if (parhst[ppt].selz3 == parhst[ppt].sely1 || parhst[ppt].selz3 == parhst[ppt].sely2 || parhst[ppt].selz3 == parhst[ppt].sely3 || parhst[ppt].selz3 == parhst[ppt].sely4 ) parhst[ppt].selz3 = '';
-  // if (parhst[ppt].selz4 == parhst[ppt].sely1 || parhst[ppt].selz4 == parhst[ppt].sely2 || parhst[ppt].selz4 == parhst[ppt].sely3 || parhst[ppt].selz4 == parhst[ppt].sely4 ) parhst[ppt].selz4 = '';
-  
-	if (parhst[ppt].selz4 == parhst[ppt].selz3 || parhst[ppt].selz4 == parhst[ppt].selz2 || parhst[ppt].selz4 == parhst[ppt].selz1) parhst[ppt].selz4 = '';
-	if (parhst[ppt].selz3 == parhst[ppt].selz2 || parhst[ppt].selz3 == parhst[ppt].selz1) parhst[ppt].selz3 = '';
-	if (parhst[ppt].selz2 == parhst[ppt].selz1) parhst[ppt].selz2 = '';
-
-	for (var n = 0; n < 3; n++) {
-		if (parhst[ppt].selz1 === '' && parhst[ppt].selz2 !== '') {
-			parhst[ppt].selz1 = parhst[ppt].selz2;
-			parhst[ppt].selz2 = '';
-		}
-		if (parhst[ppt].selz2 === '' && parhst[ppt].selz3 !== '') {
-			parhst[ppt].selz2 = parhst[ppt].selz3;
-			parhst[ppt].selz3 = '';
-		}
-		if (parhst[ppt].selz3 === '' && parhst[ppt].selz4 !== '') {
-			parhst[ppt].selz3 = parhst[ppt].selz4;
-			parhst[ppt].selz4 = '';
-		}
-	}
-
-	// if (parhst[ppt].sely3 == parhst[ppt].sely2 || parhst[ppt].sely3 == parhst[ppt].sely1) parhst[ppt].sely3 = '';
-	// if (parhst[ppt].sely2 == parhst[ppt].sely1) parhst[ppt].sely2 = '';
-
-  if (parhst[ppt].sndyaxis) {
-	  document.getElementById("IDZTMAX").value = parhst[ppt].ztmax = "";
-	  zmax = 0;
-	  document.getElementById("IDZTMIN").value = parhst[ppt].ztmin = "";
-	  zmin = 0;
-	}
-
-	xmin = xmax = "";
-	parameters();
-	document.title = 'Data Analysis - graphic refresh pending ... ';
-	document.getElementById("IDDOT").className = "dotyel";
-}
-
 function changef() {
 	// read multiplicator
 	addhist();
@@ -2854,8 +2403,7 @@ function changevstack() {
 }
 
 function SAPclick() {
-  try { infile = null; } catch (e) { }
-  parameters();
+	//
 }
 
 function getsep() {
@@ -2868,84 +2416,12 @@ function getsep() {
 	}
 }
 
-function switchyz() {
-  addhist();
-  debugger;
-  var tmp = {
-		sely1: parhst[ppt].sely1,
-		sely2: parhst[ppt].sely2,
-		sely3: parhst[ppt].sely3,
-		sely4: parhst[ppt].sely4,
-		dtsize: parhst[ppt].dtsize,
-		grtype: parhst[ppt].grtype,
-		logdis: parhst[ppt].logdis,
-		ytmin: parhst[ppt].ytmin,
-		ytmax: parhst[ppt].ytmax,
-		sshape: parhst[ppt].sshape,
-		avgint: parhst[ppt].avgint,
-  }
-  
-  parhst[ppt].sely1 = parhst[ppt].selz1;
-  parhst[ppt].sely2 = parhst[ppt].selz2;
-  parhst[ppt].sely3 = parhst[ppt].selz3;
-  parhst[ppt].sely4 = parhst[ppt].selz4;
-  parhst[ppt].dtsize = parhst[ppt].ztsize;
-  parhst[ppt].grtype = parhst[ppt].grztype;
-  parhst[ppt].logdis = parhst[ppt].zlogdis;
-  parhst[ppt].ytmin = parhst[ppt].ztmin;
-  parhst[ppt].ytmax = parhst[ppt].ztmax;
-  parhst[ppt].sshape = parhst[ppt].zshape;
-  parhst[ppt].avgint = parhst[ppt].zavg;
-  
-  parhst[ppt].selz1 = tmp.sely1;
-  parhst[ppt].selz2 = tmp.sely2;
-  parhst[ppt].selz3 = tmp.sely3;
-  parhst[ppt].selz4 = tmp.sely4;
-  parhst[ppt].ztsize = tmp.dtsize;
-  parhst[ppt].grztype = tmp.grtype;
-  parhst[ppt].zlogdis = tmp.logdis;
-  parhst[ppt].ztmin = tmp.ytmin;
-  parhst[ppt].ztmax = tmp.ytmax;
-  parhst[ppt].zshape = tmp.sshape;
-  parhst[ppt].zavg = tmp.avgint;
-  
-  parhst.fact = 1;
-  
-  parameters();
-  graphic();
-  
-}
-
 function changeparam() {
 	// read changed parameters
-  var ytmp;
+var ytmp;
 	addhist();
-	if (displaymode == "graphic") {
-	  parhst[ppt].ytmin = document.getElementById("IDYTMIN").value;
-	  parhst[ppt].ytmax = document.getElementById("IDYTMAX").value;
-	  parhst[ppt].opaci = document.getElementById("IDopaci").value;
-	  
-
-	  if (parhst[ppt].opaci < 0) parhst[ppt].opaci = 0;
-	  if (parhst[ppt].opaci > 1) parhst[ppt].opaci = 1;
-	  parhst[ppt].opaci = parseInt( Math.floor( parhst[ppt].opaci * 20 ) ) / 20;
-	  
-	  if (parhst[ppt].sndyaxis) {
-	    parhst[ppt].ztmin = document.getElementById("IDZTMIN").value;
-	    parhst[ppt].ztmax = document.getElementById("IDZTMAX").value;
-	    parhst[ppt].zopac = document.getElementById("IDzopac").value;
-	    parhst[ppt].zavg  = document.getElementById("IDZAVG").value;
-	    
-	    if (parhst[ppt].zopac < 0) parhst[ppt].zopac = 0;
-	    if (parhst[ppt].zopac > 1) parhst[ppt].zopac = 1;
-	    parhst[ppt].zopac = parseInt( Math.floor( parhst[ppt].zopac * 20 ) ) / 20;
-	    
-	 	  if (parhst[ppt].zavg < 1) parhst[ppt].zavg = 1;
-	    if (parhst[ppt].zavg > 900) parhst[ppt].zavg = 900;
-	    parhst[ppt].zavg = Math.floor( parhst[ppt].zavg );
-	       
-	  }
-	}
+	if (displaymode == "graphic") parhst[ppt].ytmin = document.getElementById("IDYTMIN").value;
+	if (displaymode == "graphic") parhst[ppt].ytmax = document.getElementById("IDYTMAX").value;
 
 	if (parhst[ppt].ytmin.includes(">")) {
 		ytmp = parhst[ppt].ytmin.split(">");
@@ -2955,7 +2431,6 @@ function changeparam() {
 		ymin = parseFloat(ymin);
 		vmin = "";
 	}
-	zmin = parseFloat(parhst[ppt].ztmin);
 
 	if (parhst[ppt].ytmax.includes("<")) {
 		ytmp = parhst[ppt].ytmax.split("<");
@@ -2965,24 +2440,18 @@ function changeparam() {
 		ymax = parseFloat(ymax);
 		vmax = "";
 	}
-	zmax = parseFloat(parhst[ppt].ztmax);
 
-	if (displaymode == "graphic") {
-		parhst[ppt].xinpmin = document.getElementById("IDXMIN").value;
-		parhst[ppt].hstinpmin = document.getElementById("IDHSTMIN").value;
-		parhst[ppt].xinpmax = document.getElementById("IDXMAX").value;
-		parhst[ppt].hstinpmax = document.getElementById("IDHSTMAX").value;
-		parhst[ppt].maxpnt = document.getElementById("IDMAXPNT").value;
-		parhst[ppt].dtsize = document.getElementById("IDDTSIZE").value;
-		parhst[ppt].avgint = document.getElementById("IDAVGINT").value;
-		parhst[ppt].filter = document.getElementById("IDFILTER").value;
-		parhst[ppt].vstack = document.getElementById("IDVSTACK").value;
-		parhst[ppt].opr = document.getElementById("IDOPR").value;
-		parhst[ppt].scnt = document.getElementById("IDSCNT").value;
-		
-		if (parhst[ppt].sndyaxis) parhst[ppt].ztsize = document.getElementById("IDZTSIZE").value;
-	}
-
+	if (displaymode == "graphic") parhst[ppt].xinpmin = document.getElementById("IDXMIN").value;
+	if (displaymode == "graphic") parhst[ppt].hstinpmin = document.getElementById("IDHSTMIN").value;
+	if (displaymode == "graphic") parhst[ppt].xinpmax = document.getElementById("IDXMAX").value;
+	if (displaymode == "graphic") parhst[ppt].hstinpmax = document.getElementById("IDHSTMAX").value;
+	if (displaymode == "graphic") parhst[ppt].maxpnt = document.getElementById("IDMAXPNT").value;
+	if (displaymode == "graphic") parhst[ppt].dtsize = document.getElementById("IDDTSIZE").value;
+	if (displaymode == "graphic") parhst[ppt].avgint = document.getElementById("IDAVGINT").value;
+	if (displaymode == "graphic") parhst[ppt].filter = document.getElementById("IDFILTER").value;
+	if (displaymode == "graphic") parhst[ppt].vstack = document.getElementById("IDVSTACK").value;
+	if (displaymode == "graphic") parhst[ppt].opr = document.getElementById("IDOPR").value;
+	if (displaymode == "graphic") parhst[ppt].scnt = document.getElementById("IDSCNT").value;
 	parameters();
 	document.title = 'Data Analysis - graphic refresh pending ... ';
 	document.getElementById("IDDOT").className = "dotyel";
@@ -2998,8 +2467,6 @@ function reset() {
 	document.getElementById("IDHSTMAX").value = parhst[ppt].hstinpmax = "";
 	document.getElementById("IDYTMIN").value = parhst[ppt].ytmin = "";
 	document.getElementById("IDYTMAX").value = parhst[ppt].ytmax = "";
-	document.getElementById("IDYTMIN").value = parhst[ppt].ztmin = "";
-	document.getElementById("IDYTMAX").value = parhst[ppt].ztmax = "";
 	parameters();
 	graphic();
 }
@@ -3026,7 +2493,7 @@ function parameters() {
 
 		}
 		init = false;
-		if (DAC == false) loaddefault();
+		loaddefault();
 	}
 
 	// prepare graphic on first start (select 1st numeric column)
@@ -3043,32 +2510,6 @@ function parameters() {
 
 	// infile = null;
 	// txtarea = null;
-	
-	// Initialize values for 2nd Axis
-	if ( parhst[ppt].grztype == undefined) parhst[ppt].grztype = "line";
-	if ( parhst[ppt].selz1 == undefined) parhst[ppt].selz1 = '';
-	if ( parhst[ppt].selz2 == undefined) parhst[ppt].selz2 = '';
-	if ( parhst[ppt].selz3 == undefined) parhst[ppt].selz3 = '';
-	if ( parhst[ppt].selz4 == undefined) parhst[ppt].selz4 = '';
-	if ( parhst[ppt].ztmin == undefined) parhst[ppt].ztmin = '';
-	if ( parhst[ppt].ztmax == undefined) parhst[ppt].ztmax = '';
-	if ( parhst[ppt].zlogdis == undefined) parhst[ppt].zlogdis = false;
-	if ( parhst[ppt].zshape == undefined) parhst[ppt].zshape = "linear";
-	if ( parhst[ppt].pzcolor == undefined) parhst[ppt].pzcolor = '#FFA500';
-	if ( parhst[ppt].zavg == undefined) parhst[ppt].zavg = 1;
-	if ( parhst[ppt].ztsize == undefined) parhst[ppt].ztsize = 1;
-	if ( parhst[ppt].sndyaxis == undefined) parhst[ppt].sndyaxis = false;
-	if ( parhst[ppt].zopac == undefined) parhst[ppt].zopac = 0.5;
-	if ( parhst[ppt].legend == undefined) parhst[ppt].legend = true;
-	if ( parhst[ppt].shxtick == undefined) parhst[ppt].shxtick = true;
-	if ( parhst[ppt].shytick == undefined) parhst[ppt].shytick = true;
-	if ( parhst[ppt].shztick == undefined) parhst[ppt].shztick = true;
-  if ( parhst[ppt].hlegposx == undefined) parhst[ppt].hlegposx = 0.25;
-  if ( parhst[ppt].hlegposy == undefined) parhst[ppt].hlegposy = 0.85;
-  if ( parhst[ppt].mlegposx == undefined) parhst[ppt].mlegposx = 0;
-  if ( parhst[ppt].mlegposy == undefined) parhst[ppt].mlegposy = -0.35;
-  if ( parhst[ppt].slegposx == undefined) parhst[ppt].slegposx = 1;
-  if ( parhst[ppt].slegposy == undefined) parhst[ppt].slegposy = 1;
 
 	document.getElementById('ID(C)').innerHTML = "";
 	document.getElementById('IDdata').innerHTML = "";
@@ -3135,7 +2576,7 @@ function parameters() {
 	}
 
 	htmlcont += "<table><tr>";
-	htmlcont += "<td rowspan='5' valign='top'><a id='IDSAPLOGO'  title='' style='text-decoration:none' href='#' onclick='SAPclick()' >" + SAPlogo(100, 50) + "</a>    <br><br><button onclick='graphic()' title='Refresh Graphic (apply pending settings) [F8]'><b>Refresh</b></button><button title='Reset Graphic' onclick='reset()'><b>RS</b></button> <span title='Status (YELLOW = refresh pending; RED = busy)' id='IDDOT' class='dotgre'></span></td>";
+	htmlcont += "<td rowspan='4' valign='top'><a id='IDSAPLOGO'  title='' style='text-decoration:none' href='#' onclick='SAPclick()' >" + SAPlogo(100, 50) + "</a>    <br><br><button onclick='graphic()' title='Refresh Graphic (apply pending settings) [F8]'><b>Refresh</b></button><button title='Reset Graphic' onclick='reset()'><b>RS</b></button> <span title='Status (YELLOW = refresh pending; RED = busy)' id='IDDOT' class='dotgre'></span></td>";
 
 	//  ++++++++++++++++++++++++++ X-Axis ++++++++++++++++++++++++++
 	htmlcont += "<td><div>";
@@ -3200,18 +2641,12 @@ function parameters() {
 	str += "</select>";
 	htmlcont += str;
 	
-	if (parhst[ppt].shxtick ) {
-		htmlcont += " <button title='Hide Tick Labels' style='color:navy' onclick='toggleshxtick()'><B>T</B></button>";
-	} else {
-	  htmlcont += " <button title='Show Tick Labels' style='color:gray' onclick='toggleshxtick()'>T</button>";
-	}
-	
 	htmlcont += "</div></td><td colspan=2><div>";		
 
 	// select Field to Filter
 	htmlcont += "Filter: ";
 	str = "";
-	str += "<select id='IDFX' style='width:6em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changefx()'>\n";
+	str += "<select id='IDFX' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changefx()'>\n";
 	if (parhst[ppt].selx2 === "") str += "<option value='' selected > - </option>";
 	else str += "<option value=''> - </option>";
 	for (x = 0; x < header.length; x++) {
@@ -3232,10 +2667,10 @@ function parameters() {
 	str += "</select>";
 	htmlcont += str;
 
-	htmlcont += " <input id='IDFILTER' style='width:12em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' ondblclick='promptfilter()' onchange='changeparam()' type='text' name='filter' size='17' value='" + parhst[ppt].filter + "'>";
+	htmlcont += " <input id='IDFILTER' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' ondblclick='promptfilter()' onchange='changeparam()' type='text' name='filter' size='17' value='" + parhst[ppt].filter + "'>";
 
 	if (parhst[ppt].tround) {
-		htmlcont += " <button id='IDROUND' title='round time to n seconds' style='color:navy' onclick='settround()'><B>R</b></button> ";
+		htmlcont += " <button id='IDROUND' title='round time to n seconds' style='color:black' onclick='settround()'><B>R</b></button> ";
 	} else {
 		htmlcont += " <button id='IDROUND' title='round time to n seconds' style='color:gray' onclick='settround()'>R</button> ";
 	}
@@ -3275,9 +2710,8 @@ function parameters() {
 	if (parhst[ppt].cleand) {
 		htmlcont += " <button id='IDCLEAND' title='eliminate data points not present in all stacks' onclick='setcleand()'>E</button> ";
 	} else {
-		htmlcont += " <button id='IDCLEAND' title='add missing data points' style='color:navy' onclick='setcleand()'>A</button> ";
+		htmlcont += " <button id='IDCLEAND' title='add missing data points' style='color:black' onclick='setcleand()'>A</button> ";
 	}
-
 
 	htmlcont += "</div></td>";
 
@@ -3352,18 +2786,12 @@ function parameters() {
 	}
 	str += "</select>";
 	htmlcont += str;
-	
-	if (parhst[ppt].shytick ) {
-		htmlcont += " <button title='Hide Tick Labels' style='color:navy' onclick='toggleshytick()'><B>T</B></button>";
-	} else {
-	  htmlcont += " <button title='Show Tick Labels' style='color:gray' onclick='toggleshytick()'>T</button>";
-	}
 
 	htmlcont += "</div></td><td><div>";
 
 	// select Stack Group Variable 
 	str = "";
-	str += "StkGrp: <select id='IDVSTACK' style='width:11em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changevstack()'>\n";
+	str += "StkGrp: <select id='IDVSTACK' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changevstack()'>\n";
 	if (parhst[ppt].vstack === "") str += "<option value='' selected > - </option>";
 	else str += "<option value=''> - </option>";
 	for (x = 0; x < header.length; x++) {
@@ -3375,7 +2803,7 @@ function parameters() {
 	}
 	str += "</select>";
 	htmlcont += str;
-	htmlcont += " <input id='IDSCNT' style='width:6em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='9999' type='number' name='scnt' value='" + parhst[ppt].scnt + "'>";
+	htmlcont += " <input id='IDSCNT' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='9999' type='number' name='scnt' value='" + parhst[ppt].scnt + "'>";
 
 	htmlcont += "</div></td><td><div>";
 
@@ -3396,144 +2824,22 @@ function parameters() {
 	htmlcont += str;
 	htmlcont += " <input id='IDFACT' style='width:5em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changef()' type='number' size='6' name='fact' step='any' value='" + parhst[ppt].fact + "'>";
 	htmlcont += "</div></td>";
-	
-	
-	//  ++++++++++++++++++++++++++ Z-Axis ++++++++++++++++++++++++++
-	if ( parhst[ppt].sndyaxis ) {
-		htmlcont += "<tr>";
-		htmlcont += "<td><div>";
 
-		htmlcont += " <b>2nd Y </b> Min/Max: <input id='IDZTMIN' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' type='text' size='17' name='zmin' value='" + parhst[ppt].ztmin + "'><input id='IDZTMAX' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' type='text' size='17' name='zmax' value='" + parhst[ppt].ztmax + "'>";
-
-		// select Z-Axis (1st field)
-		str = " Z: ";
-		str += "<select id='IDZ1' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
-		if (parhst[ppt].selz1 === "") str += "<option value='' selected > - </option>";
-		else str += "<option value=''> - </option>";
-		for (x = 0; x < header.length; x++) {
-			if (header[x][1] != "n") continue;
-			if (x === parseInt(parhst[ppt].selz1)) {
-				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
-			} else {
-				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
-			}
-		}
-		str += "</select>";
-		htmlcont += str;
-
-		// select Z-Axis (2nd field)
-		str = " ";
-		str += "<select id='IDZ2' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
-		if (parhst[ppt].selz2 === "") str += "<option value='' selected > - </option>";
-		else str += "<option value=''> - </option>";
-		for (x = 0; x < header.length; x++) {
-			if (header[x][1] != "n") continue;
-			if (x === parseInt(parhst[ppt].selz2)) {
-				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
-			} else {
-				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
-			}
-		}
-		str += "</select>";
-		htmlcont += str;
-
-		// select Z-Axis (3rd field)
-		str = " ";
-		str += "<select id='IDZ3' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
-		if (parhst[ppt].selz3 === "") str += "<option value='' selected > - </option>";
-		else str += "<option value=''> - </option>";
-		for (x = 0; x < header.length; x++) {
-			if (header[x][1] != "n") continue;
-			if (x === parseInt(parhst[ppt].selz3)) {
-				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
-			} else {
-				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
-			}
-		}
-		str += "</select>";
-		htmlcont += str;
-
-		// select Z-Axis (4th field)
-		str = " ";
-		str += "<select id='IDZ4' style='width:9em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changez()'>\n";
-		if (parhst[ppt].selz4 === "") str += "<option value='' selected > - </option>";
-		else str += "<option value=''> - </option>";
-		for (x = 0; x < header.length; x++) {
-			if (header[x][1] != "n") continue;
-			if (x === parseInt(parhst[ppt].selz4)) {
-				str += "<option value='" + x + "' selected >" + header[x][0] + "</option> \n";
-			} else {
-				str += "<option value='" + x + "'>" + header[x][0] + "</option> \n";
-			}
-		}
-		str += "</select>";
-		htmlcont += str;
-		
-		if (parhst[ppt].shztick ) {
-			htmlcont += " <button title='Hide Tick Labels' style='color:navy' onclick='toggleshztick()'><B>T</B></button>";
-		} else {
-			htmlcont += " <button title='Show Tick Labels' style='color:gray' onclick='toggleshztick()'>T</button>";
-		}
-
-		htmlcont += "</div></td><td colspan='2'><div>";
-
-		// Type
-		htmlcont += "<select id='IDGRZTYPE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='graphzmode()'>\n";
-		if (parhst[ppt].grztype == 'scatter') htmlcont += "<option value='scatter' selected > Scatter </option> \n";
-		else htmlcont += "<option value='scatter'> Scatter </option> \n";
-		if (parhst[ppt].grztype == 'line') htmlcont += "<option value='line' selected > Line </option> \n";
-		else htmlcont += "<option value='line'> Line </option> \n";
-		if (parhst[ppt].grztype == 'area') htmlcont += "<option value='area' selected > Area </option> \n";
-		else htmlcont += "<option value='area'> Area </option> \n";
-		htmlcont += "</select>";
-		
-		if (parhst[ppt].zlogdis) {
-			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: logarithmic scale' style='color:navy' onclick='setzlogdis()'><B>Log</b></button>";
-		} else {
-			htmlcont += " <button id='IDZLOGDIS' title='2nd-Axis: linear scale' style='color:gray' onclick='setzlogdis()'>Lin</button>";
-		}
-	
-		str = " <select id='IDZSHAPE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='setshape()'>\n";
-		if (parhst[ppt].zshape == 'linear') str += "<option value='linear' selected > linear </option> \n";
-		else str += "<option value='linear' > linear </option>";
-		if (parhst[ppt].zshape == 'spline') str += "<option value='spline' selected > spline </option> \n";
-		else str += "<option value='spline' > spline </option>";
-		if (parhst[ppt].zshape == 'hvh') str += "<option value='hvh' selected > steps </option> \n";
-		else str += "<option value='hvh' > steps </option>";
-		str += "</select>";
-		htmlcont += str;
-	
-	  htmlcont += " Avg:  <input id='IDZAVG'   style='width:3em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='900' type='number' name='dtsize' value='" + parhst[ppt].zavg + "'>";
-		htmlcont += " Size: <input id='IDZTSIZE' style='width:3em;color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10'  type='number' name='dtsize' value='" + parhst[ppt].ztsize + "'>";
-		
-		htmlcont += " Color: <input id='IDpzcolor' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].pzcolor + "'>";
-		htmlcont += " <input type='number' title='Opacity' onchange='changeparam()' id='IDzopac'  style='width:4em;' size='6' step='0.05' value='" + parhst[ppt].zopac +  "' min='0' max='1'>";
-
-    htmlcont += " <button id='IDZSWITCH' title='switch primary and secondary Y-Axis' onclick='switchyz()'>&#8596;</button>";
-
-		htmlcont += "</div></td>";
-	
-		htmlcont += "</tr>";
-  }
-
-
-  //  ++++++++++++++++++++++++++ 4th Line ++++++++++++++++++++++++++
+	htmlcont += "</tr>";
 	htmlcont += "<tr><td colspan='3'>";
 	htmlcont += " <b>Hist.</b>  Min/Max: <input id='IDHSTMIN'  dir='ltr' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "'onchange='changeparam()' type='text' name='hstmin' size='17' value='" + parhst[ppt].hstinpmin + "'><input id='IDHSTMAX'  dir='ltr' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "'onchange='changeparam()' type='text' name='hstmax' size='17' value='" + parhst[ppt].hstinpmax + "'>";
 	htmlcont += " <input id='IDco1' class='selcol' onchange='getthsval()' type='color'  value='" + parhst[ppt].colsc[0][1] + "'>";
-	htmlcont += " <input id='IDth1' onchange='getthsval()' type='number' style='width: 4em;' value='" + parhst[ppt].colsc[0][0] + "'>";
+	htmlcont += " <input id='IDth1' onchange='getthsval()' type='number' style='width: 5em;' value='" + parhst[ppt].colsc[0][0] + "'>";
 	htmlcont += " <input id='IDco2' class='selcol' onchange='getthsval()' type='color'  value='" + parhst[ppt].colsc[1][1] + "'>";
-	htmlcont += " <input id='IDth2' onchange='getthsval()' type='number' style='width: 4em;' value='" + parhst[ppt].colsc[1][0] + "'>";
+	htmlcont += " <input id='IDth2' onchange='getthsval()' type='number' style='width: 5em;' value='" + parhst[ppt].colsc[1][0] + "'>";
 	htmlcont += " <input id='IDco3' class='selcol' onchange='getthsval()' type='color'  value='" + parhst[ppt].colsc[2][1] + "'>";
-	htmlcont += " <input id='IDth3' onchange='getthsval()' type='number' style='width: 4em;' value='" + parhst[ppt].colsc[2][0] + "'>";
+	htmlcont += " <input id='IDth3' onchange='getthsval()' type='number' style='width: 5em;' value='" + parhst[ppt].colsc[2][0] + "'>";
 	htmlcont += " <input id='IDco4' class='selcol' onchange='getthsval()' type='color'  value='" + parhst[ppt].colsc[3][1] + "'>";
 	htmlcont += " BG Color: <input id='IDbgcolor' title='Set Background Color'     class='selcol' onchange='setbgcol()' type='color' value='" + parhst[ppt].bgcolor + "'> <input id='IDchcolor' title='Set Paper Color'     class='selcol' onchange='setchcol()' type='color' value='" + parhst[ppt].chcolor + "'>";
 	htmlcont += " PT Color: <input id='IDptcolor' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].ptcolor + "'>";
 	htmlcont += " <input id='IDp1color' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].p1color + "'>";
 	htmlcont += " <input id='IDp2color' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].p2color + "'>";
 	htmlcont += " <input id='IDp3color' title='Set Color of Data Points' class='selcol' onchange='setptcol()' type='color' value='" + parhst[ppt].p3color + "'>";
-	
-	htmlcont += " <input type='number' title='Opacity' onchange='changeparam()' id='IDopaci'  style='width:4em;' size='6' step='0.05' value='" + parhst[ppt].opaci +  "' min='0' max='1'>";
 
 	if (parhst[ppt].showhist) {
 		htmlcont += " <button id='IDBHST' onclick='showhide()'>Hide Histogram</button>";
@@ -3542,18 +2848,16 @@ function parameters() {
 	}
 	
 	htmlcont += "<button title='Display Data' onclick='expvdat()'>Display</button>";
-	
-	if (parhst[ppt].sndyaxis) {
-		htmlcont += " <button title='Hide 2nd Y-Axis' style='color:navy' onclick='toggle2ndaxis()'><B> 2nd Y-Axis </B></button>";
-	} else {
-		htmlcont += " <button title='Display 2nd Y-Axis' style='color:gray' onclick='toggle2ndaxis()'> 2nd Y-Axis </button>";
-	}
 
+	if (autohide) {
+		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
+	} else {
+		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Show</i></small></a> ";
+	}
+	htmlcont += " <a href='#' title='Help & Documentation' onclick='check4update()'><small><i>Help</i></small></a>  ";
 
 	htmlcont += " </td></tr>";
 	htmlcont += " <tr><td colspan='3'>";
-
-  //  ++++++++++++++++++++++++++ 5th Line ++++++++++++++++++++++++++
 
 	// Type
 	htmlcont += "<select id='IDGRTYPE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='graphmode()'>\n";
@@ -3601,24 +2905,24 @@ function parameters() {
 	}
 	htmlcont += str;
 
-	htmlcont += " Points: <input id='IDMAXPNT' style='width:6em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1000' max='1000000' type='number' name='maxpnt' value='" + parhst[ppt].maxpnt + "'>";
-	htmlcont += " Size: <input id='IDDTSIZE' style='width:3em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10' type='number' name='dtsize' value='" + parhst[ppt].dtsize + "'>";
-	htmlcont += " Average: <input id='IDAVGINT' style='width:3em; color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1' max='1000000' type='number' name='avgint' value='" + parhst[ppt].avgint + "'>";
+	htmlcont += " Points: <input id='IDMAXPNT' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1000' max='1000000' type='number' name='maxpnt' value='" + parhst[ppt].maxpnt + "'>";
+	htmlcont += " Size: <input id='IDDTSIZE' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='0' max='10' type='number' name='dtsize' value='" + parhst[ppt].dtsize + "'>";
+	htmlcont += " Average: <input id='IDAVGINT' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='changeparam()' min='1' max='1000000' type='number' name='avgint' value='" + parhst[ppt].avgint + "'>";
 
 	// SUM / AVG / MIN / AMX
-	if (parhst[ppt].opr == 'SUM') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM' selected >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
-	if (parhst[ppt].opr == 'AVG') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG' selected >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN'		      >MIN</option></select>";
-	if (parhst[ppt].opr == 'MAX') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		       >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX' selected >MAX</option> <option value='MIN'		      >MIN</option></select>";
-	if (parhst[ppt].opr == 'MIN') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'	         >SUM</option> <option value='AVG'		      >AVG</option> <option value='MAX'		       >MAX</option> <option value='MIN' selected >MIN</option></select>";
+	if (parhst[ppt].opr == 'SUM') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM' selected >SUM</option> <option value='AVG'		    >AVG</option> <option value='MAX'		   >MAX</option> <option value='MIN'		  >MIN</option></select>";
+	if (parhst[ppt].opr == 'AVG') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		     >SUM</option> <option value='AVG' selected >AVG</option> <option value='MAX'		   >MAX</option> <option value='MIN'		  >MIN</option></select>";
+	if (parhst[ppt].opr == 'MAX') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'		     >SUM</option> <option value='AVG'		    >AVG</option> <option value='MAX' selected >MAX</option> <option value='MIN'		  >MIN</option></select>";
+	if (parhst[ppt].opr == 'MIN') htmlcont += " <select id='IDOPR' style='color:" + parhst[ppt].fgcolor + "; background-color:" + parhst[ppt].bgcolor + "' onchange='keyfig()'> <option value='SUM'	         >SUM</option> <option value='AVG'		    >AVG</option> <option value='MAX'		   >MAX</option> <option value='MIN' selected >MIN</option></select>";
 
 	if (parhst[ppt].smooth) {
-		htmlcont += " <button id='IDSMOOTH' title='Add Random Decimals' style='color:navy' onclick='setsmooth()'><B>ARD</b></button>";
+		htmlcont += " <button id='IDSMOOTH' title='Add Random Decimals' style='color:black' onclick='setsmooth()'><B>ARD</b></button>";
 	} else {
 		htmlcont += " <button id='IDSMOOTH' title='Add Random Decimals' style='color:gray' onclick='setsmooth()'>ARD</button>";
 	}
 
 	if (parhst[ppt].logdis) {
-		htmlcont += " <button id='IDLOGDIS' title='Y-Axis: logarithmic scale' style='color:navy' onclick='setlogdis()'><B>Log</b></button>";
+		htmlcont += " <button id='IDLOGDIS' title='Y-Axis: logarithmic scale' style='color:black' onclick='setlogdis()'><B>Log</b></button>";
 	} else {
 		htmlcont += " <button id='IDLOGDIS' title='Y-Axis: linear scale' style='color:gray' onclick='setlogdis()'>Lin</button>";
 	}
@@ -3633,32 +2937,16 @@ function parameters() {
 	str += "</select>";
 	htmlcont += str;
 
-	if (infile != null) htmlcont += " <button id='IDEdit' style='color:gray' onclick='editdata()'><i>Edit Data</i></button>";
-	
-	if (parhst[ppt].legend ) {
-		htmlcont += " <button title='Hide Legend' style='color:navy' onclick='togglelegend()'><B>L</B></button>";
-	} else {
-	  htmlcont += " <button title='Show Legend' style='color:gray' onclick='togglelegend()'>L</button>";
-	}
-	htmlcont += " <button title='Set Chart and Axis Title(s)' onclick='settitle()'>Title</button>";
+	htmlcont += " <button id='IDbutret' style='color:gray' onclick='reprocess()'><i>go back</i></button><button title='Set Chart and Axis Title(s)' onclick='settitle()'>Title</button>";
 	htmlcont += " <button id='ID+' title='Increase font size' onclick='incfonts()'>+</button><button id='ID-' title='Decrease font size' onclick='decfonts()'>-</button>";
 
-	htmlcont += " <button id='IDEXP' title='Export JSON Configuration Settings' onclick='expset()'>Exp.</button><button id='IDZIP' title='Export Data Analysis DZIP Container' onclick='expdzip()'>DZIP</button><button id='IDIMP' title='Import JSON Configuration Settings \n(hold Shift-Key to import Data Container)' onclick='impset()'>Imp.</button>";
+	htmlcont += " <button id='IDEXP' title='Export Configuration Settings \n(hold Shift-Key to export Data Container)' onclick='expset()'>Exp.</button><button id='IDIMP' title='Import Configuration Settings \n(hold Shift-Key to import Data Container)' onclick='impset()'>Imp.</button>";
 
-	htmlcont += " <button id='IDDECHST' title='revert back to previous settings' onclick='dechist()'> &lt; </button>";
+	htmlcont += "<button id='IDDECHST' title='revert back to previous settings' onclick='dechist()'> &lt; </button>";
 	htmlcont += "<button id='IDLOAD' title='Load Settings' onclick='loadhist()'>Load</button>";
 	htmlcont += "<button id='IDDEFAULT' title='Set Default Settings' onclick='savedefault()'>Default</button>";
 	htmlcont += "<button id='IDSAVE' title='Save Settings' onclick='savehist()'>Save</button>";
 	htmlcont += "<button id='IDINCHST' title='forward to next settings' onclick='inchist()'> &gt; </button>";
-	
-
-	if (autohide) {
-		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
-	} else {
-		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Show</i></small></a> ";
-	}
-	
-	htmlcont += " <a href='#' title='Help & Documentation' onclick='check4update()'><small><i>Help</i></small></a>  ";
 
 	// style='background:lightgray; margin:0px; padding:0px;'
 	htmlcont += " </td></tr></table>";
@@ -3719,11 +3007,19 @@ function onKeyDown(e) {
 	// HotKeys
 	var x = e.keyCode;
 	if (x == 119) graphic(); // F8 Key
+	if (x == 16) {
+		keyshift = true;
+		document.getElementById('IDEXP').innerHTML = "<b style='color:blue'>Exp.</b>";
+	}
 }
 
 function onKeyUp(e) {
 	// HotKeys
 	var x = e.keyCode;
+	if (x == 16) {
+		keyshift = false;
+		document.getElementById('IDEXP').innerHTML = "Exp.";
+	}
 }
 
 function incfonts() {
@@ -3798,22 +3094,7 @@ function setparam() {
 	document.getElementById('IDDTSIZE').value = parhst[ppt].dtsize;
 	document.getElementById('IDAVGINT').value = parhst[ppt].avgint;
 	document.getElementById('IDSMOOTH').value = parhst[ppt].smooth;
-  document.getElementById('IDopaci').value = parhst[ppt].opaci;
-  if (parhst[ppt].sndyaxis) {
-		document.getElementById('IDZ1').value = parhst[ppt].selz1;
-		document.getElementById('IDZ2').value = parhst[ppt].selz2;
-		document.getElementById('IDZ3').value = parhst[ppt].selz3;
-		document.getElementById('IDZ4').value = parhst[ppt].selz4;
-		document.getElementById('IDZTMIN').value = parhst[ppt].ztmin;
-		document.getElementById('IDZTMAX').value = parhst[ppt].ztmax;
-    document.getElementById('IDGRZTYPE').value = parhst[ppt].grztype;
-	  document.getElementById('IDZLOGDIS').value = parhst[ppt].zlogdis;
-	  document.getElementById('IDZSHAPE').value = parhst[ppt].zshape;
-	  document.getElementById('IDpzcolor').value = parhst[ppt].pzcolor;
-	  document.getElementById('IDZAVG').value = parhst[ppt].zavg;
-	  document.getElementById('IDZTSIZE').value = parhst[ppt].ztsize;
-	  document.getElementById('IDzopac').value = parhst[ppt].zopac;
-  }
+
 }
 
 function addhist() {
@@ -3886,99 +3167,13 @@ function addhist() {
 				[tmp.colsc[1][0], tmp.colsc[1][1]],
 				[tmp.colsc[2][0], tmp.colsc[2][1]],
 				[tmp.colsc[3][0], tmp.colsc[3][1]]
-			],
-			selz1: tmp.selz1,
-			selz2: tmp.selz2,
-			selz3: tmp.selz3,
-			selz4: tmp.selz4,
-			ztmin: tmp.ztmin,
-			ztmax: tmp.ztmax,
-    	grztype: tmp.grztype,
-	    zlogdis: tmp.zlogdis,
-	    pzcolor: tmp.pzcolor,
-	    zavg: tmp.zavg,
-	    ztsize: tmp.ztsize,
-	    sndyaxis: tmp.sndyaxis,
-	    opaci: tmp.opaci,
-	    zopac: tmp.zopac,
-	    legend: tmp.legend,
-	    shxtick: tmp.shxtick,
-	    shytick: tmp.shytick,
-	    shztick: tmp.shztick,
-      hlegposx: tmp.hlegposx,
-      hlegposy: tmp.hlegposy,
-      mlegposx: tmp.mlegposx,
-      mlegposy: tmp.mlegposy,
-      slegposx: tmp.slegposx,
-      slegposy: tmp.slegposy
+			]
 		};
 		ppt = parhst.length - 1;
 	}
 }
 
-function toggleshytick() {
-  addhist();
-	// show/hide tick labels (x-axis)
-	if (parhst[ppt].shytick) {
-		parhst[ppt].shytick = false;
-	} else {
-		parhst[ppt].shytick = true;
-	}
-	parameters();
-	graphic();
-}
-
-function toggleshytick() {
-  addhist();
-	// show/hide tick labels (x-axis)
-	if (parhst[ppt].shytick) {
-		parhst[ppt].shytick = false;
-	} else {
-		parhst[ppt].shytick = true;
-	}
-	parameters();
-	graphic();
-}
-
-function toggleshztick() {
-  addhist();
-	// show/hide tick labels (x-axis)
-	if (parhst[ppt].shztick) {
-		parhst[ppt].shztick = false;
-	} else {
-		parhst[ppt].shztick = true;
-	}
-	parameters();
-	graphic();
-}
-
-function toggleshxtick() {
-  addhist();
-	// show/hide tick labels (x-axis)
-	if (parhst[ppt].shxtick) {
-		parhst[ppt].shxtick = false;
-    parhst[ppt].mlegposx = 0.05; parhst[ppt].mlegposy = 0.95;
-	} else {
-		parhst[ppt].shxtick = true;
-		parhst[ppt].mlegposx = 0; parhst[ppt].mlegposy = -0.35;
-	}
-	parameters();
-	graphic();
-}
-
-function togglelegend() {
-  addhist();
-	// show/hide legend
-	if (parhst[ppt].legend) {
-		parhst[ppt].legend = false;
-	} else {
-		parhst[ppt].legend = true;
-	}
-	parameters();
-	graphic();
-}
-
-function toggleautohide(){
+function toggleautohide() {
 	// show/hide menu
 	if (autohide) {
 		autohide = false;
@@ -4002,17 +3197,6 @@ function setlogdis() {
 	reset();
 }
 
-function setzlogdis() {
-	// toggle between logarithmic and linear axis
-	addhist();
-	if (parhst[ppt].zlogdis) {
-		parhst[ppt].zlogdis = false;
-	} else {
-		parhst[ppt].zlogdis = true;
-	}
-	reset();
-}
-
 function setsmooth() {
 	// toggle adding random decimals
 	addhist();
@@ -4020,22 +3204,6 @@ function setsmooth() {
 		parhst[ppt].smooth = false;
 	} else {
 		parhst[ppt].smooth = true;
-	}
-	parameters();
-	graphic();
-}
-
-function toggle2ndaxis() {
-	// toggle adding random decimals
-	addhist();
-	if (parhst[ppt].sndyaxis) {
-		parhst[ppt].sndyaxis = false;
-		parhst[ppt].selz1 = "";
-		parhst[ppt].selz2 = "";
-		parhst[ppt].selz3 = "";
-		parhst[ppt].selz4 = "";
-	} else {
-		parhst[ppt].sndyaxis = true;
 	}
 	parameters();
 	graphic();
@@ -4100,28 +3268,6 @@ function graphmode() {
 	graphic();
 }
 
-function graphzmode() {
-	// set graph mode (Scatter, Line, Bar, Area)
-	addhist();
-	parhst[ppt].grztype = document.getElementById("IDGRZTYPE").value;
-	switch (parhst[ppt].grztype) {
-		case 'scatter':
-			parhst[ppt].ztsize = 3;
-			break;
-		case 'line':
-			parhst[ppt].ztsize = 1;
-			break;
-		case 'area':
-			parhst[ppt].ztsize = 1;
-			break;
-	}
-	document.getElementById("IDDTSIZE").value = parhst[ppt].dtsize;
-	document.getElementById("IDZTSIZE").value = parhst[ppt].ztsize;
-	document.getElementById("IDMAXPNT").value = parhst[ppt].maxpnt;
-	parameters();
-	graphic();
-}
-
 function stackmode() {
 	// set Stack Mode
 	addhist();
@@ -4131,16 +3277,16 @@ function stackmode() {
 	document.getElementById("IDYTMAX").value = "";
 	if (parhst[ppt].stsel == 'ADD') {
 		showhide(false);
-		// slegend = false;
+		slegend = false;
 		if (parhst[ppt].grtype == 'line') parhst[ppt].dtsize = 1;
 		if (parhst[ppt].grtype == 'scatter') parhst[ppt].dtsize = 3;
 	} else if (parhst[ppt].stsel == 'IND') {
 		showhide(true);
-		// slegend= true;
+		slegend = true;
 		parhst[ppt].dtsize = 1;
 	} else if (parhst[ppt].stsel == 'STK') {
 		showhide(false);
-		// slegend = true;
+		slegend = true;
 		if (parhst[ppt].grtype == 'scatter') parhst[ppt].grtype = 'area';
 		parhst[ppt].dtsize = 1;
 	}
@@ -4231,7 +3377,6 @@ function setptcol() {
 	parhst[ppt].p1color = document.getElementById("IDp1color").value;
 	parhst[ppt].p2color = document.getElementById("IDp2color").value;
 	parhst[ppt].p3color = document.getElementById("IDp3color").value;
-	parhst[ppt].pzcolor = document.getElementById("IDpzcolor").value;
 	parameters();
 	document.title = 'Data Analysis - graphic refresh pending ... ';
 	document.getElementById("IDDOT").className = "dotyel";
@@ -4252,7 +3397,6 @@ function setshape() {
 	// set shape (linear, spline, steps)
 	addhist();
 	parhst[ppt].sshape = document.getElementById("IDSSHAPE").value;
-	try { parhst[ppt].zshape = document.getElementById("IDZSHAPE").value; } catch (e) {} 
 	parameters();
 	graphic();
 }
@@ -4466,31 +3610,15 @@ function tabkey(evt) {
 function stack(vdat) {
 	// sort VDAT by stack & X-values (numeric or text)
 	vdat.sort(function(a, b) {
-	  if ( ! isNaN(a.x) && ! isNaN(b.x) ) {
-	    var n1 = parseFloat(a.x);
-	    var n2 = parseFloat(b.x);
-			var t1 = a.s;
-			var t2 = b.s;
-			if (t1 < t2) {
-				return -1;
-			}
-			if (t1 > t2) {
-				return 1;
-			}
-			if (t1 == t2) {
-			  return n1 < n2 ? -1 : n1 > n2 ? 1 : 0;
-			}
-	  } else {
-			var t1 = a.s + a.x;
-			var t2 = b.s + b.x;
-			if (t1 < t2) {
-				return -1;
-			}
-			if (t1 > t2) {
-				return 1;
-			}
-			return 0;
+		var t1 = a.s + a.x;
+		var t2 = b.s + b.x;
+		if (t1 < t2) {
+			return -1;
 		}
+		if (t1 > t2) {
+			return 1;
+		}
+		return 0;
 	});
 
 	var x = 0;
@@ -4843,19 +3971,16 @@ function AgregateData() {
 				if ((fltp = vdat[n].y2) > tdat[ind].y2) tdat[ind].y2 = vdat[n].y2;
 				if ((fltp = vdat[n].y3) > tdat[ind].y3) tdat[ind].y3 = vdat[n].y3;
 				if ((fltp = vdat[n].y4) > tdat[ind].y4) tdat[ind].y4 = vdat[n].y4;
-				if ((fltp = vdat[n].z)  > tdat[ind].z)  tdat[ind].z  = vdat[n].z;
 			} else if (parhst[ppt].opr == "MIN") {
 				if ((fltp = vdat[n].y1) < tdat[ind].y1) tdat[ind].y1 = vdat[n].y1;
 				if ((fltp = vdat[n].y2) < tdat[ind].y2) tdat[ind].y2 = vdat[n].y2;
 				if ((fltp = vdat[n].y3) < tdat[ind].y3) tdat[ind].y3 = vdat[n].y3;
 				if ((fltp = vdat[n].y4) < tdat[ind].y4) tdat[ind].y4 = vdat[n].y4;
-				if ((fltp = vdat[n].z)  < tdat[ind].z)  tdat[ind].z  = vdat[n].z;
 			} else {
 				tdat[ind].y1 += vdat[n].y1;
 				tdat[ind].y2 += vdat[n].y2;
 				tdat[ind].y3 += vdat[n].y3;
 				tdat[ind].y4 += vdat[n].y4;
-				tdat[ind].z  += vdat[n].z;
 			}
 			tdat[ind].c += 1;
 		} else {
@@ -4867,7 +3992,6 @@ function AgregateData() {
 						tdat[ind].y2 = tdat[ind].y2 / tdat[ind].c;
 						tdat[ind].y3 = tdat[ind].y3 / tdat[ind].c;
 						tdat[ind].y4 = tdat[ind].y4 / tdat[ind].c;
-						tdat[ind].z  = tdat[ind].z  / tdat[ind].c;
 						tdat[ind].c = 0;
 					}
 				}
@@ -4886,7 +4010,6 @@ function AgregateData() {
 			tdat[ind].y2 = tdat[ind].y2 / tdat[ind].c;
 			tdat[ind].y3 = tdat[ind].y3 / tdat[ind].c;
 			tdat[ind].y4 = tdat[ind].y4 / tdat[ind].c;
-			tdat[ind].z  = tdat[ind].z  / tdat[ind].c;
 			tdat[ind].c = 0;
 		}
 	} catch (err) {}
@@ -5022,39 +4145,6 @@ function PrepareDefaults() {
 	}
 }
 
-// Compact data (delete every second value for selected first X category)
-function CompData() {
-
-  if (data.length < 10000) return;
-
-
-	var n = 0;
-	var m = 0;
-
-	data.sort(function(a, b) {
-				var t1 = a[selhdr];
-				var t2 = b[selhdr];
-		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-	});
-
-	var ov = data[0][selhdr]
-	for (n = 0; n < data.length; n++) {
-		 if (data[n][selhdr] != ov) {
-			 var tv = "" + data[n][selhdr];
-			 while ( n < data.length && data[n][selhdr] == tv ) {
-					 data.splice(n,1)
-			 }
-			 if ( n < data.length ) {
-				 ov = data[n][selhdr];
-			 }
-		 }
-	}
-	
-	sortdt();
-	preview();
-  
-}
-
 function LoadData() {
 
 	var re = [];
@@ -5070,11 +4160,6 @@ function LoadData() {
 	var y2 = parseInt(parhst[ppt].sely2);
 	var y3 = parseInt(parhst[ppt].sely3);
 	var y4 = parseInt(parhst[ppt].sely4);
-	
-	var z1 = parseInt(parhst[ppt].selz1);
-	var z2 = parseInt(parhst[ppt].selz2);
-	var z3 = parseInt(parhst[ppt].selz3);
-	var z4 = parseInt(parhst[ppt].selz4);
 
 	var fc = parseInt(parhst[ppt].selfc);
 
@@ -5090,76 +4175,36 @@ function LoadData() {
 			re[i] = new RegExp(rs);
 		}
 	}
-	
-	// Calculate Max Min of different x-values if numeric
-	var minx1 = 0; var maxx1 = 0; var dc1 = 0; var sl1 = 0;
-	var minx2 = 0; var maxx2 = 0; var dc2 = 0; var sl2 = 0;
-	var minx3 = 0; var maxx3 = 0; var dc3 = 0; var sl3 = 0;
-	var minx4 = 0; var maxx4 = 0; var dc4 = 0; var sl4 = 0;
-	for (x = 0; x < data.length; x++) {
-	  if (parhst[ppt].selx1 !== "" && header[x1][1] == "n"  ) { 
-	    if (parseFloat(data[x][x1]) > maxx1) maxx1 = parseFloat(data[x][x1]); 
-	    if (parseFloat(data[x][x1]) < minx1) minx1 = parseFloat(data[x][x1]); 
-	  }
-	  if (parhst[ppt].selx2 !== "" && header[x2][1] == "n"  ) { 
-	    if (parseFloat(data[x][x2]) > maxx2) maxx2 = parseFloat(data[x][x2]); 
-	    if (parseFloat(data[x][x2]) < minx2) minx2 = parseFloat(data[x][x2]); 
-	  }
-	  if (parhst[ppt].selx3 !== "" && header[x3][1] == "n"  ) { 
-	    if (parseFloat(data[x][x3]) > maxx3) maxx3 = parseFloat(data[x][x3]);
-	    if (parseFloat(data[x][x3]) < minx3) minx3 = parseFloat(data[x][x3]); 
-	  }
-	  if (parhst[ppt].selx4 !== "" && header[x4][1] == "n"  ) { 
-	    if (parseFloat(data[x][x4]) > maxx4) maxx4 = parseFloat(data[x][x4]);
-	    if (parseFloat(data[x][x4]) < minx4) minx4 = parseFloat(data[x][x4]); 
-	  }
-	}
-	var inc1 = (maxx1 - minx1) / data.length;
-	var inc2 = (maxx2 - minx2) / data.length;
-	var inc3 = (maxx3 - minx3) / data.length;
-	var inc4 = (maxx4 - minx4) / data.length;
-	
-	if (parhst[ppt].selx1 !== "" && header[x1][1] == "n"  ) { if ( inc1 < 1 && inc1 > 0 ) { dc1 = Math.ceil(Math.abs(Math.log10( inc1 ))) } else { dc1 = 0; } sl1 = 3 + Math.ceil(Math.abs(Math.log10( maxx1 ))) + dc1; }
-	if (parhst[ppt].selx2 !== "" && header[x2][1] == "n"  ) { if ( inc2 < 1 && inc2 > 0 ) { dc2 = Math.ceil(Math.abs(Math.log10( inc2 ))) } else { dc2 = 0; } sl2 = 3 + Math.ceil(Math.abs(Math.log10( maxx2 ))) + dc2; }
-	if (parhst[ppt].selx3 !== "" && header[x3][1] == "n"  ) { if ( inc3 < 1 && inc3 > 0 ) { dc3 = Math.ceil(Math.abs(Math.log10( inc3 ))) } else { dc3 = 0; } sl3 = 3 + Math.ceil(Math.abs(Math.log10( maxx3 ))) + dc3; }
-	if (parhst[ppt].selx4 !== "" && header[x4][1] == "n"  ) { if ( inc4 < 1 && inc4 > 0 ) { dc4 = Math.ceil(Math.abs(Math.log10( inc4 ))) } else { dc4 = 0; } sl4 = 3 + Math.ceil(Math.abs(Math.log10( maxx4 ))) + dc4; }
-	
+
 	// add selected X/Y values to internal array VDAT
 	var ind = 0;
-	var num = 0;
 	for (x = 0; x < data.length; x++) {
 
 		var valx = "";
-		var valt = "";
 
 		tickf = "";
 		if (header[parhst[ppt].selx1][1] == "n" && parhst[ppt].selx2 == "" && parhst[ppt].selx3 == "" && parhst[ppt].selx4 == "") {
-			// num = parseFloat(data[x][x1]);  valt = num.toFixed(dc1); valt = valt.padStart(sl1); valx = valt; 
 			valx = parseFloat(data[x][x1]);
 			tickf = "g";
 		} else {
 			if (parhst[ppt].selx1 !== "") {
 				if (header[parhst[ppt].selx1][1] == "d") valx += " " + convdate(data[x][x1]);
 				else if (header[parhst[ppt].selx1][1] == "t") valx += " " + convtime(data[x][x1]);
-				else if (header[x1][1] == "n" ) { num = parseFloat(data[x][x1]);  valt = num.toFixed(dc1); valt = valt.padStart(sl1); valx += " " + valt; }
 				else valx += " " + data[x][x1];
 			}
 			if (parhst[ppt].selx2 !== "") {
 				if (header[parhst[ppt].selx2][1] == "d") valx += " " + convdate(data[x][x2]);
 				else if (header[parhst[ppt].selx2][1] == "t") valx += " " + convtime(data[x][x2]);
-				else if (header[x2][1] == "n" ) { num = parseFloat(data[x][x2]);  valt = num.toFixed(dc2); valt = valt.padStart(sl2); valx += " " + valt; }
 				else valx += " " + data[x][x2];
 			}
 			if (parhst[ppt].selx3 !== "") {
 				if (header[parhst[ppt].selx3][1] == "d") valx += " " + convdate(data[x][x3]);
 				else if (header[parhst[ppt].selx3][1] == "t") valx += " " + convtime(data[x][x3]);
-				else if (header[x3][1] == "n" ) { num = parseFloat(data[x][x3]);  valt = num.toFixed(dc3); valt = valt.padStart(sl3); valx += " " + valt; }
 				else valx += " " + data[x][x3];
 			}
 			if (parhst[ppt].selx4 !== "") {
 				if (header[parhst[ppt].selx4][1] == "d") valx += " " + convdate(data[x][x4]);
 				else if (header[parhst[ppt].selx4][1] == "t") valx += " " + convtime(data[x][x4]);
-				else if (header[x4][1] == "n" ) { num = parseFloat(data[x][x4]);  valt = num.toFixed(dc4); valt = valt.padStart(sl4); valx += " " + valt; }
 				else valx += " " + data[x][x4];
 			}
 			if (header[parhst[ppt].selx1][1] == "t" && parhst[ppt].selx2 == "" && parhst[ppt].selx3 == "" && parhst[ppt].selx4 == "") {
@@ -5169,16 +4214,9 @@ function LoadData() {
 		}
 
 		// check if x-Values are between XMIN and XMAX
-////		if (isNaN(valx)) {
-////		  if (parhst[ppt].xinpmin != "" && parhst[ppt].xinpmax != "") {
-////		 	  if ( valx.trim() < parhst[ppt].xinpmin.trim() || valx.trim() > parhst[ppt].xinpmax.trim() ) continue;
-////      }
-////		} else {
-////		  if (parhst[ppt].xinpmin != "" && parhst[ppt].xinpmax != "") {
-////		 	  if ( valx < parhst[ppt].xinpmin || valx > parhst[ppt].xinpmax ) continue;
-////      }
-////		}
-
+		// if (parhst[ppt].xinpmin != "" && parhst[ppt].xinpmax != "") {
+		// 	if ( valx < parhst[ppt].xinpmin || valx > parhst[ppt].xinpmax ) continue;
+		// }
 
 		// apply parhst[ppt].filter(s)
 		if (parhst[ppt].selfx !== "") {
@@ -5211,8 +4249,7 @@ function LoadData() {
 			y1: 0, // 1st y value
 			y2: 0, // 2nd y value
 			y3: 0, // 3rd y value
-			y4: 0, // 4th y value
-			z: 0   // z value
+			y4: 0 // 4th y value
 		};
 
 		// if ADD then add y values, ofr IND, STK keep them separated
@@ -5243,19 +4280,6 @@ function LoadData() {
 				vdat[ind].y4 = parseFloat(data[x][y4]);
 			}
 		}
-		// Z-Axis values always summarized
-		if (parhst[ppt].selz1 !== "" && data[x][z1] != "" && !isNaN(data[x][z1])) {
-			vdat[ind].z += parseFloat(data[x][z1]);
-		}
-		if (parhst[ppt].selz2 !== "" && data[x][z2] != "" && !isNaN(data[x][z2])) {
-			vdat[ind].z += parseFloat(data[x][z2]);
-		}
-		if (parhst[ppt].selz3 !== "" && data[x][z3] != "" && !isNaN(data[x][z3])) {
-			vdat[ind].z += parseFloat(data[x][z3]);
-		}
-		if (parhst[ppt].selz4 !== "" && data[x][z4] != "" && !isNaN(data[x][z4])) {
-			vdat[ind].z += parseFloat(data[x][z4]);
-		}
 
 		// multiply with selected field 
 		if (parhst[ppt].selfc !== "") {
@@ -5277,36 +4301,14 @@ function LoadData() {
 		ind++;
 	}
 
+	// sort VDAT by x values (numeric or text)
 	vdat.sort(function(a, b) {
-	  if ( ! isNaN(a.x) && ! isNaN(b.x) ) {
-	    var n1 = parseFloat(a.x);
-	    var n2 = parseFloat(b.x);
-			var t1 = a.s;
-			var t2 = b.s;
-			if (n1 < n2) {
-				return -1;
-			}
-			if (n1 > n2) {
-				return 1;
-			}
-			if (n1 == n2) {
-			  return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-			}
-	  } else {
-			var t1 = a.x + '' + a.s,
-					t2 = b.x + '' + b.s;
-			if (t1 < t2) {
-				return -1;
-			}
-			if (t1 > t2) {
-				return 1;
-			}
-			return 0;
-		}
+		var t1 = a.x + '' + a.s,
+			t2 = b.x + '' + b.s;
+		return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
 	});
 
 }
-
 
 function CalcMaxMinAvg() {
 	// Prepare Max/Min Values for Axis Scaling
@@ -5405,38 +4407,6 @@ function CalcMaxMinAvg() {
 		}
 	}
 	average = average / cnthst;
-	
-	// Average Z-Value
-	var avgzval = 0;
-	var cntzhst = 0;
-	for (n = 0; n < vdat.length; n++) {
-	  avgzval += vdat[n].z;
-	  cntzhst += 1;
-	}
-	avgzval = avgzval / cntzhst;
-	
-	var zstddev = 0;
-	var zallpos = true;
-	var zallneg = true;
-	for (n = 0; n < vdat.length; n++) {
-	  zstddev += Math.abs(vdat[n].z - avgzval) ;
-	  if (vdat[n].z < 0) zallpos = false;
-	  if (vdat[n].z > 0) zallneg = false;
-	}
-	zstddev = zstddev / cnthst;
-	zstddev = parseFloat(zstddev.toPrecision(3));
-	
-	var zmaxval = avgzval + zstddev * 4;
-	if (zallneg && zmaxval > 0) maximum = 0;
-	var zminval = avgzval - zstddev * 4;
-	if (zallpos && zminval < 0) minimum = 0;
-	
-	if (zmaxval == zminval) {
-		zmaxval += 1;
-		zmax = zmaxval;
-		zminval -= 1;
-		zmin = zminval;
-	}
 
 	var flen = Math.pow(10, Math.trunc(Math.log10(Math.abs(average))));
 	average = parseFloat(average.toPrecision(5));
@@ -5467,9 +4437,9 @@ function CalcMaxMinAvg() {
 	if (parhst[ppt].stsel == 'ADD') {
 		var xrel = (maximum - minimum) / stddev;
 		if (xrel > 10) {
-			minimum = average - stddev * 4;
+			minimum = average - stddev * 2;
 			if (allpos && minimum < 0) minimum = 0;
-			maximum = average + stddev * 4;
+			maximum = average + stddev * 2;
 			if (allneg && maximum > 0) maximum = 0;
 		}
 	}
@@ -5516,45 +4486,6 @@ function CalcMaxMinAvg() {
 		}
 		document.getElementById("IDYTMAX").value = ymax;
 		document.getElementById("IDYTMIN").value = ymin;
-	}
-	
-	
-	var dz = Math.abs(zmaxval - zminval);
-	da = Math.abs(avgzval - zminval);
-	ds = Math.trunc((dz / da) / 5);
-	if (ds == 0 || dz < 1 || da < 1) ds = 1;
-	if (parhst[ppt].ztmax != "") zmax = parseFloat(parhst[ppt].ztmax);
-	if (parhst[ppt].ztmin != "") zmin = parseFloat(parhst[ppt].ztmin);
-	if (parhst[ppt].ztmax == "" || zmax == 0 || isNaN(zmax) || parhst[ppt].ztmin == "" || isNaN(zmin)) {
-		zmax = zmaxval / ds;
-		zmin = zminval / ds;
-		flen = Math.pow(10, Math.trunc(Math.log10(Math.abs(zmax - zmin))));
-		if (flen == 0) flen = 1;
-		zmax = zmax / flen;
-		zmax = Math.ceil(zmax);
-		zmax = zmax * flen;
-		zmin = zmin / flen;
-		zmin = Math.floor(zmin);
-		zmin = zmin * flen;
-		
-  	if (zallneg && zmax > 0) zmax = 0;
-	  if (zallpos && zmin < 0) zmin = 0;
-	  
-		if (parhst[ppt].vstack !== "" && parhst[ppt].stsel == 'STK') {
-			zmax = zmax * 2 * Math.sqrt(sdat.length);
-			flen = Math.pow(10, Math.trunc(Math.log10(Math.abs(zmax - zmin))));
-			if (flen == 0) flen = 1;
-			zmax = zmax / flen;
-			zmax = Math.ceil(zmax);
-			zmax = zmax * flen;
-		}
-		
-		if (parhst[ppt].sely1 == parhst[ppt].selz1) { zmin = ymin; zmax = ymax; }
-
-    if (parhst[ppt].sndyaxis) {
-		  document.getElementById("IDZTMAX").value = zmax;
-		  document.getElementById("IDZTMIN").value = zmin;
-		}
 	}
 
 	document.getElementById('IDdetail').innerHTML = "<small> Avg: " + average.toPrecision(5) + "  Std.Dev: " + stddev.toPrecision(3) + "</small>";
@@ -5697,27 +4628,6 @@ function CalcHistogram() {
 	}
 }
 
-function ReduceDataPoints() {
-  // reduce VDAT to max number of points
-	if (vdat.length > parhst[ppt].maxpnt * sdat.length) {
-			var adat = [];
-			var rel = vdat.length / (parhst[ppt].maxpnt * sdat.length);
-			var i = 0;
-			var n = 0;
-			var a = 0;
-			while (true) {
-					adat[a] = vdat[i];
-					a = a + 1;
-					n = n + rel;
-					i = Math.trunc(n);
-					if (n > vdat.length - 1)
-							break;
-			}
-			vdat = adat;
-			adat = null;
-  }
-}
-
 function CalcAverage() {
 	// Average n Points
 	if (parhst[ppt].avgint > 1) {
@@ -5738,7 +4648,6 @@ function CalcAverage() {
 					adat[ind].y2 += vdat[n].y2;
 					adat[ind].y3 += vdat[n].y3;
 					adat[ind].y4 += vdat[n].y4;
-					adat[ind].z  += vdat[n].z;
 					adat[ind].c += 1;
 					avg += 1;
 				} else {
@@ -5747,7 +4656,6 @@ function CalcAverage() {
 					adat[ind].y2 = adat[ind].y2 / adat[ind].c;
 					adat[ind].y3 = adat[ind].y3 / adat[ind].c;
 					adat[ind].y4 = adat[ind].y4 / adat[ind].c;
-					adat[ind].z  = adat[ind].z  / adat[ind].c;
 					ind += 1;
 					adat[ind] = vdat[n];
 					adat[ind].c = 1;
@@ -5760,7 +4668,6 @@ function CalcAverage() {
 				adat[ind].y2 = adat[ind].y2 / adat[ind].c;
 				adat[ind].y3 = adat[ind].y3 / adat[ind].c;
 				adat[ind].y4 = adat[ind].y4 / adat[ind].c;
-				adat[ind].z  = adat[ind].z  / adat[ind].c;
 				adat[ind].c = 0;
 				ind += 1;
 				avg = 0;
@@ -5773,7 +4680,6 @@ function CalcAverage() {
 				adat[ind].y2 = adat[ind].y2 / adat[ind].c;
 				adat[ind].y3 = adat[ind].y3 / adat[ind].c;
 				adat[ind].y4 = adat[ind].y4 / adat[ind].c;
-				adat[ind].z  = adat[ind].z  / adat[ind].c;
 				adat[ind].c = 0;
 			}
 		} catch (err) {}
@@ -5783,7 +4689,6 @@ function CalcAverage() {
 	}
 
 }
-
 
 function ClipValues() {
 	// limit y values (remove values where y < min or y > max)
@@ -5826,7 +4731,6 @@ function showhistogram() {
 				tickfont: {
 					size: parhst[ppt].tfonts
 				},
-				// showticklabels: parhst[ppt].shytick,
 				autorange: false,
 				gridcolor: parhst[ppt].grcolor
 			},
@@ -5839,7 +4743,6 @@ function showhistogram() {
 					size: parhst[ppt].tfonts
 				},
 				title: '',
-				// showticklabels: parhst[ppt].shxtick,
 				gridcolor: parhst[ppt].grcolor,
 				margin: {
 					b: 120,
@@ -5854,7 +4757,6 @@ function showhistogram() {
 					size: parhst[ppt].tfonts
 				},
 				title: '',
-				// showticklabels: parhst[ppt].shxtick,
 				side: 'top'
 			},
 			title: {
@@ -5867,8 +4769,8 @@ function showhistogram() {
 				color: parhst[ppt].fgcolor
 			},
 			legend: {
-				x: parhst[ppt].hlegposx,
-				y: parhst[ppt].hlegposy,
+				x: hlegposx,
+				y: hlegposy,
 				font: {
 					family: 'courier',
 					size: parhst[ppt].tfonts,
@@ -5877,18 +4779,6 @@ function showhistogram() {
 			},
 			// barmode: 'stack'
 		};
-		
-		if (parhst[ppt].shxtick ) {
-			layout.margin.b = 150;
-		} else {
-			layout.margin.b = 50;
-		}
-		
-		if (parhst[ppt].shytick ) {
-			layout.margin.l = 75;
-		} else {
-			layout.margin.l = 50;
-		}
 
 		var trace1 = {
 			type: 'scatter',
@@ -6071,10 +4961,6 @@ function graphic() {
 
 		parhst[ppt].Gw = Math.trunc((document.body.clientWidth - 40) * 0.95);
 	}
-	
-	if (parhst[ppt].opaci == 0 || parhst[ppt].opaci == '' || parhst[ppt].opaci == undefined ) parhst[ppt].opaci = 0.75;
-	if (parhst[ppt].zopac == 0 || parhst[ppt].zopac == '' || parhst[ppt].zopac == undefined ) parhst[ppt].zopac = 0.50;
-	if (parhst[ppt].zavg == 0  || parhst[ppt].zavg  == '' || parhst[ppt].zavg  == undefined ) parhst[ppt].zavg = 1;
 
 	if (parhst[ppt].Gw == 0) {
 		if (parhst[ppt].Hw > 0) {
@@ -6122,11 +5008,6 @@ function graphic() {
 		var y2 = parseInt(parhst[ppt].sely2);
 		var y3 = parseInt(parhst[ppt].sely3);
 		var y4 = parseInt(parhst[ppt].sely4);
-		
-		var z1 = parseInt(parhst[ppt].selz1);
-		var z2 = parseInt(parhst[ppt].selz2);
-		var z3 = parseInt(parhst[ppt].selz3);
-		var z4 = parseInt(parhst[ppt].selz4);
 
 		if (isNaN(x1) && isNaN(x2) && isNaN(x3) && isNaN(x4)) {
 			alert('Specify field(s) for X-Axis');
@@ -6138,13 +5019,13 @@ function graphic() {
 		}
 
 		// Load selected data into VDAT table and sort
-		LoadData(); 
+		LoadData();
 
 		// Clip Y-Values
 		ClipValues();
 
 		// Agregate Points for same x-value
-		AgregateData(); 
+		AgregateData();
 
 		//  remove data point which are not equally present in all stacks
 		CleanData();
@@ -6159,7 +5040,7 @@ function graphic() {
 		PrepareDefaults();
 
 		// Prepare Max/Min Values for Axis Scaling
-		CalcMaxMinAvg(); 
+		CalcMaxMinAvg();
 
 		// Calculate Histogram
 		CalcHistogram();
@@ -6171,11 +5052,8 @@ function graphic() {
 
 		// parhst[ppt].showhistogram
 		showhistogram();
-		
+
 		var ind = 0;
-		
-		// reduce VDAT to max number of points
-		ReduceDataPoints();
 
 		// chart type settings
 		if (parhst[ppt].grtype == 'scatter') {
@@ -6194,27 +5072,8 @@ function graphic() {
 			chtype = 'scatter';
 			chmode = 'lines';
 		}
-		
-		// chart type settings
-		if (parhst[ppt].grztype == 'scatter') {
-			zhtype = 'scatter';
-			zhmode = 'markers';
-			filmoz = 'none';
-		} else if (parhst[ppt].grztype == 'line') {
-			zhtype = 'scatter';
-			zhmode = 'lines';
-			filmoz = 'none';
-		} else if (parhst[ppt].grztype == 'bar') {
-			zhtype = 'bar';
-			zhmode = '';
-			filmoz = 'none';
-		} else if (parhst[ppt].grztype == 'area') {
-			zhtype = 'scatter';
-			zhmode = 'lines';
-			filmoz = 'tozeroy'
-		}	
-		
 		if (parhst[ppt].stsel == 'ADD') {
+			slegend = false;
 			stmode = 'group';
 			sgroup0 = "";
 			sgroup1 = "";
@@ -6222,6 +5081,7 @@ function graphic() {
 			sgroup3 = "";
 			lnsize = parhst[ppt].dtsize;
 		} else if (parhst[ppt].stsel == 'IND') {
+			slegend = true;
 			stmode = 'group';
 			sgroup0 = "";
 			sgroup1 = "";
@@ -6229,6 +5089,7 @@ function graphic() {
 			sgroup3 = "";
 			lnsize = parhst[ppt].dtsize;
 		} else if (parhst[ppt].stsel == 'STK') {
+			slegend = true;
 			stmode = 'stack';
 			chmode = 'lines';
 			lnsize = parhst[ppt].dtsize;
@@ -6242,68 +5103,31 @@ function graphic() {
 			else sgroup3 = "";
 		}
 
-		function setstack(color, group, xaxis, yaxis) {
+		function setstack(color, group) {
 	/* jshint validthis: true */
 			this.x = [];
 			this.y = [];
-			this.xaxis = xaxis;
-			this.yaxis = yaxis;
 			this.mode = chmode;
 			this.type = chtype;
 			this.stackgroup = group;
-			this.showlegend = parhst[ppt].legend;
-			this.fillcolor = hexToRgbA(color,parhst[ppt].opaci);
-			// this.overlaying = 'x';
+			this.showlegend = slegend;
 			this.marker = {
 				size: parhst[ppt].dtsize,
-				color: hexToRgbA(color,parhst[ppt].opaci),
+				color: color
 			};
 			this.fill = filmod;
 				this.line = {
-					color: hexToRgbA(color,parhst[ppt].opaci),
+					color: color,
 					width: lnsize,
 					shape: parhst[ppt].sshape,
 				};
 		}
 
 		// prepare chart plot
-		var stack1 = new setstack(parhst[ppt].ptcolor, sgroup0, 'x1', 'y1');
-		var stack2 = new setstack(parhst[ppt].p1color, sgroup1, 'x1', 'y1');
-		var stack3 = new setstack(parhst[ppt].p2color, sgroup2, 'x1', 'y1');
-		var stack4 = new setstack(parhst[ppt].p3color, sgroup3, 'x1', 'y1');
-		// var zstack = new setstack(parhst[ppt].pzcolor, 'Z', 'x1', 'y2');
-		
-		var zstack = {
-			x: [],
-			y: [],
-			xaxis: 'x1',
-			yaxis: 'y2',
-			mode: zhmode,
-			type: zhtype,
-			showlegend: parhst[ppt].legend,
-			// overlaying: 'y',
-			fill: filmoz,
-			name: '',
-			//zopac: parhst[ppt].zopac,
-			fillcolor: hexToRgbA(parhst[ppt].pzcolor,parhst[ppt].zopac),
-			marker: {
-				size: parhst[ppt].ztsize,
-				color: hexToRgbA(parhst[ppt].pzcolor,parhst[ppt].zopac),
-			},
-			line: {
-				width: parhst[ppt].ztsize,
-				// color: parhst[ppt].pzcolor,
-				color: hexToRgbA(parhst[ppt].pzcolor,parhst[ppt].zopac),
-				shape: parhst[ppt].zshape,
-			}
-		};
-		
-		try {
-			if (parhst[ppt].selz1 != "") zstack.name = header[z1][0];
-			if (parhst[ppt].selz2 != "") zstack.name = zstack.name + " + " + header[z2][0];
-			if (parhst[ppt].selz3 != "") zstack.name = zstack.name + " + " + header[z3][0];
-			if (parhst[ppt].selz4 != "") zstack.name = zstack.name + " + " + header[z4][0];
-	  } catch (err) {}
+		var stack1 = new setstack(parhst[ppt].ptcolor, sgroup0);
+		var stack2 = new setstack(parhst[ppt].p1color, sgroup1);
+		var stack3 = new setstack(parhst[ppt].p2color, sgroup2);
+		var stack4 = new setstack(parhst[ppt].p3color, sgroup3);
 
 		var strace1 = {
 			x: [],
@@ -6311,7 +5135,6 @@ function graphic() {
 			mode: 'lines',
 			type: 'scatter',
 			showlegend: false,
-			overlaying: 'x',
 			line: {
 				width: 2,
 				color: 'Orange',
@@ -6324,7 +5147,6 @@ function graphic() {
 			mode: 'lines',
 			type: 'scatter',
 			showlegend: false,
-			overlaying: 'x',
 			line: {
 				width: 2,
 				color: 'DarkOrange',
@@ -6336,15 +5158,13 @@ function graphic() {
 			y: [],
 			mode: 'lines',
 			type: 'scatter',
-			showlegend: parhst[ppt].legend,
-			overlaying: 'x',
+			showlegend: true,
 			name: 'Average',
 			line: {
 				color: 'gray',
 				width: 1
 			}
 		};
-
 
 		var sdata = [];
 
@@ -6368,29 +5188,6 @@ function graphic() {
 		var nn = 0;
 		upt = vdat.length * parhst[ppt].avgint;
 		if (parhst[ppt].vstack !== "") {
-			// Stacked graphic ( Line / Bar / Area) ++++++++++++++++++++++++++++++++++++++++++++
-		
-		  rel = 1;
-    	
-			// Calculate X-Axis Range (Date/Time) or Index in VDAT
-			var xtype = true;
-			if ( !isNaN(x1) ) xtype = xtype && ( header[x1][1] == 't' || header[x1][1] == 'd' );
-			// if ( !isNaN(x2) ) xtype = xtype && ( header[x2][1] == 't' || header[x2][1] == 'd' );
-			// if ( !isNaN(x3) ) xtype = xtype && ( header[x3][1] == 't' || header[x3][1] == 'd' );
-			// if ( !isNaN(x4) ) xtype = xtype && ( header[x4][1] == 't' || header[x4][1] == 'd' );
-			
-			if (isNaN(xmin) && xtype == false ) {
-			  var txmin = 0;
-			  var txmax = vdat.length;
-			  for (n = 0; n < vdat.length; n++) {
-			    if ( vdat[n].x > xmin) { txmin = n; break; }
-			  }
-			  for (n = vdat.length -1; n > 0; n--) {
-			    if ( vdat[n].x < xmax) { txmax = n; break; }
-			  }
-			  xmin = Math.trunc(txmin);
-			  xmax = Math.trunc(txmax);
-			}
 
 			// calculate optimal tick distance
 			x1 = parseInt(parhst[ppt].selx1);
@@ -6404,7 +5201,8 @@ function graphic() {
 				} catch (err) {}
 				if (parhst[ppt].xdtick == "") parhst[ppt].xdtick = dtick;
 			}
-		
+
+			// Stacked graphic ( Line / Bar / Area)
 			slayout = {
 				paper_bgcolor: parhst[ppt].chcolor,
 				plot_bgcolor: parhst[ppt].chcolor,
@@ -6431,22 +5229,11 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
-					showticklabels: parhst[ppt].shytick,
 					autorange: false,
 					gridcolor: parhst[ppt].grcolor
 				},
 				yaxis2: {
-				  range: [zmin, zmax],
-					title: '',
-					overlaying: 'y',
-					showgrid: false,
-					tickfont: {
-						size: parhst[ppt].tfonts
-					},
-					showticklabels: parhst[ppt].shztick,
-					type: "",
-					// autorange: true,
-					side: 'right'
+					gridcolor: parhst[ppt].grcolor
 				},
 				xaxis: {
 					range: [xmin, xmax],
@@ -6455,8 +5242,7 @@ function graphic() {
 						size: parhst[ppt].tfonts
 					},
 					dtick: parhst[ppt].xdtick,
-					tickangle: 'auto',
-					showticklabels: parhst[ppt].shxtick,
+					tickangle: 45,
 					domain: [0, 1],
 					title: {
 						text: "",
@@ -6464,7 +5250,7 @@ function graphic() {
 							size: parhst[ppt].afonts
 						},
 					},
-					type: ''
+					type: '-'
 					// automargin: true,
 				},
 				font: {
@@ -6477,8 +5263,8 @@ function graphic() {
 					},
 				},
 				legend: {
-					x: parhst[ppt].slegposx,
-					y: parhst[ppt].slegposy,
+					x: slegposx,
+					y: slegposy,
 					font: {
 						family: 'courier',
 						color: parhst[ppt].fgcolor,
@@ -6486,33 +5272,11 @@ function graphic() {
 					},
 				},
 			};
-			
-			if (parhst[ppt].shxtick ) {
-			  slayout.margin.b = 150;
-		  } else {
-		    slayout.margin.b = 50;
-		  }
-		  
-			if (parhst[ppt].shytick ) {
-			  slayout.margin.l = 100;
-		  } else {
-		    slayout.margin.l = 50;
-		  }
-		  
-			if (parhst[ppt].shztick ) {
-			  slayout.margin.r = 100;
-		  } else {
-		    slayout.margin.r = 50;
-		  }
 
 			if (tickf !== "") slayout.xaxis.tickformat = tickf;
 
 			sdata = [];
 			var tt = 0;
-			var zz = 0;
-			
-			zdat = [];
-			
 
 			n = 0;
 			for (i = 0; i < sdat.length; i++) {
@@ -6524,25 +5288,27 @@ function graphic() {
 					mode: chmode,
 					type: chtype,
 					stackgroup: sgroup0,
-					showlegend: parhst[ppt].legend,
+					showlegend: true,
 					marker: {
 						size: parhst[ppt].dtsize,
-						color: hexToRgbA(parhst[ppt].ptcolor,parhst[ppt].opaci),
+						color: parhst[ppt].ptcolor
 					},
 					fill: filmod,
 					name: '',
 					line: {
-						color: hexToRgbA(parhst[ppt].ptcolor,parhst[ppt].opaci),
+						color: parhst[ppt].ptcolor,
 						width: lnsize,
 						shape: parhst[ppt].sshape
 					},
 				};
 
-				stackn.marker.color = stackn.line.color = stackn.fillcolor = hexToRgbA(rgbint(i, sdat.length - 1),parhst[ppt].opaci);
+				stackn.marker.color = stackn.line.color = rgbint(i, sdat.length - 1);
 
 				var sx = [];
 				var sy = [];
-				var sz = [];
+
+				rel = vdat.length / (parhst[ppt].maxpnt * sdat.length);
+				if (rel < 1) rel = 1;
 
 				ind = 0;
 				n = 0;
@@ -6552,22 +5318,12 @@ function graphic() {
 					if (vdat[ind].s == sdat[i].s) {
 						sx[nn] = vdat[ind].x;
 						sy[nn] = vdat[ind].y1 + vdat[ind].y2 + vdat[ind].y3 + vdat[ind].y4;
-						
-						zdat[zz] = {
-							x: vdat[ind].x, // X-Values
-							z: vdat[ind].z  // Z-Values
-			      };
-						
-				    // zstack.x[zz] = vdat[ind].x;
-				    // zstack.y[zz] = vdat[ind].z;
-				    
 						if (vdat[ind].x >= hstmin && vdat[ind].x <= hstmax) {
 							strace3.x[tt] = vdat[ind].x;
 							strace3.y[tt] = average;
 							tt += 1;
 						}
 						nn++;
-						zz++;
 						n = n + rel;
 					} else {
 						n = n + 1;
@@ -6584,59 +5340,7 @@ function graphic() {
 				sdata.push(stackn);
 				tp += stackn.x.length;
 			}
-			
-      // 2nd Y-Axis
-      if (parhst[ppt].selz1 != "") {
-      
-        if (parhst[ppt].zavg != 1) {
-          for (z = 0; z < zdat.length; z++) {
 
-              var zavg = 0; var zcnt = 0;
-              var s = z - parhst[ppt].zavg; if (s < 0) s = 0;
-              var e = z + parhst[ppt].zavg; if (e > zdat.length) e = zdat.length;
-              for (var a = s; a < e; a++) {
-                zavg = zavg + zdat[a].z;
-                zcnt++;
-              }
-              zdat[z].z= zavg / zcnt;
-          }
-        }
-      
-				// sort ZDAT by x values (numeric or text)
-				zdat.sort(function(a, b) {
-					var t1 = a.x,
-						  t2 = b.x;
-					return t1 < t2 ? -1 : t1 > t2 ? 1 : 0;
-				});
-				
-				// aggregate data
-				var tdat = [];
-				var z = 0;
-				var t = 0;
-	      for (z = 0; z < zdat.length; z++) {
-	        if (z > 0 && tdat[t].x == zdat[z].x ) {
-	          tdat[t].z += zdat[z].z;
-	        } else {
-	          if (z > 0) {
-	            t += 1;
-	          }
-	          tdat[t]= zdat[z];
-	        }
-	      }
-	      zdat = tdat;
-	      tdat = null;
-	      
-	      // copy to ZSTACK
-	      zz = 0;
-	      for (z = 0; z < zdat.length; z++) {
-	        zstack.x[zz] = zdat[z].x;
-				  zstack.y[zz] = zdat[z].z;   
-				  zz++; 
-	      }
-        
-        sdata.push(zstack);
-      }
-      
 			// average
 			if (parhst[ppt].showhist) {
 				sdata.push(strace3);
@@ -6666,11 +5370,7 @@ function graphic() {
 				(header[x1][1] == "d" && header[x2][1] == "t" && parhst[ppt].selx3 == "")) {
 				slayout.xaxis.type = '';
 			} else {
-			  if (header[x1][1] == "n" && parhst[ppt].selx2 == "" ) {
-			    slayout.xaxis.type = '-';
-			  } else {
-			    slayout.xaxis.type = 'category';
-			  }
+				slayout.xaxis.type = 'category';
 			}
 
 			slayout.title.text = "<b>Data: ";
@@ -6708,12 +5408,6 @@ function graphic() {
 				slayout.yaxis.dtick = "";
 				slayout.yaxis.range = [Math.log10(ymin), Math.log10(ymax)];
 			}
-			if (parhst[ppt].zlogdis) {
-				slayout.yaxis2.type = "log";
-				slayout.yaxis2.dtick = "";
-				slayout.yaxis2.range = [Math.log10(zmin), Math.log10(zmax)];
-			}
-
 			tmptl = slayout.title.text;
 
 			// Create graphics 
@@ -6726,31 +5420,11 @@ function graphic() {
 				});
 			} catch (err) {}
 
-		} else // Normal Graphic (Line / Bar / Scatter / Area) +++++++++++++++++++++++++++++++
+		} else // Normal Graphic (Line / Bar / Scatter / Area)
 		{
 			// plot every n'th point 
-			rel = 1;
-			
-			// Calculate X-Axis Range (Date/Time) or Index in VDAT
-			var xtype = true;
-			if ( !isNaN(x1) ) xtype = xtype && ( header[x1][1] == 't' || header[x1][1] == 'd' );
-			if ( !isNaN(x2) ) xtype = xtype && ( header[x2][1] == 't' || header[x2][1] == 'd' );
-			if ( !isNaN(x3) ) xtype = xtype && ( header[x3][1] == 't' || header[x3][1] == 'd' );
-			if ( !isNaN(x4) ) xtype = xtype && ( header[x4][1] == 't' || header[x4][1] == 'd' );
-			
-			if (isNaN(xmin) && xtype == false ) {
-			  debugger;
-			  var txmin = 0;
-			  var txmax = vdat.length;
-			  for (n = 0; n < vdat.length; n++) {
-			    if ( vdat[n].x > xmin) { txmin = n; break; }
-			  }
-			  for (n = vdat.length -1; n > 0; n--) {
-			    if ( vdat[n].x < xmax) { txmax = n; break; }
-			  }
-			  xmin = Math.trunc(txmin);
-			  xmax = Math.trunc(txmax);
-			}
+			rel = vdat.length / parhst[ppt].maxpnt;
+			if (rel < 1) rel = 1;
 
 			slayout = {
 				paper_bgcolor: parhst[ppt].chcolor,
@@ -6777,23 +5451,12 @@ function graphic() {
 					tickfont: {
 						size: parhst[ppt].tfonts
 					},
-					showticklabels: parhst[ppt].shytick,
 					type: "",
 					autorange: false,
 					gridcolor: parhst[ppt].grcolor
 				},
 				yaxis2: {
-				  range: [zmin, zmax],
-					title: '',
-					overlaying: 'y',
-					showgrid: false,
-					tickfont: {
-						size: parhst[ppt].tfonts
-					},
-					showticklabels: parhst[ppt].shztick,
-					type: "",
-					// autorange: true,
-					side: 'right'
+					gridcolor: parhst[ppt].grcolor
 				},
 				xaxis: {
 					range: [xmin, xmax],
@@ -6803,7 +5466,6 @@ function graphic() {
 						size: parhst[ppt].tfonts
 					},
 					dtick: parhst[ppt].xdtick,
-					showticklabels: parhst[ppt].shxtick,
 					title: {
 						text: "",
 						font: {
@@ -6824,8 +5486,8 @@ function graphic() {
 					},
 				},
 				legend: {
-					x: parhst[ppt].mlegposx,
-					y: parhst[ppt].mlegposy,
+					x: mlegposx,
+					y: mlegposy,
 					font: {
 						family: 'courier',
 						color: parhst[ppt].fgcolor,
@@ -6833,24 +5495,6 @@ function graphic() {
 					},
 				},
 			};
-			
-			if (parhst[ppt].shxtick ) {
-			  slayout.margin.b = 150;
-		  } else {
-		    slayout.margin.b = 50;
-		  }
-		  
-			if (parhst[ppt].shytick ) {
-			  slayout.margin.l = 100;
-		  } else {
-		    slayout.margin.l = 50;
-		  }
-		  
-			if (parhst[ppt].shztick ) {
-			  slayout.margin.r = 100;
-		  } else {
-		    slayout.margin.r = 50;
-		  }
 
 			if (tickf !== "") slayout.xaxis.tickformat = tickf;
 			// set axis category
@@ -6861,12 +5505,7 @@ function graphic() {
 				(header[x1][1] == "d" && header[x2][1] == "t" && parhst[ppt].selx3 == "")) {
 				slayout.xaxis.type = '';
 			} else {
-			  if (header[x1][1] == "n" && parhst[ppt].selx2 == "" ) {
-			    slayout.xaxis.type = '-';
-			  } else {
-			    slayout.xaxis.type = 'category';
-			  }
-				
+				slayout.xaxis.type = 'category';
 			}
 
 			if (parhst[ppt].sely1 != "") slayout.title.text += " " + header[y1][0];
@@ -6891,22 +5530,17 @@ function graphic() {
 				stack4.showlegend = false;
 			}
 
-			
 			slayout.title.text += "  -  File: " + fname;
 			if (parhst[ppt].gtitle !== "") slayout.title.text = parhst[ppt].gtitle;
 			if (parhst[ppt].xtitle !== "") slayout.xaxis.title.text = parhst[ppt].xtitle;
 			if (parhst[ppt].ytitle !== "") slayout.yaxis.title.text = parhst[ppt].ytitle;
 
-      if (parhst[ppt].selz1 == "") sdata = [stack1, stack2, stack3, stack4, strace1, strace2, strace3];
-      if (parhst[ppt].selz1 != "") sdata = [stack1, stack2, stack3, stack4, strace1, strace2, strace3, zstack];
+			sdata = [stack1, stack2, stack3, stack4, strace1, strace2, strace3];
 
-      nn = 0;
 			for (n = 0; n < vdat.length; n = n + rel) {
 				ind = Math.trunc(n);
 				stack1.x[nn] = vdat[ind].x;
 				stack1.y[nn] = vdat[ind].y1;
-				zstack.x[nn] = vdat[ind].x;
-				zstack.y[nn] = vdat[ind].z;
 				if (parhst[ppt].stsel != 'ADD') {
 					if (parhst[ppt].sely2 != "") {
 						stack2.x[nn] = vdat[ind].x;
@@ -6928,22 +5562,6 @@ function graphic() {
 				}
 				nn++;
 			}
-			
-			if (parhst[ppt].zavg != 1) {
-				for (z = 0; z < zstack.x.length; z++) {
-
-						var zavg = 0; var zcnt = 0;
-            var s = z - parhst[ppt].zavg; if (s < 0) s = 0;
-            var e = z + parhst[ppt].zavg; if (e > zstack.x.length) e = zstack.x.length;
-            for (var a = s; a < e; a++) {
-							zavg = zavg + zstack.y[a];
-							zcnt++;
-						}
-						zstack.y[z] = zavg / zcnt;
-
-				}
-			}
-			
 			// histogram minimum
 			if (parhst[ppt].showhist) {
 				strace1.x[0] = hstmin;
@@ -6972,11 +5590,6 @@ function graphic() {
 				slayout.yaxis.type = "log";
 				slayout.yaxis.dtick = "";
 				slayout.yaxis.range = [Math.log10(ymin), Math.log10(ymax)];
-			}
-			if (parhst[ppt].zlogdis) {
-				slayout.yaxis2.type = "log";
-				slayout.yaxis2.dtick = "";
-				slayout.yaxis2.range = [Math.log10(zmin), Math.log10(zmax)];
 			}
 			tmptl = slayout.title.text;
 
@@ -7208,19 +5821,6 @@ function graphic() {
 	}
 }
 
-function hexToRgbA(hex,opacity){
-    var c;
-    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
-        c= hex.substring(1).split('');
-        if(c.length== 3){
-            c= [c[0], c[0], c[1], c[1], c[2], c[2]];
-        }
-        c= '0x'+c.join('');
-        return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+',' + opacity + ')';
-    }
-    return hex;
-}
-
 // round values up/down
 function roundscale(value, mode = 'floor') {
 	var sig = Math.sign(value);
@@ -7242,11 +5842,10 @@ function roundscale(value, mode = 'floor') {
 
 // handle scale/zoom event
 function scaleaxishist(eventdata) {
-  addhist();
 	//if (parhst[ppt].logdis) return;
 	var tmp = JSON.parse(JSON.stringify(eventdata), function(key, value) {
-		if (key == "legend.x") parhst[ppt].hlegposx = value;
-		if (key == "legend.y") parhst[ppt].hlegposy = value;
+		if (key == "legend.x") hlegposx = value;
+		if (key == "legend.y") hlegposy = value;
 		// console.log("Key:" + key + " Value:" + value);
 	});
 	parameters();
@@ -7256,40 +5855,29 @@ function scaleaxishist(eventdata) {
 
 // handle scale/zoom event
 function scaleaxis(eventdata) {
-  // addhist();
 	var x0 = "";
 	var x1 = "";
 	var y0 = "";
 	var y1 = "";
-	var z0 = "";
-	var z1 = "";
 	//if (parhst[ppt].logdis) return;
 	var tmp = JSON.parse(JSON.stringify(eventdata), function(key, value) {
 		if (key == "xaxis.range[0]") x0 = value;
 		if (key == "xaxis.range[1]") x1 = value;
 		if (key == "yaxis.range[0]") y0 = value;
 		if (key == "yaxis.range[1]") y1 = value;
-		if (key == "yaxis2.range[0]") z0 = value;
-		if (key == "yaxis2.range[1]") z1 = value;
-		
-		if (key == "xaxis.title.text") { parhst[ppt].xtitle = prompt("Enter Title for X-Axis:", value); return; }
-		if (key == "yaxis.title.text") { parhst[ppt].ytitle = prompt("Enter Title for Y-Axis:", value); return; }
-		if (key == "title.text") 	     { parhst[ppt].gtitle = prompt("Enter Chart Title:", value); return; }
-
 		if (parhst[ppt].vstack == "") {
-			if (key == "legend.x") parhst[ppt].mlegposx = value;
-			if (key == "legend.y") parhst[ppt].mlegposy = value;
+			if (key == "legend.x") mlegposx = value;
+			if (key == "legend.y") mlegposy = value;
 			return;
 		} else {
-			if (key == "legend.x") parhst[ppt].slegposx = value;
-			if (key == "legend.y") parhst[ppt].slegposy = value;
+			if (key == "legend.x") slegposx = value;
+			if (key == "legend.y") slegposy = value;
 			return;
 		}
 
 		// console.log("Key:" + key + " Value:" + value);
 	});
-	
-	if (JSON.stringify(eventdata).includes("xaxis.range") ) {
+	if (JSON.stringify(eventdata).includes("xaxis")) {
 		try {
 			// scale
 			xmin = x0;
@@ -7306,8 +5894,48 @@ function scaleaxis(eventdata) {
 				xmax = vdat[Math.trunc(xmax)].x;
 			}
 
-			parhst[ppt].xinpmin = xmin;
-			parhst[ppt].xinpmax = xmax;
+			var val0;
+			var valt0 = "@";
+			var val1;
+			var valt1 = "@";
+
+			if (isNaN(x0)) {
+				val0 = x0;
+				val1 = x1;
+				for (var n = 0; n < vdat.length; n++) {
+					// try {
+					// 	if ( val0.includes( vdat[n].x.trim() ) ) { 
+					// 		val0 = vdat[n].x; valt0 = '' + val0;
+					// 	} } catch (err) { debugger; }
+					// try {
+					// 	if ( val1.includes( vdat[n].x.trim() ) ) {
+					// 		val1 = vdat[n].x; valt1 = '' + val1;
+					// 	} } catch (err) { debugger; }
+					if (x0.trim() >= vdat[n].x.trim()) {
+						val0 = vdat[n].x;
+						valt0 = '' + val0;
+					}
+					if (x1.trim() <= vdat[n].x.trim()) {
+						val1 = vdat[n].x;
+						valt1 = '' + val1;
+						break;
+					}
+				}
+			} else {
+				var vals = evdata.xaxes[0]._vals;
+				val0 = vals[0];
+				valt0 = val0.text;
+				val1 = vals[vals.length - 1];
+				valt1 = val1.text;
+			}
+			if (isNaN(val0)) valt0 = valt0.replace(/\<br\>.+/, '');
+			if (isNaN(val1)) valt1 = valt1.replace(/\<br\>.+/, '');
+
+			addhist();
+			if (valt0 == "@") valt0 = vdat[0].x;
+			if (valt1 == "@") valt1 = vdat[vdat.length - 1].x;
+			parhst[ppt].xinpmin = xmin = valt0;
+			parhst[ppt].xinpmax = xmax = valt1;
 			document.getElementById("IDXMIN").value = xmin;
 			document.getElementById("IDXMAX").value = xmax;
 			if (parhst[ppt].hstinpmin < parhst[ppt].xinpmin) parhst[ppt].hstinpmin = parhst[ppt].xinpmin;
@@ -7320,7 +5948,7 @@ function scaleaxis(eventdata) {
 			return;
 		}
 	}
-	if (JSON.stringify(eventdata).includes("yaxis.range") ) {
+	if (JSON.stringify(eventdata).includes("yaxis")) {
 		try {
 			// scale
 			var tmin = parseFloat(y0);
@@ -7358,48 +5986,6 @@ function scaleaxis(eventdata) {
 			parhst[ppt].ytmin = "" + ymin;
 			document.getElementById("IDYTMIN").value = parhst[ppt].ytmin;
 			document.getElementById("IDYTMAX").value = parhst[ppt].ytmax;
-		} catch (err) {
-			return;
-		}
-	}
-	if (JSON.stringify(eventdata).includes("yaxis2.range") ) {
-		try {
-			// scale
-			var tmin = parseFloat(z0);
-			var tmax = parseFloat(z1);
-
-			if (isNaN(tmin) || isNaN(tmax)) {
-				return;
-			}
-
-			var sig = Math.sign(tmax);
-			if (sig == -1) {
-				tmax = sig * parseFloat(tmp[0][1]);
-				tmin = sig * parseFloat(tmp[1][1]);
-			}
-
-			tmin = roundscale(tmin, 'floor');
-			tmax = tmax - tmin;
-			tmax = roundscale(tmax, 'ceil') + tmin;
-
-			if (sig == -1) {
-				zmin = sig * tmax;
-				zmax = sig * tmin;
-			} else {
-				zmin = tmin;
-				zmax = tmax;
-			}
-			addhist();
-
-			if (parhst[ppt].logdis) {
-				zmax = Math.pow(10, zmax).toPrecision(6);
-				zmin = Math.pow(10, zmin).toPrecision(6);
-			}
-
-			parhst[ppt].ztmax = "" + zmax;
-			parhst[ppt].ztmin = "" + zmin;
-			document.getElementById("IDZTMIN").value = parhst[ppt].ztmin;
-			document.getElementById("IDZTMAX").value = parhst[ppt].ztmax;
 		} catch (err) {
 			return;
 		}
@@ -7550,7 +6136,7 @@ function BuildInit() {
 	// Color
 	document.body.style.backgroundColor = parhst[ppt].bgcolor;
 	// SAP Logo
-	document.getElementById('IDload').innerHTML = "" + SAPlogo(100, 50) + " " + document.getElementById('IDload').innerHTML + "<small><font style='color:teal'> Column Separator: <input id='IDsep' oninput='getsep()' onchange='getsep()' type='text' maxlength='1' size='1' name='colsep' value='" + colsep + "'> (enter <b>S</B> for space; <B>t</B> for tab - all others are build in:<B> \|;,tab/ </B>)</font></small>";
+	document.getElementById('IDload').innerHTML = "" + SAPlogo(100, 50) + " " + document.getElementById('IDload').innerHTML + "<small><font style='color:teal'> Column Separator: <input id='IDsep' oninput='getsep()' onchange='getsep()' type='text' maxlength='1' size='1' name='colsep' value='" + colsep + "'> (enter <b>S</B> for space; build in:<B> \|;,tab/ </B>)</font></small>";
 	if (decpnt == '.') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1,023,045<font style='color:red;font-size:16px;'><b>.</b></font>06</span></small>";
 	if (decpnt == ',') document.getElementById('IDload').innerHTML += "  <small><span id='IDdecnot' title='click to set decimal notation' onmouseover='decsi()' onmouseout='decpt()' onclick='decnot()'>Dec.Notation: 1.023.045<font style='color:red;font-size:16px;'><b>,</b></font>06</span></small>";
 	document.getElementById('IDload').innerHTML += "  <small><font style='color:steelblue'><span onclick='selchk(event)'><i><b>check to preview data</b></i> </span><input id='IDcheckpreview' type='checkbox' style='width:12px; height:12px; margin:0px;'></small></small>";
