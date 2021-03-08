@@ -5168,18 +5168,6 @@ function LoadData() {
 			}
 		}
 
-		// check if x-Values are between XMIN and XMAX
-////		if (isNaN(valx)) {
-////		  if (parhst[ppt].xinpmin != "" && parhst[ppt].xinpmax != "") {
-////		 	  if ( valx.trim() < parhst[ppt].xinpmin.trim() || valx.trim() > parhst[ppt].xinpmax.trim() ) continue;
-////      }
-////		} else {
-////		  if (parhst[ppt].xinpmin != "" && parhst[ppt].xinpmax != "") {
-////		 	  if ( valx < parhst[ppt].xinpmin || valx > parhst[ppt].xinpmax ) continue;
-////      }
-////		}
-
-
 		// apply parhst[ppt].filter(s)
 		if (parhst[ppt].selfx !== "") {
 			
