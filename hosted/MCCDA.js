@@ -3653,9 +3653,9 @@ function parameters() {
 	
 
 	if (autohide) {
-		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
-	} else {
 		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Show</i></small></a> ";
+	} else {
+		htmlcont += " <a href='#' id='IDautohide' onclick='toggleautohide()'><small><i>Hide</i></small></a> ";
 	}
 	
 	htmlcont += " <a href='#' title='Help & Documentation' onclick='check4update()'><small><i>Help</i></small></a>  ";
@@ -3982,11 +3982,11 @@ function toggleautohide(){
 	// show/hide menu
 	if (autohide) {
 		autohide = false;
-		document.getElementById("IDautohide").innerHTML = "<small><i>Show</i></small>";
+		document.getElementById("IDautohide").innerHTML = "<small><i>Hide</i></small>";
 		sheight = 0.75;
 	} else {
 		autohide = true;
-		document.getElementById("IDautohide").innerHTML = "<small><i>Hide</i></small>";
+		document.getElementById("IDautohide").innerHTML = "<small><i>Show</i></small>";
 		sheight = 0.90;
 	}
 }
@@ -5570,6 +5570,7 @@ function CalcHistogram() {
 	var ts = 0;
 	var te = 0;
 
+  // build histogram table
 	for (n = 0; n < 101; n++) {
 		hstx = n / 100 * (parseFloat(ymax) - parseFloat(ymin));
 
@@ -5624,6 +5625,7 @@ function CalcHistogram() {
 			pos = n;
 		}
 	}
+	// pval used to determine lengt of 2nd x-axis of histogram
 	pval = pval * 1.2;
 
 	// Peak Width (sigma) 
@@ -5777,11 +5779,9 @@ function CalcAverage() {
 				adat[ind].c = 0;
 			}
 		} catch (err) {}
-
 		vdat = adat;
 		adat = null;
 	}
-
 }
 
 
@@ -5992,14 +5992,10 @@ function showhistogram() {
 			}
 		}
 
-		t2 = t2 / tt * 100;
-		var tt2 = "" + t2.toFixed(0);
-		t3 = t3 / tt * 100;
-		var tt3 = "" + t3.toFixed(0);
-		t4 = t4 / tt * 100;
-		var tt4 = "" + t4.toFixed(0);
-		t5 = t5 / tt * 100;
-		var tt5 = "" + t5.toFixed(0);
+		t2 = t2 / tt * 100; var tt2 = "" + t2.toFixed(0);
+		t3 = t3 / tt * 100; var tt3 = "" + t3.toFixed(0);
+		t4 = t4 / tt * 100; var tt4 = "" + t4.toFixed(0);
+		t5 = t5 / tt * 100; var tt5 = "" + t5.toFixed(0);
 		trace2.name = '< ' + parhst[ppt].colsc[0][0] + ' - ' + tt2 + ' %';
 		trace3.name = '< ' + parhst[ppt].colsc[1][0] + ' - ' + tt3 + ' %';
 		trace4.name = '< ' + parhst[ppt].colsc[2][0] + ' - ' + tt4 + ' %';
@@ -6171,8 +6167,6 @@ function graphic() {
 
 		// parhst[ppt].showhistogram
 		showhistogram();
-		
-		var ind = 0;
 		
 		// reduce VDAT to max number of points
 		ReduceDataPoints();
@@ -6544,11 +6538,11 @@ function graphic() {
 				var sy = [];
 				var sz = [];
 
-				ind = 0;
+				var ind = 0;
 				n = 0;
 
 				while (true) {
-					ind = Math.trunc(n);
+					ind = n;
 					if (vdat[ind].s == sdat[i].s) {
 						sx[nn] = vdat[ind].x;
 						sy[nn] = vdat[ind].y1 + vdat[ind].y2 + vdat[ind].y3 + vdat[ind].y4;
@@ -6568,7 +6562,7 @@ function graphic() {
 						}
 						nn++;
 						zz++;
-						n = n + rel;
+						n = n + 1;
 					} else {
 						n = n + 1;
 					}
@@ -6901,8 +6895,8 @@ function graphic() {
       if (parhst[ppt].selz1 != "") sdata = [stack1, stack2, stack3, stack4, strace1, strace2, strace3, zstack];
 
       nn = 0;
-			for (n = 0; n < vdat.length; n = n + rel) {
-				ind = Math.trunc(n);
+			for (n = 0; n < vdat.length; n = n + 1) {
+				ind = n;
 				stack1.x[nn] = vdat[ind].x;
 				stack1.y[nn] = vdat[ind].y1;
 				zstack.x[nn] = vdat[ind].x;
