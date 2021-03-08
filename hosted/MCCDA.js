@@ -1785,6 +1785,54 @@ function FinishFiles() {
 		}
 	}
 	
+	// Check if NMON file
+	if (findhdr("Host") && findhdr("CPU User") && findhdr("LPAR PhysicalCPU") ) {
+	  var multiplehost = false;
+		findhdr("Host");
+		for (var n = 1; n < data.length; n++ ) {
+			if ( data[n][hdrpos] != data[n-1][hdrpos] ) {
+				multiplehost = true;
+				break;
+			}
+		}
+	  if (multiplehost) {
+			parhst[ppt].selx1 = hdrpos;
+			parhst[ppt].vstack = hdrpos;
+			findhdr("Date"); parhst[ppt].selx2 = hdrpos;
+			findhdr("Time"); parhst[ppt].selx3 = hdrpos;
+	  } else {
+	    var multipledates = false;
+		  findhdr("Date");
+		  for (var n = 1; n < data.length; n++ ) {
+			  if ( data[n][hdrpos] != data[n-1][hdrpos] ) {
+				  multipledates = true;
+				  break;
+			  }
+		  }
+			if (multipledates) {
+			  parhst[ppt].selx1 = hdrpos;
+			  parhst[ppt].vstack = hdrpos;
+			  parhst[ppt].xdtick = 86400000;
+			  findhdr("Time"); parhst[ppt].selx2 = hdrpos;
+			} else {
+				findhdr("Time"); parhst[ppt].selx1 = hdrpos;
+				parhst[ppt].selx2 = "";
+			}
+	  }
+
+	  parhst[ppt].grtype = 'area';
+	  parhst[ppt].dtsize = 1;
+		if (findhdr("MEM Real free(MB)")) {
+			parhst[ppt].sndyaxis = true;
+			parhst[ppt].selz1 = hdrpos;
+			parhst[ppt].zavg = 5;
+			parhst[ppt].grztype = 'area';
+			parhst[ppt].pzcolor = '#AAAAAA';
+			parhst[ppt].ztsize = 1;
+			parhst[ppt].zopac = 0.25;
+		}
+	}
+	
 	if (dprev) {
 		preview();
 	} else {
