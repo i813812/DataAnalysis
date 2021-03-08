@@ -1786,7 +1786,7 @@ function FinishFiles() {
 	}
 	
 	// Check if NMON file
-	if (findhdr("Host") && findhdr("CPU User") && findhdr("LPAR PhysicalCPU") ) {
+	if (findhdr("Host") && findhdr("Machine") && findhdr("Processor") ) {
 	  var multiplehost = false;
 		findhdr("Host");
 		for (var n = 1; n < data.length; n++ ) {
@@ -1823,6 +1823,15 @@ function FinishFiles() {
 	  parhst[ppt].grtype = 'area';
 	  parhst[ppt].dtsize = 1;
 		if (findhdr("MEM Real free(MB)")) {
+			parhst[ppt].sndyaxis = true;
+			parhst[ppt].selz1 = hdrpos;
+			parhst[ppt].zavg = 5;
+			parhst[ppt].grztype = 'area';
+			parhst[ppt].pzcolor = '#AAAAAA';
+			parhst[ppt].ztsize = 1;
+			parhst[ppt].zopac = 0.25;
+		}
+		if (findhdr("MEM memfree")) {
 			parhst[ppt].sndyaxis = true;
 			parhst[ppt].selz1 = hdrpos;
 			parhst[ppt].zavg = 5;

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>AMApplicationBuild</key>
-	<string>492</string>
+	<string>509</string>
 	<key>AMApplicationVersion</key>
 	<string>2.10</string>
 	<key>AMDocumentVersion</key>
@@ -63,13 +63,10 @@
 cat ./DA.BEGIN.TXT &gt;./Data.Analysis.offline.HTML;
 cat ../hosted/MCCDA.js &gt;&gt;./Data.Analysis.offline.HTML;
 cat ./DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
-curl -O https://cdn.plot.ly/plotly-latest.min.js;
 cat ./plotly-latest.min.js &gt;&gt;./Data.Analysis.offline.HTML;
 cat ./DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
-curl -O https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.6/xlsx.full.min.js;
 cat ./xlsx.full.min.js &gt;&gt;./Data.Analysis.offline.HTML;
 cat ./DA.SCRIPT.TXT &gt;&gt;./Data.Analysis.offline.HTML;
-curl -O https://raw.githubusercontent.com/Stuk/jszip/master/dist/jszip.min.js;
 cat ./jszip.min.js &gt;&gt;./Data.Analysis.offline.HTML;
 cat ./DA.FOOTER.TXT &gt;&gt;./Data.Analysis.offline.HTML;</string>
 					<key>CheckedForUserDefaultShell</key>
@@ -184,7 +181,7 @@ cat ./DA.FOOTER.TXT &gt;&gt;./Data.Analysis.offline.HTML;</string>
 				<key>isViewVisible</key>
 				<true/>
 				<key>location</key>
-				<string>309.000000:517.000000</string>
+				<string>526.000000:486.000000</string>
 				<key>nibPath</key>
 				<string>/System/Library/Automator/Run Shell Script.action/Contents/Resources/Base.lproj/main.nib</string>
 			</dict>
